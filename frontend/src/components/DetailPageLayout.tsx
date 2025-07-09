@@ -1,0 +1,208 @@
+import React from "react"
+import { useNavigate } from "react-router-dom"
+import { ArrowLeft, Edit, Save, X, Trash2, Calendar, Clock } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+
+interface DetailPageLayoutProps {
+  title: string
+  subtitle?: string
+  backRoute: string
+  entityName: string
+  loading: boolean
+  editMode: boolean
+  saving: boolean
+  deleteDialogOpen: boolean
+  onEdit: () => void
+  onSave: () => Promise<void>
+  onCancel: () => void
+  onDelete: () => void
+  onDeleteConfirm: () => Promise<void>
+  setDeleteDialogOpen: (open: boolean) => void
+  data: any
+  mainContent: React.ReactNode
+  sidebarContent?: React.ReactNode
+  created_at?: string
+  updated_at?: string
+}
+
+export function DetailPageLayout(props: DetailPageLayoutProps) {
+  const navigate = useNavigate()
+  const {
+    title,
+    subtitle,
+    backRoute,
+    entityName,
+    loading,
+    editMode,
+    saving,
+    deleteDialogOpen,
+    onEdit,
+    onSave,
+    onCancel,
+    onDelete,
+    onDeleteConfirm,
+    setDeleteDialogOpen,
+    data,
+    mainContent,
+    sidebarContent,
+    created_at,
+    updated_at,
+  } = props
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-64 bg-gray-200 rounded mb-4"></div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!data) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{entityName} Not Found</h1>
+          <p className="text-gray-600 mb-4">The {entityName.toLowerCase()} you're looking for doesn't exist.</p>
+          <Button onClick={() => navigate(backRoute)}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to {entityName}s
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="container mx-auto p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(backRoute)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
+            {subtitle && <p className="text-gray-600">{subtitle}</p>}
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {editMode ? (
+            <>
+              <Button onClick={onSave} disabled={saving}>
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? "Saving..." : "Save"}
+              </Button>
+              <Button variant="outline" onClick={onCancel}>
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={onEdit}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+              <Button variant="destructive" onClick={onDelete}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          {mainContent}
+        </div>
+
+        <div className="space-y-6">
+          {sidebarContent}
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Timeline
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {created_at && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    Created
+                  </div>
+                  <p className="text-sm">
+                    {new Date(created_at).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+              )}
+              {updated_at && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    Last Updated
+                  </div>
+                  <p className="text-sm">
+                    {new Date(updated_at).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the {entityName.toLowerCase()}.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={onDeleteConfirm} variant="destructive">
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+} 
