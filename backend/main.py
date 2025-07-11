@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from datetime import timedelta
+from datetime import timedelta, datetime
 import requests
 import os
 from dotenv import load_dotenv
@@ -13,13 +13,14 @@ from middleware import require_admin, require_manager_or_admin, require_staff_or
 load_dotenv()
 
 from database import engine, get_db
-from models import Base, User, Component, Location, Project, Staff
+from models import Base, User, Component, Location, Project, Staff, Bill
 from schemas import (
     UserCreate, User as UserSchema, LoginRequest, LoginResponse,
     ComponentCreate, ComponentUpdate, Component as ComponentSchema,
     LocationCreate, LocationUpdate, Location as LocationSchema,
     ProjectCreate, ProjectUpdate, Project as ProjectSchema,
     StaffCreate, StaffUpdate, Staff as StaffSchema,
+    BillCreate, BillUpdate, Bill as BillSchema, BillApproval,
     UserList, UserApproval
 )
 from auth import (
@@ -71,6 +72,20 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Check if user is pending approval
+    if user.role == 'pending':
+        # Still allow login but return a special response indicating pending status
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.username}, expires_delta=access_token_expires
+        )
+        
+        return LoginResponse(
+            access_token=access_token,
+            token_type="bearer",
+            user=UserSchema.from_orm(user)
         )
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -719,4 +734,197 @@ def delete_user(
         raise HTTPException(status_code=400, detail="Cannot delete your own account")
     db.delete(user)
     db.commit()
-    return {"message": f"User {user.full_name} deleted successfully"} 
+    return {"message": f"User {user.full_name} deleted successfully"}
+
+# Bill endpoints
+@app.get("/api/bills/stats")
+@require_staff_or_above
+def get_bill_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    """Get bill statistics"""
+    total_bills = db.query(Bill).count()
+    pending_bills = db.query(Bill).filter(Bill.status == "pending").count()
+    approved_bills = db.query(Bill).filter(Bill.status == "approved").count()
+    total_amount = db.query(Bill.amount).filter(Bill.status == "approved").all()
+    total_amount = sum([amount[0] for amount in total_amount]) if total_amount else 0
+    
+    return {
+        "total_bills": total_bills,
+        "pending_bills": pending_bills,
+        "approved_bills": approved_bills,
+        "total_amount": total_amount
+    }
+
+@app.get("/api/bills/categories")
+@require_staff_or_above
+def get_bill_categories(db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    """Get all bill categories"""
+    categories = db.query(Bill.category).distinct().all()
+    return [category[0] for category in categories]
+
+@app.get("/api/bills/vendors")
+@require_staff_or_above
+def get_bill_vendors(db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    """Get all bill vendors"""
+    vendors = db.query(Bill.vendor).distinct().all()
+    return [vendor[0] for vendor in vendors]
+
+@app.get("/api/bills/statuses")
+@require_staff_or_above
+def get_bill_statuses(db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    """Get all bill statuses"""
+    return ["pending", "approved", "rejected", "paid"]
+
+@app.get("/api/bills", response_model=list[BillSchema])
+@require_staff_or_above
+def get_bills(
+    skip: int = 0,
+    limit: int = 100,
+    search: str = None,
+    status: str = None,
+    category: str = None,
+    vendor: str = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get all bills with optional filtering"""
+    query = db.query(Bill)
+    
+    if search:
+        query = query.filter(
+            Bill.title.ilike(f"%{search}%") |
+            Bill.vendor.ilike(f"%{search}%") |
+            Bill.description.ilike(f"%{search}%")
+        )
+    
+    if status:
+        query = query.filter(Bill.status == status)
+    
+    if category:
+        query = query.filter(Bill.category == category)
+    
+    if vendor:
+        query = query.filter(Bill.vendor.ilike(f"%{vendor}%"))
+    
+    # If user is not admin, only show their own bills or approved bills
+    if current_user.role not in ['admin', 'manager']:
+        query = query.filter(
+            (Bill.uploaded_by == current_user.id) | 
+            (Bill.status == 'approved')
+        )
+    
+    bills = query.order_by(Bill.created_at.desc()).offset(skip).limit(limit).all()
+    return bills
+
+@app.get("/api/bills/{bill_id}", response_model=BillSchema)
+@require_staff_or_above
+def get_bill(
+    bill_id: int, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get a specific bill"""
+    bill = db.query(Bill).filter(Bill.id == bill_id).first()
+    if not bill:
+        raise HTTPException(status_code=404, detail="Bill not found")
+    
+    # Check if user has permission to view this bill
+    if current_user.role not in ['admin', 'manager'] and bill.uploaded_by != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to view this bill")
+    
+    return bill
+
+@app.post("/api/bills", response_model=BillSchema)
+@require_staff_or_above
+def create_bill(
+    bill: BillCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Create a new bill"""
+    # For now, we'll create a placeholder file path
+    # In a real implementation, you'd handle file upload here
+    db_bill = Bill(
+        **bill.dict(),
+        uploaded_by=current_user.id,
+        file_path="/uploads/placeholder.pdf",  # This would be set after file upload
+        file_name="placeholder.pdf",
+        file_size=0,
+        file_type="application/pdf"
+    )
+    
+    db.add(db_bill)
+    db.commit()
+    db.refresh(db_bill)
+    return db_bill
+
+@app.put("/api/bills/{bill_id}", response_model=BillSchema)
+@require_staff_or_above
+def update_bill(
+    bill_id: int,
+    bill_update: BillUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Update a bill"""
+    bill = db.query(Bill).filter(Bill.id == bill_id).first()
+    if not bill:
+        raise HTTPException(status_code=404, detail="Bill not found")
+    
+    # Check if user has permission to update this bill
+    if current_user.role not in ['admin', 'manager'] and bill.uploaded_by != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this bill")
+    
+    # Only allow updates if bill is not approved
+    if bill.status == 'approved':
+        raise HTTPException(status_code=400, detail="Cannot update approved bill")
+    
+    update_data = bill_update.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(bill, field, value)
+    
+    db.commit()
+    db.refresh(bill)
+    return bill
+
+@app.delete("/api/bills/{bill_id}")
+@require_manager_or_admin
+def delete_bill(
+    bill_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Delete a bill (managers and admins only)"""
+    bill = db.query(Bill).filter(Bill.id == bill_id).first()
+    if not bill:
+        raise HTTPException(status_code=404, detail="Bill not found")
+    
+    db.delete(bill)
+    db.commit()
+    return {"message": "Bill deleted successfully"}
+
+@app.put("/api/bills/{bill_id}/approve")
+@require_manager_or_admin
+def approve_bill(
+    bill_id: int,
+    approval_data: BillApproval,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Approve or reject a bill (managers and admins only)"""
+    bill = db.query(Bill).filter(Bill.id == bill_id).first()
+    if not bill:
+        raise HTTPException(status_code=404, detail="Bill not found")
+    
+    bill.status = approval_data.status
+    bill.approved_by = current_user.id
+    bill.approved_at = datetime.utcnow()
+    if approval_data.notes:
+        bill.notes = approval_data.notes
+    
+    db.commit()
+    db.refresh(bill)
+    
+    return {
+        "message": f"Bill {approval_data.status} successfully",
+        "bill": BillSchema.from_orm(bill)
+    } 

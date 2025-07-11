@@ -5,16 +5,17 @@ import { useState, useMemo, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { BaseLayout } from "../components/BaseLayout"
 import { UnifiedHeader } from "../components/UnifiedHeader"
-import EmptyState from "../components/ui/EmptyState"
-import SearchAndFilter from "../components/ui/SearchAndFilter"
 import { Card, CardContent } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
-import { motion, AnimatePresence } from "framer-motion"
-import { ExternalLink, MapPin, FolderOpen, Hash, User, Package } from "lucide-react"
+import { motion} from "framer-motion"
+import { MapPin, FolderOpen, Hash, Package, MoreHorizontal, Edit, Trash2 } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 import { componentStatusConfig } from "../utils/statusColors"
+import { RoleBasedComponent, ManagerOrAdmin } from "../components/RoleBasedComponent"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../components/ui/dropdown-menu"
+import SearchFilterTabs from "../components/SearchFilterTabs"
+import { apiService } from "../services/api"
 
 interface TableData {
   id: number
@@ -32,8 +33,6 @@ interface TableData {
   updated_at?: string
 }
 
-
-
 const Components: React.FC = () => {
   const { token } = useAuth()
   const navigate = useNavigate()
@@ -45,73 +44,64 @@ const Components: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [activeTab, setActiveTab] = useState<string>("all")
 
   // Fetch components from backend
   useEffect(() => {
     const fetchComponents = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/components", {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const data = await apiService.get("/components", token || undefined) as TableData[]
+
+        // Add hardcoded items with different owners
+        const hardcodedItems: TableData[] = [
+          {
+            id: 1001,
+            name: "DJI Mavic 3 Pro",
+            category: "Drones",
+            status: "Active",
+            location: "Headquarters",
+            project: "Aerial Survey",
+            owner: "PSSL",
+            description: "Professional drone for aerial photography and mapping",
+            serial_number: "DJIM3P-PSSL-001",
+            purchase_date: "2024-01-15",
+            warranty_expiry: "2026-01-15",
+            created_at: "2024-01-15T10:00:00Z",
+            updated_at: "2024-01-15T10:00:00Z",
           },
-        })
+          {
+            id: 1002,
+            name: "Thermal Imaging Camera",
+            category: "Sensors",
+            status: "Idle",
+            location: "Branch Office A",
+            project: "Search and Rescue",
+            owner: "IIDT",
+            description: "High-resolution thermal imaging camera for night operations",
+            serial_number: "THCAM-IIDT-002",
+            purchase_date: "2024-02-20",
+            warranty_expiry: "2026-02-20",
+            created_at: "2024-02-20T14:30:00Z",
+            updated_at: "2024-02-20T14:30:00Z",
+          },
+          {
+            id: 1003,
+            name: "RTK GPS Module",
+            category: "Navigation",
+            status: "Active",
+            location: "Data Center",
+            project: "Precision Agriculture",
+            owner: "IIDT",
+            description: "Real-time kinematic GPS for centimeter accuracy positioning",
+            serial_number: "RTKGPS-IIDT-003",
+            purchase_date: "2024-03-10",
+            warranty_expiry: "2026-03-10",
+            created_at: "2024-03-10T09:15:00Z",
+            updated_at: "2024-03-10T09:15:00Z",
+          },
+        ]
 
-        if (response.ok) {
-          const data = await response.json()
-
-          // Add hardcoded items with different owners
-          const hardcodedItems: TableData[] = [
-            {
-              id: 1001,
-              name: "DJI Mavic 3 Pro",
-              category: "Drones",
-              status: "Active",
-              location: "Headquarters",
-              project: "Aerial Survey",
-              owner: "PSSL",
-              description: "Professional drone for aerial photography and mapping",
-              serial_number: "DJIM3P-PSSL-001",
-              purchase_date: "2024-01-15",
-              warranty_expiry: "2026-01-15",
-              created_at: "2024-01-15T10:00:00Z",
-              updated_at: "2024-01-15T10:00:00Z",
-            },
-            {
-              id: 1002,
-              name: "Thermal Imaging Camera",
-              category: "Sensors",
-              status: "Idle",
-              location: "Branch Office A",
-              project: "Search and Rescue",
-              owner: "IIDT",
-              description: "High-resolution thermal imaging camera for night operations",
-              serial_number: "THCAM-IIDT-002",
-              purchase_date: "2024-02-20",
-              warranty_expiry: "2026-02-20",
-              created_at: "2024-02-20T14:30:00Z",
-              updated_at: "2024-02-20T14:30:00Z",
-            },
-            {
-              id: 1003,
-              name: "RTK GPS Module",
-              category: "Navigation",
-              status: "Active",
-              location: "Data Center",
-              project: "Precision Agriculture",
-              owner: "IIDT",
-              description: "Real-time kinematic GPS for centimeter accuracy positioning",
-              serial_number: "RTKGPS-IIDT-003",
-              purchase_date: "2024-03-10",
-              warranty_expiry: "2026-03-10",
-              created_at: "2024-03-10T09:15:00Z",
-              updated_at: "2024-03-10T09:15:00Z",
-            },
-          ]
-
-          setComponents([...data, ...hardcodedItems])
-        } else {
-          setError("Failed to fetch components")
-        }
+        setComponents([...data, ...hardcodedItems])
       } catch (err) {
         setError("Network error")
       } finally {
@@ -158,6 +148,12 @@ const Components: React.FC = () => {
 
   const handleAdd = () => alert("Add Item clicked")
   const handleExport = () => alert("Export clicked")
+  const handleEdit = (id: number) => {
+    alert(`Edit item ${id}`)
+  }
+  const handleDelete = (id: number) => {
+    alert(`Delete item ${id}`)
+  }
 
   const ComponentCard = ({ item }: { item: TableData }) => (
     <motion.div
@@ -168,7 +164,7 @@ const Components: React.FC = () => {
       transition={{ duration: 0.2 }}
     >
       <Card className="group hover:shadow-lg transition-all duration-200 border-0 shadow-sm hover:shadow-md">
-        <CardContent className="p-6">
+        <CardContent className="p-6 cursor-pointer" onClick={() => navigate(`/components/${item.id}`)}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <h3 className="font-semibold text-lg text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
@@ -178,14 +174,37 @@ const Components: React.FC = () => {
                 {item.description || "No description available"}
               </p>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(`/components/${item.id}`)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="focus:!ring-0"
             >
-              <ExternalLink className="w-4 h-4" />
+                  <MoreHorizontal className="w-4 h-4" />
             </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-white">
+                <ManagerOrAdmin>
+                  <DropdownMenuItem className="cursor-pointer" onClick={(e) => {
+                    e.preventDefault()
+                    handleEdit(item.id)
+                  }}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                </ManagerOrAdmin>
+                <RoleBasedComponent allowedRoles={['admin']}>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.preventDefault()
+                    handleDelete(item.id)
+                  }} className="text-red-600">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </RoleBasedComponent>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div className="space-y-3">
@@ -270,14 +289,37 @@ const Components: React.FC = () => {
                 </div>
               </div>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(`/components/${item.id}`)}
               className="opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <ExternalLink className="w-4 h-4" />
+                  <MoreHorizontal className="w-4 h-4" />
             </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <ManagerOrAdmin>
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation()
+                    handleEdit(item.id)
+                  }}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                </ManagerOrAdmin>
+                <RoleBasedComponent allowedRoles={['admin']}>
+                  <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={(e) => {
+                    e.preventDefault()
+                    handleDelete(item.id)
+                  }}>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </RoleBasedComponent>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardContent>
       </Card>
@@ -302,20 +344,18 @@ const Components: React.FC = () => {
 
   return (
     <BaseLayout className="p-8">
-      <div className="flex flex-col gap-6 max-w-7xl mx-auto">
-        {/* Header */}
+          <div className="flex flex-col gap-6 max-w-7xl mx-auto">
+            {/* Header */}
         <UnifiedHeader
-          title="Components"
-          onAdd={handleAdd}
-          onExport={handleExport}
-          addLabel="Add Component"
-          exportLabel="Export"
-          onBack={() => window.history.back()}
-          backLabel="Back"
-        />
+              title="Components"
+              onAdd={handleAdd}
+              onExport={handleExport}
+              addLabel="Add Component"
+              exportLabel="Export"
+            />
 
-        {/* Search and Filters */}
-        <SearchAndFilter
+            {/* Search and Filters */}
+        <SearchFilterTabs
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder="Search components, projects, locations..."
@@ -344,79 +384,32 @@ const Components: React.FC = () => {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           showViewToggle={true}
+          owners={owners}
+          groupedByOwner={groupedByOwner}
+          renderGridItem={(item) => <ComponentCard key={item.id} item={item} />}
+          renderListItem={(item) => <ComponentListItem key={item.id} item={item} />}
+          emptyStateIcon={<Package className="w-12 h-12 text-gray-400" />}
+          emptyStateTitle="No components found"
+          emptyStateDescription={
+            search || selectedCategory !== "all" || selectedStatus !== "all"
+              ? "Try adjusting your search or filters"
+              : `No components available for this owner`
+          }
+          gridCols="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           totalCount={components.length}
           filteredCount={filteredComponents.length}
           itemLabel="components"
+          allItems={filteredComponents}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
           onClearFilters={() => {
-            setSearch("")
-            setSelectedOwner("all")
-            setSelectedCategory("all")
-            setSelectedStatus("all")
-          }}
-          hasActiveFilters={!!(search || selectedOwner !== "all" || selectedCategory !== "all" || selectedStatus !== "all")}
+                        setSearch("")
+                        setSelectedOwner("all")
+                        setSelectedCategory("all")
+                        setSelectedStatus("all")
+                        setActiveTab("all")
+                      }}
         />
-
-        {/* Owner Tabs */}
-        <Tabs defaultValue={owners[0]} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 gap-1 h-auto p-1 bg-gray-100">
-            {owners.map((owner) => (
-              <TabsTrigger
-                key={owner}
-                value={owner}
-                className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                <User className="w-4 h-4" />
-                <span className="font-medium">{owner}</span>
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {groupedByOwner[owner]?.length || 0}
-                </Badge>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          {owners.map((owner) => (
-            <TabsContent key={owner} value={owner} className="mt-6">
-              <AnimatePresence mode="wait">
-                {groupedByOwner[owner] && groupedByOwner[owner].length > 0 ? (
-                  <motion.div
-                    key={`${owner}-${viewMode}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {viewMode === "grid" ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {groupedByOwner[owner]!.map((item) => (
-                          <ComponentCard key={item.id} item={item} />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {groupedByOwner[owner]!.map((item) => (
-                          <ComponentListItem key={item.id} item={item} />
-                        ))}
-                      </div>
-                    )}
-                  </motion.div>
-                ) : (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    <EmptyState
-                      icon={<Package className="w-12 h-12 text-gray-400" />}
-                      title="No components found"
-                      description={
-                        search || selectedCategory !== "all" || selectedStatus !== "all"
-                          ? "Try adjusting your search or filters"
-                          : `No components available for ${owner}`
-                      }
-                      action={<Button onClick={handleAdd}>Add Component</Button>}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </TabsContent>
-          ))}
-        </Tabs>
       </div>
     </BaseLayout>
   )

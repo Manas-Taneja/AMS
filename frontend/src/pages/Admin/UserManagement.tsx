@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import { AdminOnly } from "../../components/RoleBasedComponent"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -9,9 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import EmptyState from "../../components/ui/EmptyState"
-import SearchAndFilter from "../../components/ui/SearchAndFilter"
+import SearchFilterTabs from "../../components/SearchFilterTabs"
 import { User, CheckCircle, Clock, Shield,AlertCircle } from "lucide-react"
 import { userStatusConfig, userRoleConfig } from "../../utils/statusColors"
+import { 
+  fadeInUpVariants, 
+  containerVariants, 
+  itemVariants,
+  cardVariants 
+} from "@/utils/animations"
 
 interface UserData {
   id: number
@@ -253,63 +260,86 @@ const UserManagement: React.FC = () => {
 
   return (
     <AdminOnly>
-      <div className="p-8 space-y-8 max-w-7xl mx-auto">
+      <motion.div 
+        className="p-8 space-y-8 max-w-7xl mx-auto"
+        variants={containerVariants}
+        initial="initial"
+        animate="in"
+      >
         {/* Header */}
-        <div className="space-y-2">
+        <motion.div 
+          className="space-y-2"
+          variants={fadeInUpVariants}
+          initial="initial"
+          animate="in"
+        >
           <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
           <p className="text-muted-foreground">Manage user accounts, roles, and permissions across your organization</p>
-        </div>
+        </motion.div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-2">
-                <User className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-                  <p className="text-2xl font-bold">{users.length}</p>
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-4 gap-4"
+          variants={containerVariants}
+          initial="initial"
+          animate="in"
+        >
+          <motion.div variants={itemVariants}>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-2">
+                  <User className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Users</p>
+                    <p className="text-2xl font-bold">{users.length}</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-2">
-                <Clock className="h-5 w-5 text-yellow-600" />
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Pending</p>
-                  <p className="text-2xl font-bold">{pendingUsers.length}</p>
+          <motion.div variants={itemVariants}>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-5 w-5 text-yellow-600" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Pending</p>
+                    <p className="text-2xl font-bold">{pendingUsers.length}</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Active</p>
-                  <p className="text-2xl font-bold">{users.filter((u) => u.is_active).length}</p>
+          <motion.div variants={itemVariants}>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Active</p>
+                    <p className="text-2xl font-bold">{users.filter((u) => u.is_active).length}</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5 text-red-600" />
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Admins</p>
-                  <p className="text-2xl font-bold">{users.filter((u) => u.role === "admin").length}</p>
+          <motion.div variants={itemVariants}>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-2">
+                  <Shield className="h-5 w-5 text-red-600" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Admins</p>
+                    <p className="text-2xl font-bold">{users.filter((u) => u.role === "admin").length}</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
 
         {/* Pending Users */}
         {pendingUsers.length > 0 && (
@@ -377,7 +407,7 @@ const UserManagement: React.FC = () => {
                 <span>All Users ({filteredUsers.length})</span>
               </CardTitle>
 
-              <SearchAndFilter
+              <SearchFilterTabs
                 searchValue={searchTerm}
                 onSearchChange={setSearchTerm}
                 searchPlaceholder="Search users..."
@@ -396,6 +426,16 @@ const UserManagement: React.FC = () => {
                     onValueChange: setRoleFilter
                   }
                 ]}
+                viewMode="list"
+                onViewModeChange={() => {}}
+                owners={["All"]}
+                groupedByOwner={{ All: filteredUsers }}
+                renderGridItem={() => null}
+                renderListItem={() => null}
+                emptyStateIcon={null}
+                emptyStateTitle=""
+                emptyStateDescription=""
+                gridCols=""
                 totalCount={users.length}
                 filteredCount={filteredUsers.length}
                 itemLabel="users"
@@ -403,8 +443,8 @@ const UserManagement: React.FC = () => {
                   setSearchTerm("")
                   setRoleFilter("all")
                 }}
-                hasActiveFilters={!!(searchTerm || roleFilter !== "all")}
                 className="w-full sm:w-auto"
+                allItems={filteredUsers}
               />
             </div>
           </CardHeader>
@@ -472,7 +512,7 @@ const UserManagement: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     </AdminOnly>
   )
 }

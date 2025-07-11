@@ -19,7 +19,7 @@ const PendingApproval: React.FC = () => {
         <CardContent className="space-y-4">
           <Alert>
             <AlertDescription>
-              Welcome, {user?.full_name}! Your account is currently pending approval from an administrator.
+              Welcome, {user?.username}! Your account is currently pending approval from an administrator.
             </AlertDescription>
           </Alert>
           

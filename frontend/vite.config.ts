@@ -10,4 +10,13 @@ export default defineConfig({
       { find: '@', replacement: '/src' },
     ],
   },
+  server: {
+    host: true,
+    allowedHosts: [
+      '9f63408b1446.ngrok-free.app'
+    ],
+    proxy: {
+      '/api': 'http://localhost:8000',
+    },
+  },
 })

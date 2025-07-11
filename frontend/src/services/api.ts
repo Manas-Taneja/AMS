@@ -10,8 +10,10 @@ export interface ApiError {
   details?: any;
 }
 
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
+
 class ApiService {
-  private baseUrl = 'http://localhost:8000/api';
+  private baseUrl = API_BASE_URL;
 
   private async request<T>(
     endpoint: string,

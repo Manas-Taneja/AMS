@@ -12,7 +12,7 @@ import {
   SidebarHeader,
   SidebarProvider,
 } from "./sidebar";
-import { Home, Users, Package, Target, MapPinned, LogOut, Settings, GraduationCap } from "lucide-react";
+import { Home, Users, Package, Target, MapPinned, LogOut, Settings, GraduationCap, Receipt } from "lucide-react";
 
 const items = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -20,6 +20,7 @@ const items = [
   { title: "Team", url: "/staff", icon: Users },
   { title: "Projects", url: "/projects", icon: Target },
   { title: "Items", url: "/components", icon: Package },
+  { title: "Bills", url: "/bills", icon: Receipt },
   { title: "Training", url: "/training", icon: GraduationCap },
   { title: "Users", url: "/users", icon: Users }
 ];
@@ -27,7 +28,7 @@ const items = [
 export function AppSidebar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { logout} = useAuth();
+  const { logout, user } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -47,7 +48,17 @@ export function AppSidebar() {
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {items.map((item) => (
+                  {items
+                    .filter(item => {
+                      if (item.title === "Users") {
+                        return user && (user.role === "admin" || user.is_superuser)
+                      }
+                      if (item.title === "Projects" || item.title === "Training") {
+                        return user && (user.role === "manager" || user.role === "admin" || user.is_superuser)
+                      }
+                      return true
+                    })
+                    .map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
                         <a

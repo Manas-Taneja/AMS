@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { apiService } from "../services/api";
 
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
@@ -24,13 +25,8 @@ const AuthCallback: React.FC = () => {
 
     if (token && userId) {
       // Get user info from backend
-      fetch(`http://localhost:8000/api/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((response) => response.json())
-        .then((userData) => {
+      apiService.get('/auth/me', token)
+        .then((userData: any) => {
           // Ensure userData has the role field
           const userWithRole = {
             ...userData,

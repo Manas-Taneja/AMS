@@ -1,5 +1,3 @@
-import type { UnifiedTableColumn } from "../components/UnifiedTable";
-
 export type StaffListMember = {
   id: number;
   name: string;
@@ -20,15 +18,6 @@ export const staffData: StaffListMember[] = [
   { id: 6, name: "Frank Green", designation: "Accountant", skills: ["Cost Analysis", "Procurement"], location: "Chicago", availability: "Available", project: "Fleet Expansion", company: "IIDT" },
   { id: 7, name: "Grace White", designation: "Engineer", skills: ["FPV", "Telemetry"], location: "Remote", availability: "In Transit", project: "Aerial Survey", company: "Prakhar Aviation" },
   { id: 8, name: "Henry Black", designation: "Engineer", skills: ["Battery Management", "Flight Control"], location: "Remote", availability: "Available", project: "Crop Monitoring", company: "Prakhar Aviation" },
-];
-
-export const columns: UnifiedTableColumn<StaffListMember>[] = [
-  { key: "name", label: "Name" },
-  { key: "designation", label: "Designation" },
-  { key: "skills", label: "Skills" },
-  { key: "location", label: "Location" },
-  { key: "project", label: "Project" },
-  { key: "availability", label: "Availability" },
 ];
 
 export const allDesignations = Array.from(new Set(staffData.map(item => item.designation)));

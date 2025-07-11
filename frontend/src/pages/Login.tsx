@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
+import { apiService } from "../services/api";
+import { 
+  fadeInUpVariants, 
+  scaleVariants, 
+  buttonVariants 
+} from "@/utils/animations";
 // import { GoogleLogin } from '@react-oauth/google';
 // import { useAuth } from '../context/AuthContext';
 // import { Alert } from '../components/Alert';
@@ -52,24 +59,19 @@ const Login: React.FC = () => {
 
     if (token && userId) {
       // Get user info from backend
-      fetch(`http://localhost:8000/api/auth/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      .then(response => response.json())
-      .then(userData => {
-        // Ensure userData has the role field
-        const userWithRole = {
-          ...userData,
-          role: userData.role || 'pending'  // Fallback to 'pending' if role is missing
-        };
-        login(token, userWithRole);
-        navigate(from, { replace: true });
-      })
-      .catch(err => {
-        setError('Failed to get user information.');
-      });
+      apiService.get('/auth/me', token)
+        .then((userData: any) => {
+          // Ensure userData has the role field
+          const userWithRole = {
+            ...userData,
+            role: userData.role || 'pending'  // Fallback to 'pending' if role is missing
+          };
+          login(token, userWithRole);
+          navigate(from, { replace: true });
+        })
+        .catch(err => {
+          setError('Failed to get user information.');
+        });
     }
   }, [location.search, login, navigate, from]);
 
@@ -87,26 +89,13 @@ const Login: React.FC = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        const data: LoginResponse = await response.json();
-        
-        // Use the auth context to login
-        login(data.access_token, data.user);
-        
-        // Redirect to the intended destination or dashboard
-        navigate(from, { replace: true });
-      } else {
-        const errorData = await response.json();
-        setError(errorData.detail || "Login failed");
-      }
+      const data: LoginResponse = await apiService.post("/auth/login", formData);
+      
+      // Use the auth context to login
+      login(data.access_token, data.user);
+      
+      // Redirect to the intended destination or dashboard
+      navigate(from, { replace: true });
     } catch (err) {
       setError("Network error. Please try again.");
     } finally {
@@ -116,16 +105,32 @@ const Login: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="p-8 bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="text-center mb-8">
+      <motion.div 
+        className="p-8 bg-white rounded-lg shadow-xl w-full max-w-md"
+        variants={scaleVariants}
+        initial="initial"
+        animate="in"
+      >
+        <motion.div 
+          className="text-center mb-8"
+          variants={fadeInUpVariants}
+          initial="initial"
+          animate="in"
+        >
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">Sign in to your account</p>
-        </div>
+        </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <motion.form 
+          onSubmit={handleSubmit} 
+          className="space-y-6"
+          variants={fadeInUpVariants}
+          initial="initial"
+          animate="in"
+        >
           {/* {error && <Alert type="error" message={error} />} */}
 
-          <div>
+          <motion.div variants={fadeInUpVariants}>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
               Username
             </label>
@@ -139,9 +144,9 @@ const Login: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter your username"
             />
-          </div>
+          </motion.div>
 
-          <div>
+          <motion.div variants={fadeInUpVariants}>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
               Password
             </label>
@@ -155,29 +160,38 @@ const Login: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter your password"
             />
-          </div>
+          </motion.div>
 
-          <button
+          <motion.button
             type="submit"
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
           >
             {loading ? "Signing in..." : "Sign In"}
-          </button>
+          </motion.button>
 
-          <div className="relative my-6">
+          <motion.div 
+            className="relative my-6"
+            variants={fadeInUpVariants}
+          >
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-white text-gray-500">Or continue with</span>
             </div>
-          </div>
-          <div>
-            <button
+          </motion.div>
+          <motion.div variants={fadeInUpVariants}>
+            <motion.button
               type="button"
-              onClick={() => window.location.href = 'http://localhost:8000/auth/google'}
+              onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`}
               className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
             >
               <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                 <path
@@ -186,11 +200,16 @@ const Login: React.FC = () => {
                 />
               </svg>
               Sign in with Google
-            </button>
-          </div>
-        </form>
+            </motion.button>
+          </motion.div>
+        </motion.form>
 
-        <div className="mt-6 text-center">
+        <motion.div 
+          className="mt-6 text-center"
+          variants={fadeInUpVariants}
+          initial="initial"
+          animate="in"
+        >
           <p className="text-sm text-gray-600">
             Demo credentials:
           </p>
@@ -199,8 +218,8 @@ const Login: React.FC = () => {
             <p>User: username: user, password: user123</p>
             <p>Manager: username: manager, password: manager123</p>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };

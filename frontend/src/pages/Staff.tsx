@@ -41,7 +41,12 @@ import { useForm, validationRules } from "../hooks/useForm"
 import { useModal } from "../hooks/useModal"
 import { StatusBadge } from "../components/StatusBadge"
 import { getStatusConfig, departmentConfig } from "../config/statusConfig"
-import SearchAndFilter from "../components/ui/SearchAndFilter"
+import SearchFilterTabs from "../components/SearchFilterTabs"
+import { AnimatePresence, motion } from "framer-motion"
+import { RoleBasedComponent, ManagerOrAdmin } from "../components/RoleBasedComponent"
+import { StatsCards } from "../components/StatsCards"
+import { EntityModal } from "../components/EntityModal"
+import type { FieldConfig } from "../components/EntityModal"
 
 interface StaffMember {
   id: number;
@@ -92,23 +97,24 @@ export default function TeamMembersPage() {
   // Modal management
   const addModal = useModal();
   const [editMode, setEditMode] = useState(false);
+  const [editInitialValues, setEditInitialValues] = useState<any>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   
   // Form management
   const form = useForm<StaffFormData>({
     initialData: {
-      name: "",
-      email: "",
-      phone: "",
-      designation: "",
-      department: "",
-      company: "",
-      location: "",
-      status: "active",
-      skills: "",
-      experience: "",
-      joinDate: "",
-      reportsTo: "",
+    name: "",
+    email: "",
+    phone: "",
+    designation: "",
+    department: "",
+    company: "",
+    location: "",
+    status: "active",
+    skills: "",
+    experience: "",
+    joinDate: "",
+    reportsTo: "",
       
     },
     validationRules: [
@@ -176,29 +182,46 @@ export default function TeamMembersPage() {
     };
   };
 
-  const handleAddStaff = () => {
-    setEditMode(false);
-    setEditingId(null);
-    form.reset();
+  const handleAddStaff = async (data: any) => {
+    await create({
+      ...data,
+      skills: data.skills ? data.skills.split(",").map((s: string) => s.trim()) : [],
+    });
+    addModal.close();
+    refetch();
+  };
+
+  const onEditStaff = (id: number) => {
+    const member = staff.find(m => m.id === id);
+    if (!member) return;
+    setEditMode(true);
+    setEditInitialValues({
+      name: member.name,
+      email: member.email,
+      phone: member.phone,
+      designation: member.designation,
+      department: member.department,
+      company: member.company,
+      location: member.location,
+      status: member.status,
+      skills: member.skills.join(', '),
+      experience: member.experience,
+      joinDate: member.joinDate,
+      reportsTo: member.reportsTo,
+    });
     addModal.open();
   };
 
-  const handleEditStaff = (id: number) => {
-    const member = staff.find(m => m.id === id);
-    if (member) {
-      setEditMode(true);
-      setEditingId(id);
-      form.reset();
-      // Set form data
-      Object.entries(member).forEach(([key, value]) => {
-        if (key === 'skills') {
-          form.setFieldValue('skills', Array.isArray(value) ? value.join(', ') : value);
-        } else {
-          form.setFieldValue(key as keyof StaffFormData, value as string);
-        }
-      });
-      addModal.open();
-    }
+  const handleEditStaff = async (data: any) => {
+    await update(editingId!, {
+      ...data,
+      skills: data.skills ? data.skills.split(",").map((s: string) => s.trim()) : [],
+    });
+    addModal.close();
+    setEditMode(false);
+    setEditInitialValues(null);
+    setEditingId(null);
+    refetch();
   };
 
   const handleDeleteStaff = async (id: number) => {
@@ -235,6 +258,139 @@ export default function TeamMembersPage() {
   const statusOptions = getStatusConfig('staff');
   const departmentOptions = departmentConfig;
 
+  // For owner tabs
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [activeTab, setActiveTab] = useState<string>("all");
+  const owners = companies;
+  const groupedByOwner = useMemo(() => {
+    const map: Record<string, StaffMember[]> = {};
+    owners.forEach((owner) => {
+      map[owner] = filteredMembers.filter((member) => member.company === owner);
+    });
+    return map;
+  }, [owners, filteredMembers]);
+
+  // StaffCard and StaffListItem
+  const StaffCard = ({ member }: { member: StaffMember }) => (
+    <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.2 }}>
+      <Card className="group hover:shadow-lg transition-all duration-200 border-0 shadow-sm hover:shadow-md">
+        <CardContent className="p-6 cursor-pointer" onClick={() => navigate(`/staff/${member.id}`)}>
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <Avatar>
+                <AvatarImage src={member.avatar} />
+                <AvatarFallback>{member.initials}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h4 className="font-medium text-gray-900">{member.name}</h4>
+                <p className="text-sm text-gray-600">{member.designation}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <StatusBadge type="staff" value={member.status} />
+                  <Badge variant="outline" className="text-xs">{member.department}</Badge>
+                </div>
+              </div>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="focus:!ring-0">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-white">
+                <ManagerOrAdmin>
+                  <DropdownMenuItem className="cursor-pointer" onClick={(e) => {e.stopPropagation(); onEditStaff(member.id)}}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                </ManagerOrAdmin>
+                <RoleBasedComponent allowedRoles={['admin']}>
+                  <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleDeleteStaff(member.id)} } className="text-red-600 cursor-pointer">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </RoleBasedComponent>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="mt-3 space-y-1">
+            <div className="flex items-center text-sm text-gray-600">
+              <Mail className="h-3 w-3 mr-2" />
+              {member.email}
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <Phone className="h-3 w-3 mr-2" />
+              {member.phone}
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <MapPin className="h-3 w-3 mr-2" />
+              {member.location}
+            </div>
+          </div>
+          <div className="mt-3 flex items-center justify-between text-sm">
+            <span className="text-gray-600">{member.currentProjects} active projects</span>
+            <span className="text-gray-600">{member.completedTasks} completed tasks</span>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const StaffListItem = ({ member }: { member: StaffMember }) => (
+    <motion.div layout initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+      <Card className="group hover:shadow-sm transition-all duration-200 border-0 shadow-none hover:bg-gray-50">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 flex-1">
+              <Avatar>
+                <AvatarImage src={member.avatar} />
+                <AvatarFallback>{member.initials}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h4 className="font-medium text-gray-900">{member.name}</h4>
+                  <StatusBadge type="staff" value={member.status} />
+                  <Badge variant="outline" className="text-xs">{member.department}</Badge>
+                </div>
+                <div className="flex items-center gap-6 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Mail className="h-3 w-3 mr-2" />
+                    {member.email}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Phone className="h-3 w-3 mr-2" />
+                    {member.phone}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3 mr-2" />
+                    {member.location}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => navigate(`/staff/${member.id}`)} className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <Eye className="w-4 h-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const staffFields: FieldConfig[] = [
+    { name: "name", label: "Name", type: "text", required: true },
+    { name: "email", label: "Email", type: "text", required: true },
+    { name: "phone", label: "Phone", type: "text" },
+    { name: "designation", label: "Designation", type: "text" },
+    { name: "department", label: "Department", type: "select", required: true, options: departmentOptions },
+    { name: "company", label: "Company", type: "text" },
+    { name: "location", label: "Location", type: "text" },
+    { name: "status", label: "Status", type: "select", options: statusOptions },
+    { name: "skills", label: "Skills (comma-separated)", type: "text" },
+    { name: "experience", label: "Experience", type: "text" },
+    { name: "joinDate", label: "Join Date", type: "date" },
+    { name: "reportsTo", label: "Reports To", type: "text" },
+  ];
+
   if (loading) {
     return (
       <BaseLayout>
@@ -259,65 +415,54 @@ export default function TeamMembersPage() {
   }
 
   return (
-    <BaseLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Team Members</h1>
+    <BaseLayout className="p-6">
+          <div className="max-w-7xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Team Members</h1>
             <p className="text-gray-600 mt-1">Manage your team members and their information</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button onClick={handleAddStaff}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Member
-            </Button>
-          </div>
-        </div>
+              </div>
+          <div className="flex items-center gap-3">
+            <RoleBasedComponent allowedRoles={['admin']}>
+              <Button variant="outline" onClick={handleExport}>
+                <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              <Button onClick={() => {
+                  setEditMode(false);
+                setEditingId(null);
+                form.reset();
+                addModal.open();
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Member
+                </Button>
+            </RoleBasedComponent>
+              </div>
+            </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Users className="h-8 w-8 text-blue-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Members</p>
-                  <p className="text-2xl font-bold text-gray-900">{totalMembers}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Users className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Active Members</p>
-                  <p className="text-2xl font-bold text-gray-900">{activeMembers}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Building className="h-8 w-8 text-purple-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Companies</p>
-                  <p className="text-2xl font-bold text-gray-900">{companies.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <StatsCards 
+          cards={[
+            {
+              icon: <Users className="h-8 w-8 text-blue-600" />,
+              label: "Total Members",
+              value: totalMembers,
+              bgClass: "bg-blue-100"
+            },
+            {
+              icon: <Users className="h-8 w-8 text-green-600" />,
+              label: "Active Members", 
+              value: activeMembers,
+              bgClass: "bg-green-100"
+            }
+          ]}
+          gridCols="grid grid-cols-2 gap-4"
+        />
 
         {/* Search and Filters (Unified) */}
-        <SearchAndFilter
+        <SearchFilterTabs
           searchValue={searchTerm}
           onSearchChange={setSearchTerm}
           searchPlaceholder="Search members, skills, or departments..."
@@ -341,296 +486,46 @@ export default function TeamMembersPage() {
                 ...departmentOptions.map((dept) => ({ value: dept.value, label: dept.label }))
               ],
               onValueChange: setDepartmentFilter
-            },
-            {
-              key: "company",
-              label: "Company",
-              value: companyFilter,
-              options: [
-                { value: "all", label: "All Companies" },
-                ...companies.map((company) => ({ value: company, label: company }))
-              ],
-              onValueChange: setCompanyFilter
             }
           ]}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          showViewToggle={true}
+          owners={owners}
+          groupedByOwner={groupedByOwner}
+          renderGridItem={(member) => <StaffCard key={member.id} member={member} />}
+          renderListItem={(member) => <StaffListItem key={member.id} member={member} />}
+          emptyStateIcon={<Users className="h-12 w-12 text-gray-400" />}
+          emptyStateTitle="No team members found"
+          emptyStateDescription="Try adjusting your search or filters to find what you're looking for."
+          gridCols="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           totalCount={staff.length}
           filteredCount={filteredMembers.length}
           itemLabel="members"
+          allItems={filteredMembers}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
           onClearFilters={() => {
             setSearchTerm("");
             setStatusFilter("all");
             setDepartmentFilter("all");
             setCompanyFilter("all");
+            setActiveTab("all");
           }}
-          hasActiveFilters={
-            !!(
-              searchTerm ||
-              statusFilter !== "all" ||
-              departmentFilter !== "all" ||
-              companyFilter !== "all"
-            )
-          }
         />
-
-        {/* Results */}
-        {filteredMembers.length === 0 ? (
-          <EmptyState
-            icon={<Users className="h-12 w-12 text-gray-400" />}
-            title="No team members found"
-            description="Try adjusting your search or filters to find what you're looking for."
-          />
-        ) : (
-          <div className="space-y-6">
-            {Object.entries(groupedMembers).map(([company, members]) => (
-              <Card key={company}>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{company}</h3>
-                      <p className="text-sm text-gray-600">
-                        {getCompanyStats(company).total} members • {getCompanyStats(company).active} active
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {members.map((member) => (
-                      <div
-                        key={member.id}
-                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center space-x-3">
-                            <Avatar>
-                              <AvatarImage src={member.avatar} />
-                              <AvatarFallback>{member.initials}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h4 className="font-medium text-gray-900">{member.name}</h4>
-                              <p className="text-sm text-gray-600">{member.designation}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <StatusBadge type="staff" value={member.status} />
-                                <Badge variant="outline" className="text-xs">
-                                  {member.department}
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => navigate(`/staff/${member.id}`)}>
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEditStaff(member.id)}>
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteStaff(member.id)}
-                                className="text-red-600"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                        <div className="mt-3 space-y-1">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Mail className="h-3 w-3 mr-2" />
-                            {member.email}
-                          </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Phone className="h-3 w-3 mr-2" />
-                            {member.phone}
-                          </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <MapPin className="h-3 w-3 mr-2" />
-                            {member.location}
-                          </div>
-                        </div>
-                        <div className="mt-3 flex items-center justify-between text-sm">
-                          <span className="text-gray-600">
-                            {member.currentProjects} active projects
-                          </span>
-                          <span className="text-gray-600">
-                            {member.completedTasks} completed tasks
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Add/Edit Modal */}
-      <Dialog open={addModal.isOpen} onOpenChange={open => { if (!open) addModal.close(); }}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {editMode ? "Edit Staff Member" : "Add New Staff Member"}
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={form.handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name">Name *</Label>
-                <ShadInput
-                  id="name"
-                  value={form.data.name}
-                  onChange={(e) => form.setFieldValue('name', e.target.value)}
-                  placeholder="Enter full name"
-                />
-                {form.errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{form.errors.name}</p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="email">Email *</Label>
-                <ShadInput
-                  id="email"
-                  type="email"
-                  value={form.data.email}
-                  onChange={(e) => form.setFieldValue('email', e.target.value)}
-                  placeholder="Enter email address"
-                />
-                {form.errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{form.errors.email}</p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="phone">Phone</Label>
-                <ShadInput
-                  id="phone"
-                  value={form.data.phone}
-                  onChange={(e) => form.setFieldValue('phone', e.target.value)}
-                  placeholder="Enter phone number"
-                />
-              </div>
-              <div>
-                <Label htmlFor="designation">Designation</Label>
-                <ShadInput
-                  id="designation"
-                  value={form.data.designation}
-                  onChange={(e) => form.setFieldValue('designation', e.target.value)}
-                  placeholder="Enter designation"
-                />
-              </div>
-              <div>
-                <Label htmlFor="department">Department *</Label>
-                <Select
-                  value={form.data.department}
-                  onValueChange={(value) => form.setFieldValue('department', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departmentOptions.map((dept) => (
-                      <SelectItem key={dept.value} value={dept.value}>
-                        {dept.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form.errors.department && (
-                  <p className="text-red-500 text-sm mt-1">{form.errors.department}</p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="status">Status</Label>
-                <Select
-                  value={form.data.status}
-                  onValueChange={(value) => form.setFieldValue('status', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((status) => (
-                      <SelectItem key={status.value} value={status.value}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="company">Company</Label>
-                <ShadInput
-                  id="company"
-                  value={form.data.company}
-                  onChange={(e) => form.setFieldValue('company', e.target.value)}
-                  placeholder="Enter company name"
-                />
-              </div>
-              <div>
-                <Label htmlFor="location">Location</Label>
-                <ShadInput
-                  id="location"
-                  value={form.data.location}
-                  onChange={(e) => form.setFieldValue('location', e.target.value)}
-                  placeholder="Enter location"
-                />
-              </div>
-              <div>
-                <Label htmlFor="experience">Experience</Label>
-                <ShadInput
-                  id="experience"
-                  value={form.data.experience}
-                  onChange={(e) => form.setFieldValue('experience', e.target.value)}
-                  placeholder="e.g., 5 years"
-                />
-              </div>
-              <div>
-                <Label htmlFor="joinDate">Join Date</Label>
-                <ShadInput
-                  id="joinDate"
-                  type="date"
-                  value={form.data.joinDate}
-                  onChange={(e) => form.setFieldValue('joinDate', e.target.value)}
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="skills">Skills (comma-separated)</Label>
-                <ShadInput
-                  id="skills"
-                  value={form.data.skills}
-                  onChange={(e) => form.setFieldValue('skills', e.target.value)}
-                  placeholder="e.g., React, TypeScript, Project Management"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="reportsTo">Reports To</Label>
-                <ShadInput
-                  id="reportsTo"
-                  value={form.data.reportsTo}
-                  onChange={(e) => form.setFieldValue('reportsTo', e.target.value)}
-                  placeholder="Enter manager name"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={addModal.close}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={form.isSubmitting}>
-                {form.isSubmitting ? (editMode ? "Saving..." : "Creating...") : (editMode ? "Save Changes" : "Create Member")}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <EntityModal
+        open={addModal.isOpen && !editMode}
+        onClose={() => { addModal.close(); setEditMode(false); setEditInitialValues(null); }}
+        onSubmit={editMode ? handleEditStaff : handleAddStaff}
+        loading={form.isSubmitting}
+        title={editMode ? "Edit Staff Member" : "Add New Staff Member"}
+        buttonText={editMode ? "Save Changes" : "Create Member"}
+        fields={staffFields}
+        initialValues={editInitialValues}
+      />
     </BaseLayout>
   );
 }

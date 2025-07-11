@@ -3,66 +3,92 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/
 import IndiaMap from '../assets/IndiaMap.svg';
 import { motion } from 'framer-motion';
 import { MapPin } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
-// SVG coordinates for cities (approximate, relative to the SVG viewBox 880x880)
+const InteractiveMap: React.FC = () => {
+  const navigate = useNavigate();
+  
+  const onViewDetails = (id: number) => navigate(`/location/${id}`);
+
+// Complete unified location data from ALL files across the codebase
 const cityData = [
   {
+    id: 1,
     name: "Headquarters",
     city: "Delhi",
     assets: 567,
-    value: 1200000,
+    owner: "PSSL",
+    manager: "John Smith",
+    project: "Urban Surveillance",
+    team: 12,
+    address: "123 Main St, Delhi",
     x: 400,
     y: 350,
-    labelX: 540,
-    labelY: 120,
-  },
-  {
-    name: "Branch A",
-    city: "Mumbai",
-    assets: 234,
-    value: 450000,
-    x: 370,
-    y: 520,
     labelX: 40,
-    labelY: 340,
+    labelY: 130,
   },
   {
-    name: "Branch B",
-    city: "Chennai",
-    assets: 189,
-    value: 380000,
-    x: 650,
-    y: 700,
+    id: 2,
+    name: "Training Center",
+    city: "Bhopal",
+    assets: 234,
+    owner: "Prakhar Aviation",
+    manager: "Sarah Johnson",
+    project: "Autonomous Delivery",
+    team: 8,
+    address: "456 Oak Ave, Mumbai",
+    x: 415,
+    y: 575,
     labelX: 700,
-    labelY: 760,
+    labelY: 630,
   },
   {
-    name: "Warehouse",
-    city: "Kolkata",
-    assets: 257,
-    value: 817500,
-    x: 800,
-    y: 560,
-    labelX: 870,
-    labelY: 480,
+    id: 3,
+    name: "Manufacturing",
+    city: "Dodi",
+    assets: 189,
+    owner: "IIDT",
+    manager: "Mike Wilson",
+    project: "Aerial Survey",
+    team: 6,
+    address: "789 Pine Rd, Chennai",
+    x: 375,
+    y: 575,
+    labelX: 40,
+    labelY: 790,
   },
+  {
+    id: 4,
+    name: "Office",
+    city: "Jaipur",
+    assets: 257,
+    owner: "PSSL",
+    manager: "Lisa Chen",
+    project: "Inventory Optimization",
+    team: 10,
+    address: "321 Storage Ln, Kolkata",
+    x: 347,
+    y: 430,
+    labelX: 600,
+    labelY: 130,
+  }
 ];
 
 const svgWidth = 1200;
 const svgHeight = 1200;
 
-const InteractiveMap: React.FC = () => (
+return (
   <Card>
     <CardHeader>
-      <CardTitle>India Asset Map</CardTitle>
+      <CardTitle>Asset Locations</CardTitle>
       <CardDescription>Major locations and their assets</CardDescription>
     </CardHeader>
     <CardContent>
       <div className="w-full flex justify-center">
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          width={600}
-          height={600}
+          width={800}
+          height={734.75}
           className="bg-transparent rounded-lg border"
         >
           {/* India outline as imported SVG image */}
@@ -90,54 +116,59 @@ const InteractiveMap: React.FC = () => (
               <circle
                 cx={city.x}
                 cy={city.y}
-                r={12}
+                r={8}
                 fill="#2563eb"
                 stroke="#fff"
                 strokeWidth={3}
               />
-              {/* Label box */}
-              <rect
-                x={city.labelX - 20}
-                y={city.labelY - 40}
-                width={270}
-                height={110}
-                rx={16}
-                fill="#fff"
-                stroke="#000"
-                strokeWidth={1}
-                filter="url(#shadow)"
-
-              />
-              {/* Label text using foreignObject for wrapping */}
-              <foreignObject
-                x={city.labelX - 10}
-                y={city.labelY - 30}
-                width={230}
-                height={90}
-                requiredExtensions="http://www.w3.org/1999/xhtml"
-              >
-                <div
-                  style={{
-                    height: '100%',
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    padding: '2px 2px',
-                    fontSize: 17,
-                    fontWeight: 'bold',
-                    color: '#222',
-                    wordBreak: 'break-word',
-                    textAlign: 'left',
-                  }}
-                >
-                  <div style={{ fontSize: 26, fontWeight: 'bold', color: '#222', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <MapPin size={24} style={{ marginRight: 6, color: '#2563eb' }} />
-                    {city.name}
-                  </div>
-                  <div style={{ fontSize: 22, fontWeight: 400, color: '#444', marginBottom: 2 }}>Assets: <strong className="text-green-500">{city.assets}</strong></div>
-                </div>
-              </foreignObject>
+                             {/* Interactive button wrapper */}
+               <foreignObject
+                 x={city.labelX - 20}
+                 y={city.labelY - 40}
+                 width={270}
+                 height={130}
+                 requiredExtensions="http://www.w3.org/1999/xhtml"
+               >
+                 <button
+                     onClick={() => onViewDetails(city.id)}
+                     style={{
+                     width: '100%',
+                     height: '100%',
+                     border: '1px solid #000',
+                     borderRadius: '16px',
+                     backgroundColor: '#fff',
+                     cursor: 'pointer',
+                     padding: '10px',
+                     fontSize: 17,
+                     fontWeight: 'bold',
+                     color: '#222',
+                     wordBreak: 'break-word',
+                     textAlign: 'left',
+                     display: 'flex',
+                     flexDirection: 'column',
+                     justifyContent: 'center',
+                     boxShadow: '0 1px 1px rgba(0, 0, 0, 0.08)',
+                     transition: 'all 0.2s ease',
+                   }}
+                   onMouseEnter={(e) => {
+                     e.currentTarget.style.backgroundColor = '#f8f9fa';
+                   }}
+                   onMouseLeave={(e) => {
+                     e.currentTarget.style.backgroundColor = '#fff';
+                   }}
+                 >
+                   <div style={{ fontSize: 26, fontWeight: 'bold', color: '#222', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                     <MapPin size={24} style={{ marginRight: 6, color: '#2563eb' }} />
+                     {city.name}
+                   </div>
+                   <div style={{ fontSize: 18, fontWeight: 400, color: '#444', marginBottom: 2 }}>
+                     Assets: <strong className="text-green-500">{city.assets}</strong>
+                   </div>
+                   <div style={{ fontSize: 16, fontWeight: 400, color: '#666', marginBottom: 2 }}>
+                     Owner: <strong className="text-blue-500">{city.owner}</strong>
+                   </div>
+                 </button>
+               </foreignObject>
             </motion.g>
           ))}
           {/* Arrowhead marker definition */}
@@ -162,5 +193,6 @@ const InteractiveMap: React.FC = () => (
     </CardContent>
   </Card>
 );
+};
 
 export default InteractiveMap; 

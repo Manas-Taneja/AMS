@@ -12,7 +12,9 @@ import ComponentDetail from "./pages/ComponentDetail";
 import LocationDetail from "./pages/LocationDetail";
 import ProjectDetail from "./pages/ProjectDetail";
 import StaffDetail from "./pages/StaffDetail";
-import Training from "./pages/Training";
+import Training from "./pages/Training"
+import TrainingDetail from "./pages/TrainingDetail";
+import Bills from "./pages/Bills";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import PendingApproval from './pages/PendingApproval';
 import UserManagement from './pages/Admin/UserManagement';
@@ -48,8 +50,6 @@ const Profile = () => (
 );
 
 export default function App() {
-  const { isAuthenticated, isPending, isAdmin } = useAuth();
-
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || "GOOGLE_CLIENT_ID_HERE"}>
       <AuthProvider>
@@ -61,41 +61,54 @@ export default function App() {
               path="/*"
               element={
                 <ProtectedRoute>
-                  <main className="w-full bg-background">
-                    <Routes>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/assets" element={<Assets />} />
-                      <Route path="/staff" element={<Staff />} />
-                      <Route path="/staff/:id" element={<StaffDetail />} />
-                      <Route path="/location" element={<Location />} />
-                      <Route path="/location/:id" element={<LocationDetail />} />
-                      <Route path="/reports" element={<Reports />} />
-                      <Route path="/documents" element={<Documents />} />
-                      <Route path="/settings" element={<Settings />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/components" element={<AssetsComponents />} />
-                      <Route path="/components/:id" element={<ComponentDetail />} />
-                      <Route path="/projects" element={<Projects />} />
-                      <Route path="/projects/:id" element={<ProjectDetail />} />
-                      <Route path="/users" element={<Users />} />
-                      <Route path="/training" element={<Training />} />
-                    </Routes>
-                  </main>
+                  <PendingUserRoute />
                 </ProtectedRoute>
               }
             />
-            {/* Show pending approval page for pending users */}
-            {isAuthenticated && isPending() && (
-              <Route path="*" element={<PendingApproval />} />
-            )}
-            {/* Admin routes */}
-            {isAuthenticated && isAdmin() && (
-              <Route path="/admin/users" element={<UserManagement />} />
-            )}
           </Routes>
         </Router>
       </AuthProvider>
     </GoogleOAuthProvider>
+  );
+}
+
+// Component to handle routing based on user status
+function PendingUserRoute() {
+  const { isAuthenticated, isPending, isAdmin } = useAuth();
+
+  // If user is pending, show pending approval page
+  if (isAuthenticated && isPending()) {
+    return <PendingApproval />;
+  }
+
+  // Otherwise show the main application
+  return (
+    <main className="w-full bg-background">
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/assets" element={<Assets />} />
+        <Route path="/staff" element={<Staff />} />
+        <Route path="/staff/:id" element={<StaffDetail />} />
+        <Route path="/location" element={<Location />} />
+        <Route path="/location/:id" element={<LocationDetail />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/documents" element={<Documents />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/components" element={<AssetsComponents />} />
+        <Route path="/components/:id" element={<ComponentDetail />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/bills" element={<Bills />} />
+        <Route path="/training" element={<Training />} />
+        <Route path="/training/:id" element={<TrainingDetail />} />
+        {/* Admin routes */}
+        {isAuthenticated && isAdmin() && (
+          <Route path="/admin/users" element={<UserManagement />} />
+        )}
+      </Routes>
+    </main>
   );
 }

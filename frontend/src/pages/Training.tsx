@@ -1,187 +1,387 @@
-import { BaseLayout } from "../components/BaseLayout"
-import { UnifiedHeader } from "../components/UnifiedHeader"
+"use client"
+
+import { useState, useMemo } from "react"
+import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { GraduationCap, Clock, CheckCircle, AlertTriangle, Plus } from "lucide-react"
+import { BaseLayout } from "@/components/BaseLayout"
+import { TrainingLevelBadge } from "@/components/TrainingLevelBadge"
+import { TrainingStatsCard } from "@/components/TrainingStatsCard"
+import SearchFilterTabs from "@/components/SearchFilterTabs"
+import type { FilterOption } from "@/components/SearchFilterTabs"
+import { GraduationCap } from "lucide-react"
+import { 
+  fadeInUpVariants, 
+  cardVariants, 
+  containerVariants, 
+  itemVariants 
+} from "@/utils/animations"
 
-interface TrainingCertification {
-  id: number
-  name: string
-  description: string
-  status: "active" | "expired" | "pending" | "completed"
-  expiryDate: string
-  issuedDate: string
-  category: string
-  employee: string
+// Mock data for different job titles and their certifications
+const trainingData = {
+  "drone-pilot": {
+    title: "Drone Pilot",
+    certifications: [
+      {
+        id: 1,
+        name: "Part 107 Remote Pilot Certificate",
+        institution: "FAA",
+        duration: "40 hours",
+        level: "L1",
+        enrolled: 12,
+        completed: 45,
+        description: "Basic commercial drone operation certification required by FAA",
+      },
+      {
+        id: 2,
+        name: "Advanced Flight Operations",
+        institution: "DJI Academy",
+        duration: "80 hours",
+        level: "L2",
+        enrolled: 8,
+        completed: 23,
+        description: "Advanced piloting techniques and complex mission planning",
+      },
+      {
+        id: 3,
+        name: "Night Flight Certification",
+        institution: "AUVSI",
+        duration: "24 hours",
+        level: "L2",
+        enrolled: 5,
+        completed: 18,
+        description: "Specialized training for night and low-light operations",
+      },
+      {
+        id: 4,
+        name: "Instructor Pilot Certification",
+        institution: "Professional Drone Academy",
+        duration: "120 hours",
+        level: "L3",
+        enrolled: 3,
+        completed: 7,
+        description: "Qualification to train and certify other drone pilots",
+      },
+    ],
+  },
+  technician: {
+    title: "Drone Technician",
+    certifications: [
+      {
+        id: 5,
+        name: "Basic Drone Maintenance",
+        institution: "Drone Tech Institute",
+        duration: "60 hours",
+        level: "L1",
+        enrolled: 15,
+        completed: 32,
+        description: "Fundamental maintenance and repair procedures",
+      },
+      {
+        id: 6,
+        name: "Advanced Avionics Repair",
+        institution: "Aviation Technical College",
+        duration: "100 hours",
+        level: "L2",
+        enrolled: 6,
+        completed: 14,
+        description: "Complex electronic systems diagnosis and repair",
+      },
+      {
+        id: 7,
+        name: "Propulsion Systems Specialist",
+        institution: "UAV Technical Academy",
+        duration: "80 hours",
+        level: "L2",
+        enrolled: 4,
+        completed: 9,
+        description: "Motor, ESC, and propeller systems expertise",
+      },
+      {
+        id: 8,
+        name: "Master Technician Certification",
+        institution: "International Drone Association",
+        duration: "200 hours",
+        level: "L3",
+        enrolled: 2,
+        completed: 3,
+        description: "Comprehensive technical expertise across all drone systems",
+      },
+    ],
+  },
+  inspector: {
+    title: "Drone Inspector",
+    certifications: [
+      {
+        id: 9,
+        name: "Infrastructure Inspection Basics",
+        institution: "Infrastructure Academy",
+        duration: "50 hours",
+        level: "L1",
+        enrolled: 10,
+        completed: 28,
+        description: "Basic techniques for inspecting bridges, towers, and buildings",
+      },
+      {
+        id: 10,
+        name: "Thermal Imaging Certification",
+        institution: "FLIR Training Center",
+        duration: "40 hours",
+        level: "L2",
+        enrolled: 7,
+        completed: 19,
+        description: "Thermal camera operation and data interpretation",
+      },
+      {
+        id: 11,
+        name: "Power Line Inspection Specialist",
+        institution: "Utility Drone Institute",
+        duration: "70 hours",
+        level: "L2",
+        enrolled: 5,
+        completed: 12,
+        description: "Specialized training for electrical infrastructure inspection",
+      },
+      {
+        id: 12,
+        name: "Chief Inspector Certification",
+        institution: "Professional Inspection Board",
+        duration: "150 hours",
+        level: "L3",
+        enrolled: 1,
+        completed: 4,
+        description: "Leadership and quality assurance for inspection operations",
+      },
+    ],
+  },
+  analyst: {
+    title: "Data Analyst",
+    certifications: [
+      {
+        id: 13,
+        name: "Drone Data Processing Fundamentals",
+        institution: "GIS Academy",
+        duration: "45 hours",
+        level: "L1",
+        enrolled: 9,
+        completed: 25,
+        description: "Basic photogrammetry and data processing techniques",
+      },
+      {
+        id: 14,
+        name: "Advanced Mapping & Surveying",
+        institution: "Survey Tech Institute",
+        duration: "90 hours",
+        level: "L2",
+        enrolled: 6,
+        completed: 16,
+        description: "Professional-grade mapping and surveying methodologies",
+      },
+      {
+        id: 15,
+        name: "AI-Powered Analytics",
+        institution: "Tech Innovation Center",
+        duration: "75 hours",
+        level: "L2",
+        enrolled: 4,
+        completed: 8,
+        description: "Machine learning applications for drone data analysis",
+      },
+      {
+        id: 16,
+        name: "Senior Data Scientist",
+        institution: "Advanced Analytics Institute",
+        duration: "180 hours",
+        level: "L3",
+        enrolled: 2,
+        completed: 5,
+        description: "Leadership in data science and analytics strategy",
+      },
+    ],
+  },
 }
 
-const mockTrainingData: TrainingCertification[] = [
-  {
-    id: 1,
-    name: "Safety Training Certification",
-    description: "Workplace safety and emergency procedures",
-    status: "active",
-    expiryDate: "2024-12-31",
-    issuedDate: "2024-01-15",
-    category: "Safety",
-    employee: "John Doe"
-  },
-  {
-    id: 2,
-    name: "Equipment Operation License",
-    description: "Heavy machinery operation certification",
-    status: "expired",
-    expiryDate: "2024-03-15",
-    issuedDate: "2023-03-15",
-    category: "Equipment",
-    employee: "Jane Smith"
-  },
-  {
-    id: 3,
-    name: "First Aid Certification",
-    description: "Basic first aid and CPR training",
-    status: "pending",
-    expiryDate: "2025-06-30",
-    issuedDate: "2024-06-15",
-    category: "Health",
-    employee: "Mike Johnson"
-  },
-  {
-    id: 4,
-    name: "Data Security Training",
-    description: "Information security and data protection",
-    status: "completed",
-    expiryDate: "2024-08-20",
-    issuedDate: "2024-02-20",
-    category: "IT",
-    employee: "Sarah Wilson"
-  }
-]
 
-const getStatusConfig = (status: string) => {
-  switch (status) {
-    case "active":
-      return {
-        icon: <CheckCircle className="h-4 w-4" />,
-        color: "bg-green-100 text-green-800",
-        label: "Active"
-      }
-    case "expired":
-      return {
-        icon: <AlertTriangle className="h-4 w-4" />,
-        color: "bg-red-100 text-red-800",
-        label: "Expired"
-      }
-    case "pending":
-      return {
-        icon: <Clock className="h-4 w-4" />,
-        color: "bg-yellow-100 text-yellow-800",
-        label: "Pending"
-      }
-    case "completed":
-      return {
-        icon: <CheckCircle className="h-4 w-4" />,
-        color: "bg-blue-100 text-blue-800",
-        label: "Completed"
-      }
-    default:
-      return {
-        icon: <Clock className="h-4 w-4" />,
-        color: "bg-gray-100 text-gray-800",
-        label: "Unknown"
-      }
-  }
-}
 
-export default function Training() {
-  const handleAdd = () => alert("Add Training Certification clicked")
-  const handleExport = () => alert("Export Training Data clicked")
+export default function TrainingCertifications() {
+  const [searchValue, setSearchValue] = useState("")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [levelFilter, setLevelFilter] = useState("all")
+  const [activeTab, setActiveTab] = useState("all")
+  const navigate = useNavigate()
+
+  // Flatten all certifications into a single array
+  const allCertifications = useMemo(() => {
+    return Object.values(trainingData).flatMap(data => data.certifications)
+  }, [])
+
+  // Filter certifications based on search and filters
+  const filteredCertifications = useMemo(() => {
+    return allCertifications.filter(cert => {
+      const matchesSearch = cert.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+                           cert.description.toLowerCase().includes(searchValue.toLowerCase()) ||
+                           cert.institution.toLowerCase().includes(searchValue.toLowerCase())
+      
+      const matchesLevel = levelFilter === "all" || cert.level === levelFilter
+      
+      return matchesSearch && matchesLevel
+    })
+  }, [allCertifications, searchValue, levelFilter])
+
+  // Group certifications by job title (owner)
+  const groupedByOwner = useMemo(() => {
+    const grouped: Record<string, typeof allCertifications> = {}
+    Object.entries(trainingData).forEach(([key, data]) => {
+      grouped[data.title] = data.certifications.filter(cert => 
+        filteredCertifications.some(fc => fc.id === cert.id)
+      )
+    })
+    return grouped
+  }, [filteredCertifications])
+
+  const owners = Object.keys(trainingData).map(key => trainingData[key as keyof typeof trainingData].title)
+
+  // Filter options
+  const levelFilterOptions: FilterOption[] = [
+    { value: "all", label: "All Levels" },
+    { value: "L1", label: "Beginner (L1)" },
+    { value: "L2", label: "Intermediate (L2)" },
+    { value: "L3", label: "Advanced (L3)" },
+  ]
+
+  const filters = [
+    {
+      key: "level",
+      label: "Level",
+      value: levelFilter,
+      options: levelFilterOptions,
+      onValueChange: setLevelFilter,
+    },
+  ]
+
+  // Render functions for SearchFilterTabs
+  const renderGridItem = (cert: typeof allCertifications[0]) => (
+    <motion.div
+      key={cert.id}
+      variants={cardVariants}
+      initial="initial"
+      animate="in"
+      whileHover="hover"
+    >
+      <Card 
+        className="hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+        onClick={() => navigate(`/training/${cert.id}`)}
+      >
+        <CardHeader className="pb-4">
+          <div className="flex items-start justify-between mb-2">
+            <CardTitle className="text-lg font-semibold leading-tight">{cert.name}</CardTitle>
+            <TrainingLevelBadge level={cert.level} className="ml-2" />
+          </div>
+          <CardDescription className="text-sm text-gray-600">{cert.description}</CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <TrainingStatsCard
+            enrolled={cert.enrolled}
+            completed={cert.completed}
+            duration={cert.duration}
+            institution={cert.institution}
+          />
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+
+  const renderListItem = (cert: typeof allCertifications[0]) => (
+    <motion.div
+      key={cert.id}
+      variants={itemVariants}
+      initial="initial"
+      animate="in"
+    >
+      <Card 
+        className="hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+        onClick={() => navigate(`/training/${cert.id}`)}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="text-lg font-semibold">{cert.name}</h3>
+                <TrainingLevelBadge level={cert.level} />
+              </div>
+              <p className="text-gray-600 mb-2">{cert.description}</p>
+              <div className="flex items-center gap-4 text-sm text-gray-500">
+                <span>{cert.institution}</span>
+                <span>•</span>
+                <span>{cert.duration}</span>
+                <span>•</span>
+                <span>{cert.enrolled + cert.completed} participants</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-blue-600">{cert.enrolled + cert.completed}</div>
+              <div className="text-sm text-gray-500">Total</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+
+  const handleClearFilters = () => {
+    setSearchValue("")
+    setLevelFilter("all")
+  }
 
   return (
-    <BaseLayout className="p-6">
-      <div className="space-y-6 max-w-7xl mx-auto">
-        <UnifiedHeader
-          title="Training & Certifications"
-          subtitle="Manage employee training and certification records"
-          onAdd={handleAdd}
-          onExport={handleExport}
-          addLabel="Add Certification"
-          exportLabel="Export Data"
-          totalCount={mockTrainingData.length}
-          itemLabel="certifications"
-        />
+    <BaseLayout className="p-8">
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <motion.div 
+            className="mb-8"
+            variants={fadeInUpVariants}
+            initial="initial"
+            animate="in"
+          >
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Training & Certifications</h1>
+            <p className="text-lg text-gray-600">
+              Comprehensive training programs and certifications for our operations team across all specializations
+            </p>
+          </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockTrainingData.map((cert) => {
-            const statusConfig = getStatusConfig(cert.status)
-            const isExpired = new Date(cert.expiryDate) < new Date()
-            
-            return (
-              <Card key={cert.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <GraduationCap className="h-5 w-5 text-primary" />
-                      <CardTitle className="text-lg">{cert.name}</CardTitle>
-                    </div>
-                    <Badge className={statusConfig.color}>
-                      {statusConfig.icon} {statusConfig.label}
-                    </Badge>
-                  </div>
-                  <CardDescription>{cert.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Employee</p>
-                      <p className="font-medium">{cert.employee}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Category</p>
-                      <p className="font-medium">{cert.category}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Issued</p>
-                      <p className="font-medium">
-                        {new Date(cert.issuedDate).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Expires</p>
-                      <p className={`font-medium ${isExpired ? 'text-red-600' : ''}`}>
-                        {new Date(cert.expiryDate).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      View Details
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Renew
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
+          <motion.div
+            variants={containerVariants}
+            initial="initial"
+            animate="in"
+          >
+            <SearchFilterTabs
+              searchValue={searchValue}
+              onSearchChange={setSearchValue}
+              searchPlaceholder="Search training courses..."
+              filters={filters}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              showViewToggle={true}
+              owners={owners}
+              groupedByOwner={groupedByOwner}
+              renderGridItem={renderGridItem}
+              renderListItem={renderListItem}
+              emptyStateIcon={<GraduationCap className="h-12 w-12 text-gray-400" />}
+              emptyStateTitle="No training courses found"
+              emptyStateDescription="Try adjusting your search or filters to find the training you're looking for."
+              gridCols="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4"
+              className="w-full"
+              totalCount={allCertifications.length}
+              filteredCount={filteredCertifications.length}
+              itemLabel="courses"
+              onClearFilters={handleClearFilters}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              allItems={filteredCertifications}
+            />
+          </motion.div>
         </div>
-
-        {mockTrainingData.length === 0 && (
-          <Card className="text-center py-12">
-            <CardContent>
-              <GraduationCap className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No training certifications</h3>
-              <p className="text-gray-600 mb-4">Get started by adding your first training certification</p>
-              <Button onClick={handleAdd}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Certification
-              </Button>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </BaseLayout>
   )

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { apiService } from '../services/api';
 
 interface User {
   id: number;
@@ -95,19 +96,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const verifyToken = async (token: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-      } else {
-        // Token is invalid, clear everything
-        logout();
-      }
+      const userData = await apiService.get('/auth/me', token) as User;
+      setUser(userData);
     } catch (error) {
       console.error('Error verifying token:', error);
       logout();

@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 // import { useState } from 'react';
 import { 
   Card, 
@@ -19,6 +20,17 @@ import { UnifiedHeader } from '../components/UnifiedHeader';
 import InteractiveMap from '../components/InteractiveMap';
 import AssetCategoryChart from '../components/AssetCategoryChart';
 import ReactECharts from 'echarts-for-react';
+import { 
+  cardVariants, 
+  containerVariants, 
+  itemVariants, 
+  fadeInUpVariants,
+  chartVariants,
+  buttonVariants
+} from '@/utils/animations';
+import { sampleChartData } from '../data/sampleChartData';
+import IdleAssetCategoryChart from '../components/IdleAssetCategoryChart';
+import UtilizationChart from '@/components/UtilizationChart';
 
 // Mock data for the dashboard
 const mockData = {
@@ -62,124 +74,98 @@ interface IdleAsset {
 
 function KeyMetrics({ data }: KeyMetricsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 min-w-0">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Assets</CardTitle>
-          <CheckCircle className="h-4 w-4 text-blue-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{data.activeAssets.toLocaleString()}</div>
-          <p className="text-xs text-green-600">{((data.activeAssets / data.totalAssets) * 100).toFixed(1)}% utilization</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Maintenance Due</CardTitle>
-          <AlertTriangle className="h-4 w-4 text-orange-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-orange-600">{data.maintenanceDue}</div>
-          <p className="text-xs text-red-600">Requires attention</p>
-        </CardContent>
-      </Card>
-    </div>
+    <motion.div 
+      className="space-y-6 min-w-0"
+      variants={containerVariants}
+      initial="initial"
+      animate="in"
+    >
+      <motion.div variants={itemVariants}>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Assets</CardTitle>
+            <CheckCircle className="h-10 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{data.activeAssets.toLocaleString()}</div>
+            <p className="text-xs text-green-600">{((data.activeAssets / data.totalAssets) * 100).toFixed(1)}% utilization</p>
+          </CardContent>
+        </Card>
+      </motion.div>
+      <motion.div variants={itemVariants}>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Maintenance Due</CardTitle>
+            <AlertTriangle className="h-10 w-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{data.maintenanceDue}</div>
+            <p className="text-xs text-red-600">Requires attention</p>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }
 
 function QuickActions() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Plus className="w-5 h-5" />
-          Quick Actions
-        </CardTitle>
-        <CardDescription>Common asset management tasks</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          <button className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-green-600 hover:!bg-gray-200  rounded-lg transition-colors">
-            <Plus className="w-4 h-4" />
-            <span className="font-medium">Add New Asset</span>
-          </button>
-          <button className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-blue-500 hover:!bg-gray-200  rounded-lg transition-colors">
-            <CheckCircle className="w-4 h-4" />
-            <span className="font-medium">Schedule Maintenance</span>
-          </button>
-          <button className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-yellow-600 hover:!bg-gray-200  rounded-lg transition-colors">
-            <Users className="w-4 h-4" />
-            <span className="font-medium">Assign Asset</span>
-          </button>
-          <button className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-red-500 hover:!bg-gray-200  rounded-lg transition-colors">
-            <AlertTriangle className="w-4 h-4" />
-            <span className="font-medium">Report Issue</span>
-          </button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function IdleAssets({ items }: { items: IdleAsset[] }) {
-  // Parse days from 'lastUsed' string (e.g., '15 days ago' -> 15)
-  const data = items.map(item => ({
-    name: item.name,
-    days: parseInt(item.lastUsed)
-  }));
-
-  const option = {
-    tooltip: {
-      trigger: 'axis',
-      formatter: function(params: unknown) {
-        const p = Array.isArray(params) ? params[0] : (params as { name: string; value: number });
-        return `${p.name}: ${p.value} days idle`;
-      }
-    },
-    xAxis: {
-      type: 'category',
-      data: data.map(d => d.name),
-      axisLabel: { rotate: 0, fontSize: 12 }
-    },
-    yAxis: {
-      type: 'value',
-      name: 'Days Idle',
-      minInterval: 1
-    },
-    series: [
-      {
-        data: data.map(d => d.days),
-        type: 'line',
-        smooth: false,
-        symbol: 'circle',
-        symbolSize: 10,
-        lineStyle: { width: 3 },
-        itemStyle: { color: '#f59e42' },
-        areaStyle: { color: 'rgba(245,158,66,0.15)' }
-      }
-    ],
-    grid: { left: 40, right: 20, bottom: 60, top: 40 }
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Clock className="w-5 h-5" />
-          Idle Assets
-        </CardTitle>
-        <CardDescription>
-          Assets that have not been used in 7 days
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {items.length === 0 ? (
-          <div className="text-gray-500 text-sm">No idle assets or locations found.</div>
-        ) : (
-          <ReactECharts option={option} style={{ height: 350, width: '100%' }} className="bg-transparent border rounded-lg p-2" />
-        )}
-      </CardContent>
-    </Card>
+    <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Quick Actions
+          </CardTitle>
+          <CardDescription>Common asset management tasks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <motion.div 
+            className="space-y-3"
+            variants={containerVariants}
+            initial="initial"
+            animate="in"
+          >
+            <motion.button 
+              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-green-600 hover:!bg-gray-200  rounded-lg transition-colors"
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Plus className="w-4 h-4" />
+              <span className="font-medium">Add New Asset</span>
+            </motion.button>
+            <motion.button 
+              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-blue-500 hover:!bg-gray-200  rounded-lg transition-colors"
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span className="font-medium">Schedule Maintenance</span>
+            </motion.button>
+            <motion.button 
+              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-yellow-600 hover:!bg-gray-200  rounded-lg transition-colors"
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Users className="w-4 h-4" />
+              <span className="font-medium">Assign Asset</span>
+            </motion.button>
+            <motion.button 
+              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-red-500 hover:!bg-gray-200  rounded-lg transition-colors"
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <AlertTriangle className="w-4 h-4" />
+              <span className="font-medium">Report Issue</span>
+            </motion.button>
+          </motion.div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 
@@ -195,34 +181,71 @@ const Dashboard: React.FC = () => {
 
   return (
     <BaseLayout className="p-6">
-      <div className="space-y-6 text-black overflow-x-auto">
-        <UnifiedHeader
-          title="Asset Management System"
-          subtitle="Overview of your organization's assets and activities"
-          onExport={handleExport}
-          onAdd={handleAdd}
-          showLogo={true}
-          addLabel="Add Asset"
-          exportLabel="Export Report"
-        />
-        {/* <DashboardSearchFilter
-          search={search}
-          onSearchChange={handleSearchChange}
-          onFilter={handleFilter}
-          onAnalytics={handleAnalytics}
-        /> */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-w-0">
-          <InteractiveMap />
-          <AssetCategoryChart categories={mockData.assetCategories} />
-        </div>
-        <IdleAssets items={mockData.idleAssets} />
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 min-w-0">
-          <div className="lg:col-span-2">
-            <QuickActions />
-          </div>
-        </div>
-        <KeyMetrics data={mockData} />
-      </div>
+      <motion.div 
+        className="space-y-6 text-black overflow-x-auto"
+        variants={containerVariants}
+        initial="initial"
+        animate="in"
+      >
+        <motion.div variants={itemVariants}>
+          <UnifiedHeader
+              title="Asset Management System"
+              subtitle="Overview of your organization's assets and activities"
+              onExport={handleExport}
+              onAdd={handleAdd}
+            showLogo={true}
+            addLabel="Add Asset"
+            exportLabel="Export Report"
+            />
+        </motion.div>
+          {/* <DashboardSearchFilter
+            search={search}
+            onSearchChange={handleSearchChange}
+            onFilter={handleFilter}
+            onAnalytics={handleAnalytics}
+          /> */}
+          <motion.div 
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-w-0"
+            variants={itemVariants}
+          >
+            <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
+              <InteractiveMap />
+            </motion.div>
+            <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
+              <AssetCategoryChart />
+            </motion.div>
+          </motion.div>
+          <motion.div variants={fadeInUpVariants} initial="initial" animate="in" className="grid grid-cols-2 lg:grid-cols-2 gap-6 min-w-0">
+          <Card>
+            <CardHeader>
+              <CardTitle>Idle Assets</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <IdleAssetCategoryChart />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recovered Assets</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UtilizationChart />
+            </CardContent>
+          </Card>
+          </motion.div>
+          <motion.div variants={itemVariants}>
+            <div className="grid grid-cols-2 gap-8 min-w-0">
+              {/* Left column: QuickActions */}
+              <div>
+                <QuickActions />
+              </div>
+              {/* Right column: KeyMetrics in 2 rows */}
+              <div className="h-full">
+                <KeyMetrics data={mockData} />
+              </div>
+            </div>
+          </motion.div>
+      </motion.div>
     </BaseLayout>
   );
 };

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Float, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -30,6 +30,30 @@ class User(Base):
     @staticmethod
     def get_password_hash(password: str) -> str:
         return pwd_context.hash(password)
+
+class Bill(Base):
+    __tablename__ = "bills"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    amount = Column(Float, nullable=False)
+    currency = Column(String, default="USD")
+    bill_date = Column(DateTime(timezone=True), nullable=False)
+    due_date = Column(DateTime(timezone=True), nullable=True)
+    vendor = Column(String, nullable=False)
+    category = Column(String, nullable=False)  # Utilities, Equipment, Services, etc.
+    status = Column(String, default="pending")  # pending, approved, rejected, paid
+    file_path = Column(String, nullable=False)  # Path to uploaded file
+    file_name = Column(String, nullable=False)  # Original filename
+    file_size = Column(Integer, nullable=False)  # File size in bytes
+    file_type = Column(String, nullable=False)  # MIME type
+    uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    approved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    approved_at = Column(DateTime(timezone=True), nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class Component(Base):
     __tablename__ = "components"

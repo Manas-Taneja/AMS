@@ -23,10 +23,6 @@ export interface UnifiedHeaderProps {
   totalCount?: number
   itemLabel?: string
   
-  // Back navigation
-  onBack?: () => void
-  backLabel?: string
-  
   // Actions
   onAdd?: () => void
   addLabel?: string
@@ -66,8 +62,6 @@ export function UnifiedHeader({
   subtitle,
   totalCount,
   itemLabel = "items",
-  onBack,
-  backLabel = "Back",
   onAdd,
   addLabel = "Add",
   onExport,
@@ -98,13 +92,6 @@ export function UnifiedHeader({
       {/* Main Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          {onBack && (
-            <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {backLabel}
-            </Button>
-          )}
-          
           <div className="flex items-center gap-2">
             {showLogo && (
               <img

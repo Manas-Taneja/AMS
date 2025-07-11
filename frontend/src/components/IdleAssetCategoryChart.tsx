@@ -17,39 +17,36 @@ const chartTypes = [
   { value: 'itComponents', label: 'IT Components' },
 ];
 
-const AssetCategoryChart: React.FC = () => {
+const IdleAssetCategoryChart: React.FC = () => {
   const [activeChartType, setActiveChartType] = useState('drones');
 
   const getChartOption = (categories: Category[]) => ({
     tooltip: {
-      trigger: 'item',
-      formatter: '{b}: {c} items ({d}%)',
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: '{b}: {c} items',
     },
-    legend: {
-      orient: 'vertical',
-      left: 'left',
-      textStyle: { fontSize: 14 },
+    xAxis: {
+      type: 'category',
+      data: categories.map(cat => cat.name),
+      axisLabel: { fontSize: 14 },
+    },
+    yAxis: {
+      type: 'value',
+      name: 'Count',
+      minInterval: 1,
     },
     series: [
       {
-        name: 'Distribution',
-        type: 'pie',
-        radius: ['30%', '50%'],
-        avoidLabelOverlap: false,
-        center: ['50%', '55%'],
-        label: {
-          show: true,
-          position: 'outside',
-          formatter: '{b}\n{c}',
-          fontSize: 15,
-        },
-        labelLine: {
-          show: true,
-        },
-        data: categories.map(cat => ({ value: cat.count, name: cat.name })),
+        name: 'Idle Assets',
+        type: 'bar',
+        data: categories.map(cat => cat.count),
+        itemStyle: { color: '#2563eb' },
+        barMaxWidth: 60,
       },
     ],
-    color: ['#2563eb', '#f59e42', '#10b981', '#fbbf24', '#6366f1', '#f43f5e'],
+    grid: { left: 40, right: 20, bottom: 60, top: 40 },
+    color: ['#2563eb'],
   });
 
   const currentData = sampleChartData[activeChartType as keyof typeof sampleChartData];
@@ -87,4 +84,4 @@ const AssetCategoryChart: React.FC = () => {
   );
 };
 
-export default AssetCategoryChart; 
+export default IdleAssetCategoryChart; 

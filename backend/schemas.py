@@ -67,6 +67,53 @@ class LoginResponse(BaseModel):
     token_type: str
     user: User
 
+# Bill schemas
+class BillBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    amount: float
+    currency: str = "USD"
+    bill_date: datetime
+    due_date: Optional[datetime] = None
+    vendor: str
+    category: str
+    notes: Optional[str] = None
+
+class BillCreate(BillBase):
+    pass
+
+class BillUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    amount: Optional[float] = None
+    currency: Optional[str] = None
+    bill_date: Optional[datetime] = None
+    due_date: Optional[datetime] = None
+    vendor: Optional[str] = None
+    category: Optional[str] = None
+    status: Optional[str] = None
+    notes: Optional[str] = None
+
+class Bill(BillBase):
+    id: int
+    status: str
+    file_path: str
+    file_name: str
+    file_size: int
+    file_type: str
+    uploaded_by: int
+    approved_by: Optional[int] = None
+    approved_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    
+    class Config:
+        from_attributes = True
+
+class BillApproval(BaseModel):
+    status: str  # approved, rejected
+    notes: Optional[str] = None
+
 # Component schemas
 class ComponentBase(BaseModel):
     name: str
