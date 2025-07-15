@@ -14,14 +14,14 @@ def seed_projects():
         return
     # Sample project data
     projects_data = [
-        {"thumbnail_url": "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80", "name": "Urban Surveillance", "status": "Active", "progress": 78},
-        {"thumbnail_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80", "name": "Autonomous Delivery", "status": "Paused", "progress": 45},
-        {"thumbnail_url": "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80", "name": "Crop Monitoring", "status": "Completed", "progress": 100},
-        {"thumbnail_url": "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80", "name": "Aerial Survey", "status": "Active", "progress": 62},
-        {"thumbnail_url": "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80", "name": "Disaster Response", "status": "Paused", "progress": 30},
-        {"thumbnail_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80", "name": "Training Initiative", "status": "Completed", "progress": 100},
-        {"thumbnail_url": "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80", "name": "Branch Expansion", "status": "Active", "progress": 85},
-        {"thumbnail_url": "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80", "name": "Tech Upgrade", "status": "Paused", "progress": 55},
+        {"thumbnail_url": "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80", "name": "Urban Surveillance", "status": "Active", "progress": 78, "category": "Security"},
+        {"thumbnail_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80", "name": "Autonomous Delivery", "status": "Paused", "progress": 45, "category": "Logistics"},
+        {"thumbnail_url": "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80", "name": "Crop Monitoring", "status": "Completed", "progress": 100, "category": "Agriculture"},
+        {"thumbnail_url": "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80", "name": "Aerial Survey", "status": "Active", "progress": 62, "category": "Survey"},
+        {"thumbnail_url": "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80", "name": "Disaster Response", "status": "Paused", "progress": 30, "category": "Emergency"},
+        {"thumbnail_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80", "name": "Training Initiative", "status": "Completed", "progress": 100, "category": "Training"},
+        {"thumbnail_url": "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80", "name": "Branch Expansion", "status": "Active", "progress": 85, "category": "Expansion"},
+        {"thumbnail_url": "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80", "name": "Tech Upgrade", "status": "Paused", "progress": 55, "category": "Technology"},
     ]
     for project_data in projects_data:
         project = Project(**project_data)

@@ -182,9 +182,6 @@ export function SearchFilterTabs<T>({
                 >
                   <Users className="w-4 h-4" />
                   <span className="font-medium">{owner}</span>
-                  <Badge variant="secondary" className="ml-1 text-sm bg-gray-200 mt-1">
-                    {groupedByOwner[owner]?.length || 0}
-                  </Badge>
                 </TabsTrigger>
               ))}
             </TabsList>

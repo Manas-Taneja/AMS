@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Staff from "./pages/Staff";
 import Location from "./pages/Location";
-import AssetsComponents from "./pages/AssetsComponents";
+import Items from "./pages/Items";
 import Settings from "./pages/Settings";
 import Projects from "./pages/Projects";
 import ComponentDetail from "./pages/ComponentDetail";
@@ -20,6 +20,8 @@ import PendingApproval from './pages/PendingApproval';
 import UserManagement from './pages/Admin/UserManagement';
 import Users from './pages/Users';
 import AuthCallback from "./pages/AuthCallback";
+import Media from "./pages/Media";
+import { Toaster } from 'sonner';
 // Placeholder components for new routes
 const Assets = () => (
   <div className="p-8">
@@ -67,6 +69,7 @@ export default function App() {
             />
           </Routes>
         </Router>
+        <Toaster position="top-right" richColors visibleToasts={5} />
       </AuthProvider>
     </GoogleOAuthProvider>
   );
@@ -96,8 +99,9 @@ function PendingUserRoute() {
         <Route path="/documents" element={<Documents />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/components" element={<AssetsComponents />} />
-        <Route path="/components/:id" element={<ComponentDetail />} />
+        <Route path="/media" element={<Media />} />
+        <Route path="/items" element={<Items />} />
+        <Route path="/items/:id" element={<ComponentDetail />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/users" element={<Users />} />

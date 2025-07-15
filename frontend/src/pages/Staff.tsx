@@ -292,7 +292,7 @@ export default function TeamMembersPage() {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="focus:!ring-0">
+                <Button variant="ghost" size="sm" className="w-2 focus:!ring-0">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

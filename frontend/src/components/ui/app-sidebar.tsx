@@ -12,16 +12,17 @@ import {
   SidebarHeader,
   SidebarProvider,
 } from "./sidebar";
-import { Home, Users, Package, Target, MapPinned, LogOut, Settings, GraduationCap, Receipt } from "lucide-react";
+import { Home, Users, Package, Target, MapPinned, LogOut, Settings, GraduationCap, Receipt, Image as MediaIcon } from "lucide-react";
 
 const items = [
   { title: "Dashboard", url: "/", icon: Home },
   { title: "Locations", url: "/location", icon: MapPinned },
   { title: "Team", url: "/staff", icon: Users },
   { title: "Projects", url: "/projects", icon: Target },
-  { title: "Items", url: "/components", icon: Package },
+  { title: "Items", url: "/items", icon: Package },
   { title: "Bills", url: "/bills", icon: Receipt },
   { title: "Training", url: "/training", icon: GraduationCap },
+  { title: "Media", url: "/media", icon: MediaIcon },
   { title: "Users", url: "/users", icon: Users }
 ];
 

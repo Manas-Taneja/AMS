@@ -5,7 +5,6 @@ import { Card, CardContent } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
 import {
-  Plus,
   Grid3X3,
   Calendar,
   MoreHorizontal,
@@ -22,24 +21,23 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "../components/ui/dropdown-menu"
-import { useProjects } from "../hooks/useProjects"
+import { useProjectsData } from "../hooks/useApiData"
 import { useAuth } from "../context/AuthContext"
 import { useNavigate } from "react-router-dom"
 import { BaseLayout } from "../components/BaseLayout"
-import EmptyState from "../components/ui/EmptyState"
 import { projectStatusConfig, projectPriorityConfig } from "../utils/statusColors"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs"
-import { AnimatePresence, motion } from "framer-motion"
+import { motion } from "framer-motion"
 import { RoleBasedComponent, ManagerOrAdmin } from "../components/RoleBasedComponent"
 import { StatsCards } from "../components/StatsCards"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../components/ui/dialog"
-import { Label } from "../components/ui/label"
-import { Input as ShadInput } from "../components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
+
 import { EntityModal } from "../components/EntityModal"
 import type { FieldConfig } from "../components/EntityModal"
 import SearchFilterTabs from "../components/SearchFilterTabs"
-import { apiService } from "../services/api"
+import { useProjectsCrud } from "../hooks/useCrud"
+import { useForm, validationRules } from "../hooks/useForm"
+import { useModal } from "../hooks/useModal"
+import { UnifiedHeader } from "../components/UnifiedHeader"
+
 
 // Extended Project type to include UI-specific fields
 type ExtendedProject = Omit<{
@@ -57,7 +55,19 @@ type ExtendedProject = Omit<{
   color?: string;
   thumbnailUrl?: string;
   owner: string;
+  category?: string;
 }, 'budget' | 'spent'>;
+
+interface ProjectFormData {
+  name: string;
+  description: string;
+  status: "Active" | "Paused" | "Completed";
+  priority: "High" | "Medium" | "Low";
+  dueDate: string;
+  tags: string;
+  owner: string;
+  [key: string]: string | number | boolean | string[] | undefined;
+}
 
 const colorGradients = [
   "from-blue-500 to-cyan-500",
@@ -70,21 +80,62 @@ const colorGradients = [
 
 export default function Projects() {
   const { token } = useAuth()
-  const { projects, loading, error, refetch } = useProjects(token)
+  const { data: projects, loading, error, refetch } = useProjectsData(token || undefined)
+  const { create, update } = useProjectsCrud(token || undefined)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<"Active" | "Paused" | "Completed" | "All">("All")
   const [priorityFilter, setPriorityFilter] = useState<"High" | "Medium" | "Low" | "All">("All")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [activeTab, setActiveTab] = useState<string>("all")
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [adding, setAdding] = useState(false)
-  const [editMode, setEditMode] = useState(false)
-  const [editInitialValues, setEditInitialValues] = useState<any>(null)
+  const [selectedOwner, setSelectedOwner] = useState<string>("all")
   const navigate = useNavigate()
+  
+  // Modal management
+  const addModal = useModal();
+  const [editMode, setEditMode] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
+  // Form management
+  const form = useForm<ProjectFormData>({
+    initialData: {
+      name: "",
+      description: "",
+      status: "Active",
+      priority: "Medium",
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] || "", // 30 days from now
+      tags: "",
+      owner: "IIDT",
+    },
+    validationRules: [
+      validationRules.required("name"),
+      validationRules.required("description"),
+      validationRules.required("status"),
+      validationRules.required("priority"),
+      validationRules.required("dueDate"),
+    ],
+    onSubmit: async (formData) => {
+      const projectData = {
+        ...formData,
+        tags: formData.tags ? formData.tags.split(",").map((s) => s.trim()) : [],
+      };
+      
+      if (editMode && editingId) {
+        await update(editingId, projectData);
+      } else {
+        await create(projectData);
+      }
+      
+      addModal.close();
+      setEditMode(false);
+      setEditingId(null);
+      form.reset();
+      refetch();
+    },
+  });
 
-  const ownerList = ["IIDT", "Prakhar Aviation", "PSSL"];
+  const ownerList = [ "PSSL", "IIDT", "Prakhar Aviation"];
   // Transform backend projects to include UI-specific fields
-  const extendedProjects: ExtendedProject[] = projects.map((project, index) => ({
+  const extendedProjects: ExtendedProject[] = projects.map((project: any, index: number) => ({
     id: project.id,
     name: project.name,
     description: project.description || `Project ${project.name} - ${project.status} status with ${project.progress}% progress`,
@@ -99,6 +150,7 @@ export default function Projects() {
     color: colorGradients[index % colorGradients.length],
     thumbnailUrl: project.thumbnailUrl,
     owner: ownerList[index % ownerList.length] || 'Unknown',
+    category: project.category, // Use backend value as-is
   }))
 
   const filteredProjects = extendedProjects.filter((project) => {
@@ -108,7 +160,8 @@ export default function Projects() {
       (project.tags && project.tags.some((tag) => tag.toLowerCase().includes(search.toLowerCase())))
     const matchesStatus = statusFilter === "All" || project.status === statusFilter
     const matchesPriority = priorityFilter === "All" || project.priority === priorityFilter
-    return matchesSearch && matchesStatus && matchesPriority
+    const matchesOwner = selectedOwner === "all" || project.owner === selectedOwner
+    return matchesSearch && matchesStatus && matchesPriority && matchesOwner
   })
 
   const stats = {
@@ -118,59 +171,26 @@ export default function Projects() {
   }
 
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-  const formatCurrency = (amount: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(amount)
+
   const getDaysUntilDue = (dueDate: string) => Math.ceil((new Date(dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
 
   const handleViewDetails = (projectId: string) => {
     navigate(`/projects/${projectId}`)
   }
 
-  // Add handler for AddProjectModal
-  const handleAddProject = async (form: any) => {
-    setAdding(true);
-    try {
-      await apiService.post("/projects", form, token || undefined);
-      refetch();
-    } catch (e) {
-      // handle error
-    } finally {
-      setAdding(false);
-    }
-  };
 
-  const onEditProject = (id: string) => {
-    const project = extendedProjects.find(p => p.id === id);
-    if (!project) return;
-    setEditMode(true);
-    setEditInitialValues({
-      name: project.name,
-      description: project.description,
-      status: project.status,
-      priority: project.priority,
-      dueDate: project.dueDate,
-      tags: project.tags?.join(', '),
-      owner: project.owner,
+
+  const handleModalSubmit = async (data: Record<string, any>) => {
+    // Update form data with modal data
+    Object.entries(data).forEach(([key, value]) => {
+      form.setFieldValue(key as keyof ProjectFormData, value);
     });
-    setShowAddModal(true);
-  };
-
-  const handleEditProject = async (data: any) => {
-    setAdding(true);
-    try {
-      await apiService.put(`/projects/${editInitialValues?.id}`, data, token || undefined);
-      setShowAddModal(false);
-      setEditMode(false);
-      setEditInitialValues(null);
-      refetch();
-    } catch (e) {
-      // handle error
-    } finally {
-      setAdding(false);
-    }
+    // Submit the form
+    await form.handleSubmit();
   };
 
   // For owner tabs
-  const owners = useMemo(() => Array.from(new Set(filteredProjects.map((p) => p.owner))), [filteredProjects]);
+  const owners = useMemo(() => Array.from(new Set(extendedProjects.map((p) => p.owner))), [extendedProjects]);
   const groupedByOwner = useMemo(() => {
     const map: Record<string, ExtendedProject[]> = {};
     owners.forEach((owner) => {
@@ -179,9 +199,12 @@ export default function Projects() {
     return map;
   }, [owners, filteredProjects]);
 
+  // Get unique categories for grouping, filter out undefined
+  const categories: string[] = useMemo(() => Array.from(new Set(filteredProjects.map((project) => project.category).filter((c): c is string => typeof c === 'string'))), [filteredProjects]);
+
   // ProjectCard and ProjectListItem
   const ProjectCard = ({ project }: { project: ExtendedProject }) => (
-    <motion.div layout={!showAddModal} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.2 }}>
+    <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.2 }}>
       <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden" onClick={() => handleViewDetails(project.id)}>
         <div className={`h-2 bg-gradient-to-r ${project.color}`}></div>
         <CardContent className="p-6">
@@ -260,7 +283,7 @@ export default function Projects() {
   );
 
   const ProjectListItem = ({ project }: { project: ExtendedProject }) => (
-    <motion.div layout={!showAddModal} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+    <motion.div layout initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
       <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden" onClick={() => handleViewDetails(project.id)}>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
@@ -351,6 +374,20 @@ export default function Projects() {
   const hasActiveFilters = !!(search || statusFilter !== "All" || priorityFilter !== "All");
   console.log('Projects hasActiveFilters:', { search, statusFilter, priorityFilter, hasActiveFilters });
 
+  const handleExport = () => {
+    // Export functionality
+    alert('Export projects clicked')
+  }
+
+  // Add a CategorySubheader component
+  const CategorySubheader = ({ category, count }: { category: string, count: number }) => (
+    <div className="mb-2">
+      <Card className="bg-gray-50 border-blue-200 border flex items-center px-6 py-3">
+        <span className="font-semibold text-blue-700 text-lg">{category}</span>
+      </Card>
+    </div>
+  );
+
   if (loading) {
     return (
       <BaseLayout loading={true} onRetry={refetch}>
@@ -370,117 +407,135 @@ export default function Projects() {
   return (
     <BaseLayout className="p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
-                <p className="text-gray-600 mt-1">Manage and track your project portfolio</p>
+        {/* Unified Header */}
+        <UnifiedHeader
+          title="Projects"
+          subtitle="Manage and track your project portfolio"
+          onAdd={() => addModal.open()}
+          addLabel="New Project"
+          onExport={handleExport}
+          exportLabel="Export Projects"
+        />
+
+        {/* Stats Cards */}
+        <StatsCards 
+          cards={[
+            {
+              icon: <Grid3X3 className="w-6 h-6 text-white" />,
+              label: "Total Projects",
+              value: stats.total,
+              bgClass: "bg-gradient-to-r from-blue-500 to-cyan-500"
+            },
+            {
+              icon: <TrendingUp className="w-6 h-6 text-white" />,
+              label: "Active Projects",
+              value: stats.active,
+              color: "text-emerald-600",
+              bgClass: "bg-gradient-to-r from-emerald-500 to-green-500"
+            },
+            {
+              icon: <Star className="w-6 h-6 text-white" />,
+              label: "Completed",
+              value: stats.completed,
+              color: "text-purple-600",
+              bgClass: "bg-gradient-to-r from-purple-500 to-pink-500"
+            }
+          ]}
+          gridCols="grid grid-cols-3 gap-4"
+        />
+
+        {/* Search and Filters */}
+        <SearchFilterTabs
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search projects, tags, or team members..."
+          filters={[
+            {
+              key: "status",
+              label: "Status",
+              value: statusFilter,
+              options: [
+                { value: "All", label: "All Status" },
+                { value: "Active", label: "Active" },
+                { value: "Paused", label: "Paused" },
+                { value: "Completed", label: "Completed" }
+              ],
+              onValueChange: (value) => setStatusFilter(value as "Active" | "Paused" | "Completed" | "All")
+            },
+            {
+              key: "priority",
+              label: "Priority",
+              value: priorityFilter,
+              options: [
+                { value: "All", label: "All Priority" },
+                { value: "High", label: "High" },
+                { value: "Medium", label: "Medium" },
+                { value: "Low", label: "Low" }
+              ],
+              onValueChange: (value) => setPriorityFilter(value as "High" | "Medium" | "Low" | "All")
+            }
+          ]}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          showViewToggle={true}
+          owners={owners}
+          groupedByOwner={groupedByOwner}
+          emptyStateIcon={<Grid3X3 className="w-12 h-12 text-gray-400" />}
+          emptyStateTitle="No projects found"
+          emptyStateDescription="Try adjusting your search or filter criteria"
+          gridCols="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          totalCount={extendedProjects.length}
+          filteredCount={filteredProjects.length}
+          itemLabel="projects"
+          allItems={filteredProjects}
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setSelectedOwner(tab);
+          }}
+          onClearFilters={() => {
+            setSearch("");
+            setStatusFilter("All");
+            setPriorityFilter("All");
+            setActiveTab("all");
+            setSelectedOwner("all");
+          }}
+          renderGridItem={() => null}
+          renderListItem={() => null}
+        />
+
+        {/* After SearchFilterTabs, group projects by category and render with subheaders */}
+        {categories.map((category) => {
+          const projectsInCategory = filteredProjects.filter((project) => project.category === category);
+          if (projectsInCategory.length === 0) return null;
+          return (
+            <div key={category}>
+              <CategorySubheader category={category} count={projectsInCategory.length} />
+              <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'flex flex-col gap-2'}>
+                {projectsInCategory.map((project) =>
+                  viewMode === 'grid' ? (
+                    <ProjectCard key={project.id} project={project} />
+                  ) : (
+                    <ProjectListItem key={project.id} project={project} />
+                  )
+                )}
               </div>
-              <div className="flex gap-3">
-                <RoleBasedComponent allowedRoles={['admin']}>
-                  <Button className="shadow-lg" onClick={() => setShowAddModal(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Project
-                            </Button>
-                </RoleBasedComponent>
-                        </div>
-                      </div>
+            </div>
+          );
+        })}
+      </div>
 
-            {/* Stats Cards */}
-            <StatsCards 
-              cards={[
-                {
-                  icon: <Grid3X3 className="w-6 h-6 text-white" />,
-                  label: "Total Projects",
-                  value: stats.total,
-                  bgClass: "bg-gradient-to-r from-blue-500 to-cyan-500"
-                },
-                {
-                  icon: <TrendingUp className="w-6 h-6 text-white" />,
-                  label: "Active Projects",
-                  value: stats.active,
-                  color: "text-emerald-600",
-                  bgClass: "bg-gradient-to-r from-emerald-500 to-green-500"
-                },
-                {
-                  icon: <Star className="w-6 h-6 text-white" />,
-                  label: "Completed",
-                  value: stats.completed,
-                  color: "text-purple-600",
-                  bgClass: "bg-gradient-to-r from-purple-500 to-pink-500"
-                }
-              ]}
-              gridCols="grid grid-cols-3 gap-4"
-            />
-
-            {/* Search and Filters */}
-            <SearchFilterTabs
-              searchValue={search}
-              onSearchChange={setSearch}
-              searchPlaceholder="Search projects, tags, or team members..."
-              filters={[
-                {
-                  key: "status",
-                  label: "Status",
-                  value: statusFilter,
-                  options: [
-                    { value: "All", label: "All Status" },
-                    { value: "Active", label: "Active" },
-                    { value: "Paused", label: "Paused" },
-                    { value: "Completed", label: "Completed" }
-                  ],
-                  onValueChange: (value) => setStatusFilter(value as "Active" | "Paused" | "Completed" | "All")
-                },
-                {
-                  key: "priority",
-                  label: "Priority",
-                  value: priorityFilter,
-                  options: [
-                    { value: "All", label: "All Priority" },
-                    { value: "High", label: "High" },
-                    { value: "Medium", label: "Medium" },
-                    { value: "Low", label: "Low" }
-                  ],
-                  onValueChange: (value) => setPriorityFilter(value as "High" | "Medium" | "Low" | "All")
-                }
-              ]}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-              showViewToggle={true}
-              owners={owners}
-              groupedByOwner={groupedByOwner}
-              renderGridItem={(project) => <ProjectCard key={project.id} project={project} />}
-              renderListItem={(project) => <ProjectListItem key={project.id} project={project} />}
-              emptyStateIcon={<Grid3X3 className="w-12 h-12 text-gray-400" />}
-              emptyStateTitle="No projects found"
-              emptyStateDescription="Try adjusting your search or filter criteria"
-              gridCols="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              totalCount={extendedProjects.length}
-              filteredCount={filteredProjects.length}
-              itemLabel="projects"
-              allItems={filteredProjects}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              onClearFilters={() => {
-                setSearch("");
-                setStatusFilter("All");
-                setPriorityFilter("All");
-                setActiveTab("all");
-              }}
-            />
-          </div>
-
-          {/* Add/Edit Project Modal */}
-          <EntityModal
-            open={showAddModal}
-            onClose={() => { setShowAddModal(false); setEditMode(false); setEditInitialValues(null); }}
-            onSubmit={editMode ? handleEditProject : handleAddProject}
-            loading={adding}
-            title={editMode ? "Edit Project" : "Add New Project"}
-            buttonText={editMode ? "Save Changes" : "Create Project"}
-            fields={projectFields}
-            initialValues={editInitialValues}
-          />
-        </BaseLayout>
+      {/* Add/Edit Project Modal */}
+      <EntityModal
+        open={addModal.isOpen}
+        onClose={() => { addModal.close(); setEditMode(false); setEditingId(null); form.reset(); }}
+        onSubmit={handleModalSubmit}
+        loading={form.isSubmitting}
+        title={editMode ? "Edit Project" : "Add New Project"}
+        buttonText={editMode ? "Save Changes" : "Create Project"}
+        fields={projectFields}
+        initialValues={form.data}
+      />
+    </BaseLayout>
   )
 }

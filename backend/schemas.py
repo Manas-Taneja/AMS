@@ -181,6 +181,7 @@ class ProjectBase(BaseModel):
     name: str
     status: str
     progress: int
+    category: str | None = None
 
 class ProjectCreate(ProjectBase):
     pass
@@ -190,6 +191,7 @@ class ProjectUpdate(BaseModel):
     name: str | None = None
     status: str | None = None
     progress: int | None = None
+    category: str | None = None
 
 class Project(ProjectBase):
     id: int

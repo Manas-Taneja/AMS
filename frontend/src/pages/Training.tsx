@@ -3,19 +3,14 @@
 import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { BaseLayout } from "@/components/BaseLayout"
-import { TrainingLevelBadge } from "@/components/TrainingLevelBadge"
+import { SearchFilterTabs } from "@/components/SearchFilterTabs"
 import { TrainingStatsCard } from "@/components/TrainingStatsCard"
-import SearchFilterTabs from "@/components/SearchFilterTabs"
-import type { FilterOption } from "@/components/SearchFilterTabs"
+import { TrainingLevelBadge } from "@/components/TrainingLevelBadge"
+import { UnifiedHeader } from "@/components/UnifiedHeader"
 import { GraduationCap } from "lucide-react"
-import { 
-  fadeInUpVariants, 
-  cardVariants, 
-  containerVariants, 
-  itemVariants 
-} from "@/utils/animations"
+import { containerVariants, cardVariants, itemVariants } from "@/utils/animations"
 
 // Mock data for different job titles and their certifications
 const trainingData = {
@@ -155,7 +150,7 @@ const trainingData = {
     ],
   },
   analyst: {
-    title: "Data Analyst",
+    title: "Management",
     certifications: [
       {
         id: 13,
@@ -201,9 +196,7 @@ const trainingData = {
   },
 }
 
-
-
-export default function TrainingCertifications() {
+export default function Training() {
   const [searchValue, setSearchValue] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [levelFilter, setLevelFilter] = useState("all")
@@ -231,7 +224,7 @@ export default function TrainingCertifications() {
   // Group certifications by job title (owner)
   const groupedByOwner = useMemo(() => {
     const grouped: Record<string, typeof allCertifications> = {}
-    Object.entries(trainingData).forEach(([key, data]) => {
+    Object.entries(trainingData).forEach(([, data]) => {
       grouped[data.title] = data.certifications.filter(cert => 
         filteredCertifications.some(fc => fc.id === cert.id)
       )
@@ -242,7 +235,7 @@ export default function TrainingCertifications() {
   const owners = Object.keys(trainingData).map(key => trainingData[key as keyof typeof trainingData].title)
 
   // Filter options
-  const levelFilterOptions: FilterOption[] = [
+  const levelFilterOptions = [
     { value: "all", label: "All Levels" },
     { value: "L1", label: "Beginner (L1)" },
     { value: "L2", label: "Intermediate (L2)" },
@@ -334,21 +327,29 @@ export default function TrainingCertifications() {
     setLevelFilter("all")
   }
 
+  const handleExport = () => {
+    // Export functionality
+    alert('Export training data clicked')
+  }
+
+  const handleAdd = () => {
+    // Add new training course
+    alert('Add new training course clicked')
+  }
+
   return (
     <BaseLayout className="p-8">
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="container mx-auto px-4 max-w-7xl">
-          <motion.div 
-            className="mb-8"
-            variants={fadeInUpVariants}
-            initial="initial"
-            animate="in"
-          >
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Training & Certifications</h1>
-            <p className="text-lg text-gray-600">
-              Comprehensive training programs and certifications for our operations team across all specializations
-            </p>
-          </motion.div>
+          {/* Unified Header */}
+          <UnifiedHeader
+            title="Training & Certifications"
+            subtitle="Comprehensive training programs and certifications for our operations team across all specializations"
+            onAdd={handleAdd}
+            addLabel="Add Course"
+            onExport={handleExport}
+            exportLabel="Export Training Data"
+          />
 
           <motion.div
             variants={containerVariants}

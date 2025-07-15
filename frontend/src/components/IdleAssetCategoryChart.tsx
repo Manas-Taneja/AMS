@@ -11,9 +11,9 @@ interface Category {
 }
 
 const chartTypes = [
-  { value: 'drones', label: 'Drones by Project' },
-  { value: 'staff', label: 'Staff by Job Title' },
-  { value: 'training', label: 'Training Personnel' },
+  { value: 'drones', label: 'Drones' },
+  { value: 'staff', label: 'Staff' },
+  { value: 'training', label: 'Training' },
   { value: 'itComponents', label: 'IT Components' },
 ];
 
@@ -29,7 +29,7 @@ const IdleAssetCategoryChart: React.FC = () => {
     xAxis: {
       type: 'category',
       data: categories.map(cat => cat.name),
-      axisLabel: { fontSize: 14 },
+      axisLabel: { fontSize: 12, interval: 0, rotate: 15 },
     },
     yAxis: {
       type: 'value',
@@ -45,7 +45,7 @@ const IdleAssetCategoryChart: React.FC = () => {
         barMaxWidth: 60,
       },
     ],
-    grid: { left: 40, right: 20, bottom: 60, top: 40 },
+    grid: { left: 60, right: 0, bottom: 60, top: 40 },
     color: ['#2563eb'],
   });
 

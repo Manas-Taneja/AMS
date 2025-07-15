@@ -11,9 +11,9 @@ interface Category {
 }
 
 const chartTypes = [
-  { value: 'drones', label: 'Drones by Project' },
-  { value: 'staff', label: 'Staff by Job Title' },
-  { value: 'training', label: 'Training Personnel' },
+  { value: 'drones', label: 'Drones' },
+  { value: 'staff', label: 'Staff' },
+  { value: 'training', label: 'Training' },
   { value: 'itComponents', label: 'IT Components' },
 ];
 

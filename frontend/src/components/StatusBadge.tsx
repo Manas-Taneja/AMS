@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { getStatusOption } from '@/config/statusConfig';
 import type { StatusBadgeProps } from '@/config/statusConfig';

@@ -1,4 +1,4 @@
-import React from "react"
+
 import { useParams } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -199,6 +199,10 @@ export default function StaffDetail() {
             <div className="space-y-1">
               <Label className="text-sm font-medium text-muted-foreground">Company</Label>
               <p className="text-base">{staff?.company}</p>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm font-medium text-muted-foreground">Certifications</Label>
+              <Badge className="w-fit bg-blue-100 text-blue-800">Drone Data Processing Fundamentals- L1</Badge>
             </div>
           </div>
         )}

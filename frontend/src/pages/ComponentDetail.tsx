@@ -305,9 +305,9 @@ export default function ComponentDetail() {
   return (
     <DetailPageLayout
       title={component?.name || ""}
-      subtitle="Component management"
-      backRoute="/components"
-      entityName="Component"
+      subtitle="Item management"
+      backRoute="/items"
+      entityName="Item"
       loading={loading}
       editMode={editMode}
       saving={saving}

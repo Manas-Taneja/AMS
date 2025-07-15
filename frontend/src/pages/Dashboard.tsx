@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-// import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Card, 
   CardContent, 
@@ -12,25 +12,20 @@ import {
   Users, 
   AlertTriangle, 
   CheckCircle, 
-  Clock, 
   Plus
 } from 'lucide-react';
 import { BaseLayout } from "../components/BaseLayout";
 import { UnifiedHeader } from '../components/UnifiedHeader';
 import InteractiveMap from '../components/InteractiveMap';
 import AssetCategoryChart from '../components/AssetCategoryChart';
-import ReactECharts from 'echarts-for-react';
 import { 
-  cardVariants, 
   containerVariants, 
   itemVariants, 
   fadeInUpVariants,
-  chartVariants,
-  buttonVariants
 } from '@/utils/animations';
-import { sampleChartData } from '../data/sampleChartData';
 import IdleAssetCategoryChart from '../components/IdleAssetCategoryChart';
 import UtilizationChart from '@/components/UtilizationChart';
+import IdleNotifications from '../components/IdleNotifications';
 
 // Mock data for the dashboard
 const mockData = {
@@ -56,6 +51,11 @@ const mockData = {
     { id: 3, type: 'asset' as const, name: 'Router Cisco 2900', lastUsed: '30 days ago', location: 'Warehouse' },
     { id: 4, type: 'location' as const, name: 'Training Centre - South', lastUsed: '45 days ago', location: 'Training Centre - South' },
     { id: 5, type: 'location' as const, name: 'Branch Office C', lastUsed: '60 days ago', location: 'Branch Office C' },
+    { id: 6, type: 'asset' as const, name: 'DJI Mavic 3 Pro', lastUsed: '35 days ago', location: 'Data Center' },
+    { id: 7, type: 'asset' as const, name: 'Thermal Imaging Camera', lastUsed: '42 days ago', location: 'Branch Office A' },
+    { id: 8, type: 'asset' as const, name: 'RTK GPS Module', lastUsed: '55 days ago', location: 'Headquarters' },
+    { id: 9, type: 'location' as const, name: 'Conference Room B', lastUsed: '38 days ago', location: 'Conference Room B' },
+    { id: 10, type: 'asset' as const, name: 'Network Switch 48-Port', lastUsed: '67 days ago', location: 'Warehouse' },
   ]
 };
 
@@ -63,14 +63,21 @@ const mockData = {
 interface KeyMetricsProps {
   data: typeof mockData;
 }
-
-interface IdleAsset {
+interface IdleItemWithDays {
   id: number;
   type: 'asset' | 'location';
   name: string;
   lastUsed: string;
   location: string;
+  daysIdle: number;
 }
+
+// Helper function to calculate days idle from "X days ago" string
+const calculateDaysIdle = (lastUsed: string | undefined): number => {
+  if (!lastUsed) return 0;
+  const match = lastUsed.match(/(\d+)\s*days?\s*ago/);
+  return match ? parseInt(match[1]!, 10) : 0;
+};
 
 function KeyMetrics({ data }: KeyMetricsProps) {
   return (
@@ -170,14 +177,27 @@ function QuickActions() {
 }
 
 const Dashboard: React.FC = () => {
-  // const [search, setSearch] = useState('');
+  const navigate = useNavigate();
+  const [dismissedNotifications, setDismissedNotifications] = useState<Set<number>>(new Set());
+
+  // Transform idle assets to include days idle calculation
+  const idleItemsWithDays: IdleItemWithDays[] = useMemo(() => 
+    mockData.idleAssets.map(asset => ({
+      ...asset,
+      daysIdle: calculateDaysIdle(asset.lastUsed!)
+    })), []
+  );
+
+  // Filter out dismissed notifications
+  const activeIdleItems = idleItemsWithDays.filter(item => !dismissedNotifications.has(item.id));
 
   // Placeholder handlers
   const handleExport = () => alert('Export Report clicked');
   const handleAdd = () => alert('Add Asset clicked');
-  // const handleFilter = () => alert('Filter clicked');
-  // const handleAnalytics = () => alert('Analytics clicked');
-  // const handleSearchChange = (value: string) => setSearch(value);
+  
+  const handleDismissNotification = (id: number) => {
+    setDismissedNotifications(prev => new Set([...prev, id]));
+  };
 
   return (
     <BaseLayout className="p-6">
@@ -198,6 +218,20 @@ const Dashboard: React.FC = () => {
             exportLabel="Export Report"
             />
         </motion.div>
+
+        {/* Idle Notifications - Toast Only */}
+        <IdleNotifications
+          idleItems={activeIdleItems}
+          onDismiss={handleDismissNotification}
+          onViewDetails={(id, type) => {
+            if (type === 'asset') {
+              navigate(`/items/${id}`);
+            } else {
+              navigate(`/location/${id}`);
+            }
+          }}
+        />
+
           {/* <DashboardSearchFilter
             search={search}
             onSearchChange={handleSearchChange}

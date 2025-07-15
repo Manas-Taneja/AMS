@@ -150,9 +150,9 @@ const UtilizationChart: React.FC = () => {
           <TabsContent value={activeChartType} className="mt-2">
             <Card>
               <CardHeader>
-                <CardTitle>Asset Recovery Rate</CardTitle>
+                <CardTitle>Asset Utilization</CardTitle>
                 <CardDescription>
-                  Recovery rate = (Recovered Assets / Total Idle Assets) × 100
+                    Utilization rate = (Recovered Assets / Total Idle Assets) × 100
                 </CardDescription>
               </CardHeader>
               <CardContent>

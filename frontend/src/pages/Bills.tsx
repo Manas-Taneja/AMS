@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { useAuth } from '../context/AuthContext';
-import { Upload, Plus, Search, Filter, Download, Eye, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Upload, Plus, Search, Filter, Download, Eye, Edit, Trash2, CheckCircle } from 'lucide-react';
 import { BaseLayout } from '../components/BaseLayout';
+import { UnifiedHeader } from '../components/UnifiedHeader';
 
 interface Bill {
   id: number;
@@ -301,6 +302,11 @@ const Bills: React.FC = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
+  const handleExport = () => {
+    // Export functionality
+    alert('Export bills clicked')
+  }
+
   if (loading) {
     return (
       <BaseLayout loading={true}>
@@ -309,157 +315,26 @@ const Bills: React.FC = () => {
     );
   }
 
+  if (error) {
+    return (
+      <BaseLayout error={error}>
+        <div className="p-8" />
+      </BaseLayout>
+    );
+  }
+
   return (
-    <BaseLayout error={error}>
+    <BaseLayout>
       <div className="p-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Bills Management</h1>
-            <p className="text-muted-foreground">Upload and manage bills for approval</p>
-          </div>
-          <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Upload Bill
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] bg-white">
-              <DialogHeader>
-                <DialogTitle>Upload New Bill</DialogTitle>
-                <DialogDescription>
-                  Fill in the bill details and upload the corresponding file.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="title">Title *</Label>
-                    <Input
-                      id="title"
-                      value={uploadForm.title}
-                      onChange={(e) => setUploadForm({...uploadForm, title: e.target.value})}
-                      placeholder="Bill title"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="amount">Amount *</Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      step="0.01"
-                      value={uploadForm.amount}
-                      onChange={(e) => setUploadForm({...uploadForm, amount: e.target.value})}
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="currency">Currency</Label>
-                    <Select value={uploadForm.currency} onValueChange={(value) => setUploadForm({...uploadForm, currency: value})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="EUR">EUR</SelectItem>
-                        <SelectItem value="GBP">GBP</SelectItem>
-                        <SelectItem value="INR">INR</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="category">Category *</Label>
-                    <Select value={uploadForm.category} onValueChange={(value) => setUploadForm({...uploadForm, category: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Utilities">Utilities</SelectItem>
-                        <SelectItem value="Equipment">Equipment</SelectItem>
-                        <SelectItem value="Services">Services</SelectItem>
-                        <SelectItem value="Software">Software</SelectItem>
-                        <SelectItem value="Travel">Travel</SelectItem>
-                        <SelectItem value="Office Supplies">Office Supplies</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="bill_date">Bill Date</Label>
-                    <Input
-                      id="bill_date"
-                      type="date"
-                      value={uploadForm.bill_date}
-                      onChange={(e) => setUploadForm({...uploadForm, bill_date: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="due_date">Due Date</Label>
-                    <Input
-                      id="due_date"
-                      type="date"
-                      value={uploadForm.due_date}
-                      onChange={(e) => setUploadForm({...uploadForm, due_date: e.target.value})}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="vendor">Vendor *</Label>
-                  <Input
-                    id="vendor"
-                    value={uploadForm.vendor}
-                    onChange={(e) => setUploadForm({...uploadForm, vendor: e.target.value})}
-                    placeholder="Vendor name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={uploadForm.description}
-                    onChange={(e) => setUploadForm({...uploadForm, description: e.target.value})}
-                    placeholder="Bill description"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="notes">Notes</Label>
-                  <Textarea
-                    id="notes"
-                    value={uploadForm.notes}
-                    onChange={(e) => setUploadForm({...uploadForm, notes: e.target.value})}
-                    placeholder="Additional notes"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="file">Bill File *</Label>
-                  <Input
-                    id="file"
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                  />
-                  {selectedFile && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Selected: {selectedFile.name} ({formatFileSize(selectedFile.size)})
-                    </p>
-                  )}
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleUpload} disabled={uploading}>
-                  {uploading ? 'Uploading...' : 'Upload Bill'}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+        {/* Unified Header */}
+        <UnifiedHeader
+          title="Bills Management"
+          subtitle="Upload and manage bills for approval"
+          onAdd={() => setUploadDialogOpen(true)}
+          addLabel="Upload Bill"
+          onExport={handleExport}
+          exportLabel="Export Bills"
+        />
 
         {error && (
           <Alert className="mb-6">
@@ -667,6 +542,144 @@ const Bills: React.FC = () => {
             ))
           )}
         </div>
+
+        {/* Upload Dialog */}
+        <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+          <DialogContent className="sm:max-w-[600px] bg-white">
+            <DialogHeader>
+              <DialogTitle>Upload New Bill</DialogTitle>
+              <DialogDescription>
+                Fill in the bill details and upload the corresponding file.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="title">Title *</Label>
+                  <Input
+                    id="title"
+                    value={uploadForm.title}
+                    onChange={(e) => setUploadForm({...uploadForm, title: e.target.value})}
+                    placeholder="Bill title"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="amount">Amount *</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    value={uploadForm.amount}
+                    onChange={(e) => setUploadForm({...uploadForm, amount: e.target.value})}
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="currency">Currency</Label>
+                  <Select value={uploadForm.currency} onValueChange={(value) => setUploadForm({...uploadForm, currency: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD</SelectItem>
+                      <SelectItem value="EUR">EUR</SelectItem>
+                      <SelectItem value="GBP">GBP</SelectItem>
+                      <SelectItem value="INR">INR</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="category">Category *</Label>
+                  <Select value={uploadForm.category} onValueChange={(value) => setUploadForm({...uploadForm, category: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Utilities">Utilities</SelectItem>
+                      <SelectItem value="Equipment">Equipment</SelectItem>
+                      <SelectItem value="Services">Services</SelectItem>
+                      <SelectItem value="Software">Software</SelectItem>
+                      <SelectItem value="Travel">Travel</SelectItem>
+                      <SelectItem value="Office Supplies">Office Supplies</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="bill_date">Bill Date</Label>
+                  <Input
+                    id="bill_date"
+                    type="date"
+                    value={uploadForm.bill_date}
+                    onChange={(e) => setUploadForm({...uploadForm, bill_date: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="due_date">Due Date</Label>
+                  <Input
+                    id="due_date"
+                    type="date"
+                    value={uploadForm.due_date}
+                    onChange={(e) => setUploadForm({...uploadForm, due_date: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="vendor">Vendor *</Label>
+                <Input
+                  id="vendor"
+                  value={uploadForm.vendor}
+                  onChange={(e) => setUploadForm({...uploadForm, vendor: e.target.value})}
+                  placeholder="Vendor name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={uploadForm.description}
+                  onChange={(e) => setUploadForm({...uploadForm, description: e.target.value})}
+                  placeholder="Bill description"
+                />
+              </div>
+              <div>
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={uploadForm.notes}
+                  onChange={(e) => setUploadForm({...uploadForm, notes: e.target.value})}
+                  placeholder="Additional notes"
+                />
+              </div>
+              <div>
+                <Label htmlFor="file">Bill File *</Label>
+                <Input
+                  id="file"
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                />
+                {selectedFile && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Selected: {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                  </p>
+                )}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpload} disabled={uploading}>
+                {uploading ? 'Uploading...' : 'Upload Bill'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Approval Dialog */}
         <Dialog open={approvalDialogOpen} onOpenChange={setApprovalDialogOpen}>

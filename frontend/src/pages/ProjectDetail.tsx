@@ -4,10 +4,13 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { Building2, CheckCircle, Pause, Clock, Calendar } from "lucide-react"
+import { Building2, CheckCircle, Pause, Clock, Calendar, FileText } from "lucide-react"
 import { useDetailPage } from "../hooks/useDetailPage"
 import { DetailPageLayout } from "../components/DetailPageLayout"
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card"
+import { ManagerOrAdmin } from "../components/RoleBasedComponent"
+import { useAuth } from "../context/AuthContext"
+import React from "react"
 
 interface Project {
   id: number
@@ -17,6 +20,10 @@ interface Project {
   progress: number
   created_at: string
   updated_at: string
+  funding_type?: "govt" | "self"
+  funding_body?: string
+  funding_received?: number
+  report_links?: { label: string; url: string }[]
 }
 
 interface ProjectUpdate {
@@ -24,6 +31,10 @@ interface ProjectUpdate {
   status?: string
   progress?: number
   thumbnail_url?: string
+  funding_type?: "govt" | "self"
+  funding_body?: string
+  funding_received?: number
+  report_links?: { label: string; url: string }[]
 }
 
 const statusOptions = [
@@ -60,6 +71,9 @@ const getStatusColor = (status: string) => {
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>()
+  const { user } = useAuth();
+  const [newReportLabel, setNewReportLabel] = React.useState("");
+  const [newReportUrl, setNewReportUrl] = React.useState("");
   const {
     data: project,
     loading,
@@ -137,6 +151,95 @@ export default function ProjectDetail() {
                 placeholder="Enter thumbnail URL"
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="funding_type">Funding Type</Label>
+              <Select
+                value={formData.funding_type || "self"}
+                onValueChange={value => setFormData({ ...formData, funding_type: value as "govt" | "self" })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select funding type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="govt">Government Funded</SelectItem>
+                  <SelectItem value="self">Self Funded</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {formData.funding_type === "govt" && (
+              <div className="space-y-2">
+                <Label htmlFor="funding_body">Funded by (Govt. Body)</Label>
+                <Input
+                  id="funding_body"
+                  value={formData.funding_body || ""}
+                  onChange={e => setFormData({ ...formData, funding_body: e.target.value })}
+                  placeholder="Enter government body name"
+                />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="funding_received">Funding Received (₹)</Label>
+              <Input
+                id="funding_received"
+                type="number"
+                min={0}
+                value={formData.funding_received ?? ""}
+                onChange={e => setFormData({ ...formData, funding_received: Number(e.target.value) })}
+                placeholder="Enter amount received"
+              />
+            </div>
+            <div className="space-y-2 col-span-2">
+              <Label>Project Reports</Label>
+              <div className="flex gap-2 mb-2">
+                <Input
+                  value={newReportLabel}
+                  onChange={e => setNewReportLabel(e.target.value)}
+                  placeholder="Report label (e.g. Q1 Report)"
+                />
+                <Input
+                  value={newReportUrl}
+                  onChange={e => setNewReportUrl(e.target.value)}
+                  placeholder="Report URL"
+                />
+                <button
+                  type="button"
+                  className="px-3 py-1 bg-blue-500 text-white rounded"
+                  onClick={() => {
+                    if (newReportLabel && newReportUrl) {
+                      setFormData({
+                        ...formData,
+                        report_links: [
+                          ...(formData.report_links || []),
+                          { label: newReportLabel, url: newReportUrl },
+                        ],
+                      });
+                      setNewReportLabel("");
+                      setNewReportUrl("");
+                    }
+                  }}
+                >
+                  Add
+                </button>
+              </div>
+              <ul className="space-y-1">
+                {(formData.report_links || []).map((link, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <span>{link.label}:</span>
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{link.url}</a>
+                    <button
+                      type="button"
+                      className="text-red-500 ml-2"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          report_links: (formData.report_links || []).filter((_, i) => i !== idx),
+                        });
+                      }}
+                    >Remove</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -165,6 +268,37 @@ export default function ProjectDetail() {
                 <span className="text-gray-400">No thumbnail</span>
               )}
             </div>
+            <div className="space-y-1">
+              <Label className="text-sm font-medium text-muted-foreground">Funding Type</Label>
+              <span className="text-base font-medium capitalize">{project?.funding_type === "govt" ? "Government Funded" : "Self Funded"}</span>
+            </div>
+            {project?.funding_type === "govt" && (
+              <div className="space-y-1">
+                <Label className="text-sm font-medium text-muted-foreground">Funded by (Govt. Body)</Label>
+                <span className="text-base font-medium">{project?.funding_body || <span className="text-gray-400">N/A</span>}</span>
+              </div>
+            )}
+            <ManagerOrAdmin>
+              <div className="space-y-1">
+                <Label className="text-sm font-medium text-muted-foreground">Funding Received</Label>
+                <span className="text-base font-medium">₹ {project?.funding_received?.toLocaleString() || <span className="text-gray-400">N/A</span>}</span>
+              </div>
+            </ManagerOrAdmin>
+            <div className="space-y-1 col-span-2">
+              <Label className="text-sm font-medium text-muted-foreground">Project Reports</Label>
+              {(project?.report_links && project.report_links.length > 0) ? (
+                <ul className="space-y-1">
+                  {project.report_links.map((link, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <span>{link.label}:</span>
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{link.url}</a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span className="text-gray-400">No reports available</span>
+              )}
+            </div>
           </div>
         )}
       </CardContent>
@@ -172,40 +306,32 @@ export default function ProjectDetail() {
   )
 
   const sidebarContent = (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
-          Timeline
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-1">
-          <Label className="text-xs font-medium text-muted-foreground">Created</Label>
-          <p className="text-sm">
-            {project?.created_at && new Date(project.created_at).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs font-medium text-muted-foreground">Last Updated</Label>
-          <p className="text-sm">
-            {project?.updated_at && new Date(project.updated_at).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <FileText className="h-4 w-4" /> Gantt Chart
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-32 flex items-center justify-center text-gray-400 italic">
+            [Gantt chart visualization coming soon]
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <FileText className="h-4 w-4" /> Work Breakdown Structure
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-32 flex items-center justify-center text-gray-400 italic">
+            [Work Breakdown Structure visualization coming soon]
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 
   return (

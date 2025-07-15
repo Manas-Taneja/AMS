@@ -1,16 +1,14 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
 import {
-  Plus,
-  Download,
   MoreHorizontal,
   MapPin,
   Users,
   Building,
   Eye,
   Edit,
-  Trash2,
+  Trash2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -20,27 +18,25 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "../context/AuthContext"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Input as ShadInput } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+
 import { useNavigate } from "react-router-dom"
-import { getStatusColor, getTypeIcon } from "../utils/locationUtils"
-import StatsCard from "../components/StatsCard"
+import { getTypeIcon } from "../utils/locationUtils"
 import { BaseLayout } from "../components/BaseLayout"
-import EmptyState from "../components/ui/EmptyState"
 import { locationStatusConfig } from "../utils/statusColors"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs"
-import { AnimatePresence, motion } from "framer-motion"
+import { motion } from "framer-motion"
 import { RoleBasedComponent, ManagerOrAdmin } from "../components/RoleBasedComponent"
 import { StatsCards } from "../components/StatsCards"
 import { EntityModal } from "../components/EntityModal"
 import type { FieldConfig } from "../components/EntityModal"
 import SearchFilterTabs from "../components/SearchFilterTabs"
-import { apiService } from "../services/api"
+import { useLocationsData } from "../hooks/useApiData"
+import { useLocationsCrud } from "../hooks/useCrud"
+import { useForm, validationRules } from "../hooks/useForm"
+import { useModal } from "../hooks/useModal"
+import { UnifiedHeader } from "../components/UnifiedHeader"
 
 interface Location {
   id: number;
@@ -57,69 +53,110 @@ interface Location {
   owner?: string;
 }
 
-interface LocationForm {
+interface LocationFormData {
   name: string;
   address: string;
   team: string;
   manager: string;
   project: string;
+  status: string;
+  type: string;
+  pointOfContact: string;
+  [key: string]: string | number | boolean | string[] | undefined;
 }
+
+
 
 export default function LocationsPage() {
   const { token } = useAuth();
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { data: locations, loading, error, refetch } = useLocationsData(token || undefined);
+  const { create, update } = useLocationsCrud(token || undefined);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [adding, setAdding] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [editInitialValues, setEditInitialValues] = useState<any>(null);
   const navigate = useNavigate();
   
+  // Modal management
+  const addModal = useModal();
+  const [editMode, setEditMode] = useState(false);
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+  
+  // Form management
+  const form = useForm<LocationFormData>({
+    initialData: {
+      name: "",
+      address: "",
+      team: "",
+      manager: "",
+      project: "",
+      status: "active",
+      type: "headquarters",
+      pointOfContact: "",
+    },
+    validationRules: [
+      validationRules.required("name"),
+      validationRules.required("address"),
+      validationRules.required("manager"),
+      validationRules.required("project"),
+      validationRules.positiveNumber("team"),
+    ],
+    onSubmit: async (formData) => {
+      const locationData = {
+        ...formData,
+        team: Number(formData.team),
+      };
+      
+      if (editMode && editingId) {
+        await update(editingId, locationData);
+      } else {
+        await create(locationData);
+      }
+      
+      addModal.close();
+      setEditMode(false);
+      setEditingId(null);
+      form.reset();
+      refetch();
+    },
+  });
+  
   // For owner tabs
-  const ownerList = ["IIDT", "Prakhar Aviation", "PSSL"];
+  const ownerList = ["PSSL", "IIDT", "Prakhar Aviation"];
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeTab, setActiveTab] = useState<string>("all");
   // Assign mock owners to locations
   const locationsWithOwners: (Location & { owner: string })[] = useMemo(() => locations.map((loc, idx) => ({ ...loc, owner: ownerList[idx % ownerList.length] || "Unknown" })), [locations]);
   const owners: string[] = useMemo(() => Array.from(new Set(locationsWithOwners.map((l) => l.owner ?? "Unknown"))), [locationsWithOwners]);
-  const groupedByOwner: Record<string, (Location & { owner: string })[]> = useMemo(() => {
+  // Grouped by owner for ALL locations (unfiltered)
+  // const groupedByOwner: Record<string, (Location & { owner: string })[]> = useMemo(() => {
+  //   const map: Record<string, (Location & { owner: string })[]> = {};
+  //   owners.forEach((owner) => {
+  //     map[owner] = locationsWithOwners.filter((location: Location & { owner: string }) => (location.owner ?? "Unknown") === owner);
+  //   });
+  //   return map;
+  // }, [owners, locationsWithOwners]);
+
+  // Grouped by owner for FILTERED locations
+  const filteredLocationsWithOwners: (Location & { owner: string })[] = useMemo(() => locations.filter((location) => {
+    const matchesSearch =
+      location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      location.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      location.pointOfContact.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      location.project.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || location.status === statusFilter;
+    const matchesType = typeFilter === "all" || location.type === typeFilter;
+    return matchesSearch && matchesStatus && matchesType;
+  }).map((loc, idx) => ({ ...loc, owner: ownerList[idx % ownerList.length] || "Unknown" })), [locations, searchTerm, statusFilter, typeFilter, ownerList]);
+  const filteredGroupedByOwner: Record<string, (Location & { owner: string })[]> = useMemo(() => {
     const map: Record<string, (Location & { owner: string })[]> = {};
     owners.forEach((owner) => {
-      map[owner] = locationsWithOwners.filter((location: Location & { owner: string }) => (location.owner ?? "Unknown") === owner);
+      map[owner] = filteredLocationsWithOwners.filter((location: Location & { owner: string }) => (location.owner ?? "Unknown") === owner);
     });
     return map;
-  }, [owners, locationsWithOwners]);
+  }, [owners, filteredLocationsWithOwners]);
   
-  const fetchLocations = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const data = await apiService.get("/locations", token || undefined) as any[];
-      setLocations(
-        data.map((loc: any) => ({
-          ...loc,
-          pointOfContact: loc.manager,
-          status: "active", // TODO: Map real status if available
-          type: "branch", // TODO: Map real type if available
-          assetCount: 0, // TODO: Fetch asset count if available
-          avatar: loc.manager ? loc.manager.split(" ").map((n: string) => n[0]).join("") : "?",
-        }))
-      );
-    } catch {
-      setError("Failed to fetch locations");
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    if (token) fetchLocations();
-    // eslint-disable-next-line
-  }, [token]);
 
   const handleExport = () => {
     const csvRows = [
@@ -153,54 +190,29 @@ export default function LocationsPage() {
     { name: "project", label: "Project", type: "text", required: true },
   ];
 
-  const handleAddLocation = async (data: any) => {
-    setAdding(true);
-    try {
-      await apiService.post("/locations", {
-        ...data,
-        team: Number(data.team),
-      }, token || undefined);
-      setShowAddModal(false);
-      fetchLocations();
-    } catch {
-      // handle error
-    } finally {
-      setAdding(false);
-    }
-  };
-
   const onEditLocation = (id: number) => {
     const loc = locations.find(l => l.id === id);
     if (!loc) return;
     setEditMode(true);
-    setEditInitialValues({
-      name: loc.name,
-      address: loc.address,
-      team: String(loc.team),
-      manager: loc.manager,
-      project: loc.project,
-    });
-    setShowAddModal(true);
+    setEditingId(id);
+    form.setFieldValue("name", loc.name);
+    form.setFieldValue("address", loc.address);
+    form.setFieldValue("team", String(loc.team));
+    form.setFieldValue("manager", loc.manager);
+    form.setFieldValue("project", loc.project);
+    form.setFieldValue("status", loc.status);
+    form.setFieldValue("type", loc.type);
+    form.setFieldValue("pointOfContact", loc.pointOfContact);
+    addModal.open();
   };
 
-  const handleEditLocation = async (data: any) => {
-    setAdding(true);
-    try {
-      const id = locations.find(l => l.name === data.name)?.id;
-      if (!id) throw new Error('Location not found');
-      await apiService.put(`/locations/${id}`, {
-        ...data,
-        team: Number(data.team),
-      }, token || undefined);
-      setShowAddModal(false);
-      setEditMode(false);
-      setEditInitialValues(null);
-      fetchLocations();
-    } catch {
-      // handle error
-    } finally {
-      setAdding(false);
-    }
+  const handleModalSubmit = async (data: Record<string, any>) => {
+    // Update form data with modal data
+    Object.entries(data).forEach(([key, value]) => {
+      form.setFieldValue(key as keyof LocationFormData, value);
+    });
+    // Submit the form
+    await form.handleSubmit();
   };
 
   const totalLocations = locations.length;
@@ -330,125 +342,115 @@ export default function LocationsPage() {
   return (
     <BaseLayout className="p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Locations</h1>
-                <p className="text-gray-600 mt-1">Manage your asset locations and teams</p>
-              </div>
-              <div className="flex gap-3">
-                <RoleBasedComponent allowedRoles={['admin']}>
-                  <Button variant="outline" className="gap-2 bg-transparent" onClick={handleExport}>
-                    <Download className="h-4 w-4" />
-                    Export
-                  </Button>
-                  <Button className="gap-2" onClick={() => setShowAddModal(true)}>
-                    <Plus className="h-4 w-4" />
-                    Add Location
-                  </Button>
-                </RoleBasedComponent>
-              </div>
-            </div>
+        {/* Unified Header */}
+        <UnifiedHeader
+          title="Locations"
+          subtitle="Manage your asset locations and teams"
+          onAdd={() => addModal.open()}
+          addLabel="Add Location"
+          onExport={handleExport}
+          exportLabel="Export Locations"
+        />
 
-            {/* Stats Cards */}
-            <StatsCards 
-              cards={[
-                {
-                  icon: <Building className="h-5 w-5 text-blue-600" />,
-                  label: "Total Locations",
-                  value: totalLocations,
-                  bgClass: "bg-blue-100"
-                },
-                {
-                  icon: <MapPin className="h-5 w-5 text-green-600" />,
-                  label: "Active Locations",
-                  value: activeLocations,
-                  bgClass: "bg-green-100"
-                },
-                {
-                  icon: <Users className="h-5 w-5 text-purple-600" />,
-                  label: "Team Members",
-                  value: totalTeamMembers,
-                  bgClass: "bg-purple-100"
-                },
-                {
-                  icon: <Building className="h-5 w-5 text-orange-600" />,
-                  label: "Total Assets",
-                  value: totalAssets,
-                  bgClass: "bg-orange-100"
-                }
-              ]}
-              gridCols="grid grid-cols-1 md:grid-cols-4 gap-4"
-            />
+        {/* Stats Cards */}
+        <StatsCards 
+          cards={[
+            {
+              icon: <Building className="h-5 w-5 text-blue-600" />,
+              label: "Total Locations",
+              value: totalLocations,
+              bgClass: "bg-blue-100"
+            },
+            {
+              icon: <MapPin className="h-5 w-5 text-green-600" />,
+              label: "Active Locations",
+              value: activeLocations,
+              bgClass: "bg-green-100"
+            },
+            {
+              icon: <Users className="h-5 w-5 text-purple-600" />,
+              label: "Locations under Consideration",
+              value: totalTeamMembers,
+              bgClass: "bg-purple-100"
+            },
+            {
+              icon: <Building className="h-5 w-5 text-orange-600" />,
+              label: "Total Assets",
+              value: totalAssets,
+              bgClass: "bg-orange-100"
+            }
+          ]}
+          gridCols="grid grid-cols-1 md:grid-cols-4 gap-4"
+        />
 
-            {/* Search and Filters */}
-            <SearchFilterTabs
-              searchValue={searchTerm}
-              onSearchChange={setSearchTerm}
-              searchPlaceholder="Search locations, addresses, contacts..."
-              allItems={locations}
-              filters={[
-                {
-                  key: "status",
-                  label: "Status",
-                  value: statusFilter,
-                  options: [
-                    { value: "all", label: "All Status" },
-                    { value: "active", label: "Active" },
-                    { value: "maintenance", label: "Maintenance" },
-                    { value: "inactive", label: "Inactive" }
-                  ],
-                  onValueChange: setStatusFilter
-                },
-                {
-                  key: "type",
-                  label: "Type",
-                  value: typeFilter,
-                  options: [
-                    { value: "all", label: "All Types" },
-                    { value: "headquarters", label: "Headquarters" },
-                    { value: "branch", label: "Branch" },
-                    { value: "training", label: "Training" }
-                  ],
-                  onValueChange: setTypeFilter
-                }
-              ]}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-              showViewToggle={true}
-              owners={owners}
-              groupedByOwner={groupedByOwner}
-              renderGridItem={(location) => <LocationCard key={location.id} location={location} />}
-              renderListItem={(location) => <LocationListItem key={location.id} location={location} />}
-              emptyStateIcon={<MapPin className="h-12 w-12 text-gray-400" />}
-              emptyStateTitle="No locations found"
-              emptyStateDescription="Try adjusting your search terms or filters."
-              gridCols="grid grid-cols-1 lg:grid-cols-2 gap-4"
-              totalCount={locations.length}
-              filteredCount={filteredLocations.length}
-              itemLabel="locations"
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              onClearFilters={() => {
-                setSearchTerm("");
-                setStatusFilter("all");
-                setTypeFilter("all");
-                setActiveTab("all");
-              }}
-            />
+        {/* Search and Filters */}
+        <SearchFilterTabs
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search locations, addresses, contacts..."
+          allItems={filteredLocations}
+          filters={[
+            {
+              key: "status",
+              label: "Status",
+              value: statusFilter,
+              options: [
+                { value: "all", label: "All Status" },
+                { value: "active", label: "Active" },
+                { value: "maintenance", label: "Maintenance" },
+                { value: "inactive", label: "Inactive" }
+              ],
+              onValueChange: setStatusFilter
+            },
+            {
+              key: "type",
+              label: "Type",
+              value: typeFilter,
+              options: [
+                { value: "all", label: "All Types" },
+                { value: "headquarters", label: "Headquarters" },
+                { value: "branch", label: "Branch" },
+                { value: "training", label: "Training" }
+              ],
+              onValueChange: setTypeFilter
+            }
+          ]}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          showViewToggle={true}
+          owners={owners}
+          groupedByOwner={filteredGroupedByOwner}
+          renderGridItem={(location) => <LocationCard key={location.id} location={location} />}
+          renderListItem={(location) => <LocationListItem key={location.id} location={location} />}
+          emptyStateIcon={<MapPin className="h-12 w-12 text-gray-400" />}
+          emptyStateTitle="No locations found"
+          emptyStateDescription="Try adjusting your search terms or filters."
+          gridCols="grid grid-cols-1 lg:grid-cols-2 gap-4"
+          totalCount={locations.length}
+          filteredCount={filteredLocations.length}
+          itemLabel="locations"
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onClearFilters={() => {
+            setSearchTerm("");
+            setStatusFilter("all");
+            setTypeFilter("all");
+            setActiveTab("all");
+          }}
+        />
 
-            {/* Add Location Modal */}
-            <EntityModal
-              open={showAddModal}
-              onClose={() => { setShowAddModal(false); setEditMode(false); setEditInitialValues(null); }}
-              onSubmit={editMode ? handleEditLocation : handleAddLocation}
-              loading={adding}
-              title={editMode ? "Edit Location" : "Add Location"}
-              buttonText={editMode ? "Save Changes" : "Add Location"}
-              fields={locationFields}
-              initialValues={editInitialValues}
-            />
-          </div>
-        </BaseLayout>
+        {/* Add Location Modal */}
+        <EntityModal
+          open={addModal.isOpen}
+          onClose={() => { addModal.close(); setEditMode(false); setEditingId(null); form.reset(); }}
+          onSubmit={handleModalSubmit}
+          loading={form.isSubmitting}
+          title={editMode ? "Edit Location" : "Add Location"}
+          buttonText={editMode ? "Save Changes" : "Add Location"}
+          fields={locationFields}
+          initialValues={form.data}
+        />
+      </div>
+    </BaseLayout>
   )
 } 

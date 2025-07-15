@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { apiService, ApiError } from '../services/api';
 import { toast } from 'sonner';
 
@@ -36,8 +36,21 @@ export function useApiData<T = unknown, Q = Record<string, unknown>>({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Use refs to store the latest functions without causing re-renders
+  const transformDataRef = useRef(transformData);
+  const onErrorRef = useRef(onError);
+
+  // Update refs when functions change
+  useEffect(() => {
+    transformDataRef.current = transformData;
+  }, [transformData]);
+
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
   const fetchData = useCallback(async () => {
-    console.log('fetchData called', { endpoint, token });
+    console.log('🔍 fetchData called for endpoint:', endpoint, 'token:', token ? 'present' : 'missing');
     if (!token) {
       setLoading(false);
       return;
@@ -55,7 +68,7 @@ export function useApiData<T = unknown, Q = Record<string, unknown>>({
         response = await apiService.get<T[]>(endpoint, token);
       }
 
-      const transformedData = transformData ? transformData(response) : response;
+      const transformedData = transformDataRef.current ? transformDataRef.current(response) : response;
       setData(transformedData);
     } catch (err) {
       const apiError = err instanceof ApiError ? err : new ApiError({
@@ -71,13 +84,13 @@ export function useApiData<T = unknown, Q = Record<string, unknown>>({
       toast.error(errorMessage);
       
       // Call custom error handler if provided
-      if (onError) {
-        onError(apiError);
+      if (onErrorRef.current) {
+        onErrorRef.current(apiError);
       }
     } finally {
       setLoading(false);
     }
-  }, [endpoint, token, queryParams, transformData, onError]);
+  }, [endpoint, token, queryParams]);
 
   const refetch = useCallback(async () => {
     await fetchData();
@@ -132,11 +145,8 @@ export function useStaffData(token?: string, queryParams?: Record<string, unknow
 }
 
 export function useLocationsData(token?: string, queryParams?: Record<string, unknown>) {
-  return useApiData({
-    endpoint: '/locations',
-    token,
-    queryParams,
-    transformData: (data: unknown) => (Array.isArray(data) ? data.map((location: any) => ({
+  const transformData = useMemo(
+    () => (data: unknown) => (Array.isArray(data) ? data.map((location: any) => ({
       ...location,
       pointOfContact: location.manager,
       status: "active", // TODO: Map real status if available
@@ -144,21 +154,54 @@ export function useLocationsData(token?: string, queryParams?: Record<string, un
       assetCount: 0, // TODO: Fetch asset count if available
       avatar: location.manager ? location.manager.split(" ").map((n: string) => n[0]).join("") : "?",
     })) : []),
+    []
+  );
+
+  return useApiData({
+    endpoint: '/locations',
+    token,
+    queryParams,
+    transformData,
   });
 }
 
 export function useComponentsData(token?: string, queryParams?: Record<string, unknown>) {
+  const transformData = useMemo(
+    () => (data: unknown) => (Array.isArray(data) ? data.map((component: any) => ({
+      ...component,
+      status: component.status || "Active",
+      category: component.category || "Equipment",
+      location: component.location || "Unknown",
+      project: component.project || "General",
+      owner: component.owner || "Unknown",
+    })) : []),
+    []
+  );
+
   return useApiData({
     endpoint: '/components',
     token,
     queryParams,
+    transformData,
   });
 }
 
 export function useProjectsData(token?: string, queryParams?: Record<string, unknown>) {
+  const transformData = useMemo(
+    () => (data: unknown) => (Array.isArray(data) ? data.map((project: any) => ({
+      ...project,
+      status: project.status || "Active",
+      progress: typeof project.progress === "number" ? project.progress : 0,
+      description: project.description || "",
+      tags: Array.isArray(project.tags) ? project.tags : [],
+    })) : []),
+    []
+  );
+
   return useApiData({
     endpoint: '/projects',
     token,
     queryParams,
+    transformData,
   });
 } 
