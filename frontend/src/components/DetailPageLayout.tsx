@@ -35,7 +35,33 @@ interface DetailPageLayoutProps {
   updated_at?: string
 }
 
-export function DetailPageLayout(props: DetailPageLayoutProps) {
+// --- Section Config Type ---
+type DetailSectionConfig = {
+  type: "mainInfo" | "description" | "attachments";
+  data?: any;
+  render?: () => React.ReactNode; // for custom sections
+};
+
+// --- Section Renderer ---
+function renderSection(section: DetailSectionConfig) {
+  switch (section.type) {
+    case "mainInfo":
+      // This should be implemented by each entity, so fallback to custom render
+      return section.render ? section.render() : null;
+    case "description":
+      return <DescriptionCard description={section.data?.description} />;
+    case "attachments":
+      return <AttachmentsCard attachments={section.data?.attachments} />;
+    default:
+      return section.render ? section.render() : null;
+  }
+}
+
+// --- Main Layout ---
+export function DetailPageLayout(props: DetailPageLayoutProps & {
+  mainSections?: DetailSectionConfig[];
+  sidebarSections?: DetailSectionConfig[];
+}) {
   const navigate = useNavigate()
   const {
     title,
@@ -54,7 +80,11 @@ export function DetailPageLayout(props: DetailPageLayoutProps) {
     setDeleteDialogOpen,
     data,
     mainContent,
-    sidebarContent
+    sidebarContent,
+    mainSections,
+    sidebarSections,
+    created_at,
+    updated_at,
   } = props
 
   if (loading) {
@@ -155,13 +185,15 @@ export function DetailPageLayout(props: DetailPageLayoutProps) {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2">
-                {mainContent}
+                {mainSections && mainSections.length > 0
+                  ? mainSections.map((section, i) => <div key={i}>{renderSection(section)}</div>)
+                  : mainContent}
               </div>
 
               <div className="space-y-6">
-                {sidebarContent}
-                
-                  
+                {sidebarSections && sidebarSections.length > 0
+                  ? sidebarSections.map((section, i) => <div key={i}>{renderSection(section)}</div>)
+                  : sidebarContent}
               </div>
             </div>
 
@@ -188,4 +220,24 @@ export function DetailPageLayout(props: DetailPageLayoutProps) {
       </div>
     </SidebarProvider>
   )
+}
+
+// --- DescriptionCard ---
+export function DescriptionCard({ description }: { description?: string }) {
+  return (
+    <div className="bg-white rounded shadow p-4">
+      <h2 className="font-semibold mb-2">Description</h2>
+      <div className="text-gray-500 italic">{description || "No description provided."}</div>
+    </div>
+  );
+}
+
+// --- AttachmentsCard ---
+export function AttachmentsCard({ attachments }: { attachments?: any[] }) {
+  return (
+    <div className="bg-white rounded shadow p-4">
+      <h2 className="font-semibold mb-2">Attachments</h2>
+      <div className="text-gray-500 italic">No attachments uploaded. (Placeholder)</div>
+    </div>
+  );
 } 
