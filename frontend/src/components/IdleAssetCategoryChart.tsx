@@ -52,7 +52,7 @@ const IdleAssetCategoryChart: React.FC = () => {
   const currentData = sampleChartData[activeChartType as keyof typeof sampleChartData];
 
   return (
-    <Card>
+    <Card className='bg-transparent border-0 shadow-none'>
       <CardContent>
         <Tabs value={activeChartType} onValueChange={setActiveChartType} className="w-full">
           <TabsList className="grid grid-cols-4 w-full mb-4 gap-1">
@@ -64,7 +64,7 @@ const IdleAssetCategoryChart: React.FC = () => {
           </TabsList>
 
           <TabsContent value={activeChartType} className="mt-2">
-            <Card>
+            <Card className='bg-transparent border-0 shadow-none'>
               <CardHeader>
                 <CardTitle>{currentData.title}</CardTitle>
                 <CardDescription>{currentData.description}</CardDescription>

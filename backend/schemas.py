@@ -1,16 +1,29 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, validator, Field
 from typing import Optional, List
 from datetime import datetime
 
 # User schemas
 class UserBase(BaseModel):
     email: EmailStr
-    username: str
-    full_name: str
+    username: str = Field(..., min_length=3, max_length=50, pattern="^[a-zA-Z0-9_]+$")
+    full_name: str = Field(..., min_length=2, max_length=100)
     role: str = "pending"
+    
+    @validator('role')
+    def validate_role(cls, v):
+        allowed_roles = ['pending', 'user', 'manager', 'admin']
+        if v not in allowed_roles:
+            raise ValueError(f'Role must be one of: {allowed_roles}')
+        return v
 
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(..., min_length=8, max_length=128)
+    
+    @validator('password')
+    def validate_password(cls, v):
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters long')
+        return v
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
@@ -157,6 +170,11 @@ class LocationBase(BaseModel):
     team: int
     manager: str
     project: str
+    status: str = "active"
+    type: str = "branch"
+    pointOfContact: str = ""
+    assetCount: int = 0
+    avatar: str | None = None
 
 class LocationCreate(LocationBase):
     pass
@@ -167,6 +185,11 @@ class LocationUpdate(BaseModel):
     team: int | None = None
     manager: str | None = None
     project: str | None = None
+    status: str | None = None
+    type: str | None = None
+    pointOfContact: str | None = None
+    assetCount: int | None = None
+    avatar: str | None = None
 
 class Location(LocationBase):
     id: int
@@ -182,6 +205,10 @@ class ProjectBase(BaseModel):
     status: str
     progress: int
     category: str | None = None
+    funding_type: str | None = None
+    funding_body: str | None = None
+    funding_received: int | None = None
+    report_links: str | None = None
 
 class ProjectCreate(ProjectBase):
     pass
@@ -192,6 +219,10 @@ class ProjectUpdate(BaseModel):
     status: str | None = None
     progress: int | None = None
     category: str | None = None
+    funding_type: str | None = None
+    funding_body: str | None = None
+    funding_received: int | None = None
+    report_links: str | None = None
 
 class Project(ProjectBase):
     id: int
@@ -203,28 +234,111 @@ class Project(ProjectBase):
 # Staff schemas
 class StaffBase(BaseModel):
     name: str
+    email: str
+    phone: Optional[str] = None
+    department: str
+    status: str = "active"
     designation: str
     skills: List[str]
     location: str
     availability: str
     project: str
     company: str
+    reports_to: Optional[str] = None
+    experience: Optional[str] = None
+    joinDate: Optional[str] = None
 
 class StaffCreate(StaffBase):
     pass
 
 class StaffUpdate(BaseModel):
     name: str | None = None
+    email: str | None = None
+    phone: str | None = None
     designation: str | None = None
     skills: List[str] | None = None
     location: str | None = None
     availability: str | None = None
     project: str | None = None
     company: str | None = None
+    reports_to: str | None = None
+    experience: str | None = None
+    joinDate: str | None = None
 
 class Staff(StaffBase):
     id: int
     created_at: datetime
     updated_at: datetime | None = None
+    
+    class Config:
+        from_attributes = True 
+
+# Training schemas
+class TrainingBase(BaseModel):
+    name: str
+    institution: str
+    duration: str
+    level: str
+    description: Optional[str] = None
+    full_description: Optional[str] = None
+    prerequisites: Optional[str] = None
+    learning_objectives: Optional[str] = None
+    course_outline: Optional[str] = None
+    instructor_name: Optional[str] = None
+    instructor_credentials: Optional[str] = None
+    instructor_experience: Optional[str] = None
+    instructor_image: Optional[str] = None
+    schedule_start_date: Optional[datetime] = None
+    schedule_end_date: Optional[datetime] = None
+    schedule_format: Optional[str] = None
+    schedule_location: Optional[str] = None
+    pricing_amount: Optional[float] = None
+    pricing_currency: Optional[str] = "USD"
+    pricing_includes: Optional[str] = None
+    enrolled_count: Optional[int] = 0
+    completed_count: Optional[int] = 0
+    max_capacity: Optional[int] = None
+    status: Optional[str] = "active"
+    category: Optional[str] = None
+    tags: Optional[str] = None
+
+class TrainingCreate(TrainingBase):
+    pass
+
+class TrainingUpdate(BaseModel):
+    name: Optional[str] = None
+    institution: Optional[str] = None
+    duration: Optional[str] = None
+    level: Optional[str] = None
+    description: Optional[str] = None
+    full_description: Optional[str] = None
+    prerequisites: Optional[str] = None
+    learning_objectives: Optional[str] = None
+    course_outline: Optional[str] = None
+    instructor_name: Optional[str] = None
+    instructor_credentials: Optional[str] = None
+    instructor_experience: Optional[str] = None
+    instructor_image: Optional[str] = None
+    schedule_start_date: Optional[datetime] = None
+    schedule_end_date: Optional[datetime] = None
+    schedule_format: Optional[str] = None
+    schedule_location: Optional[str] = None
+    pricing_amount: Optional[float] = None
+    pricing_currency: Optional[str] = None
+    pricing_includes: Optional[str] = None
+    enrolled_count: Optional[int] = None
+    completed_count: Optional[int] = None
+    max_capacity: Optional[int] = None
+    status: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[str] = None
+
+class Training(TrainingBase):
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    created_by: Optional[int] = None
+    updated_by: Optional[int] = None
+
     class Config:
         from_attributes = True 

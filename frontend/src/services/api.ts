@@ -1,16 +1,26 @@
-export interface ApiResponse<T = any> {
+import { API_BASE_URL } from '@/config';
+
+export interface ApiResponse<T = unknown> {
   data: T;
   message?: string;
   error?: string;
 }
 
-export interface ApiError {
-  message: string;
-  status: number;
-  details?: any;
+function mergeHeaders(base: Record<string, string>, extra?: HeadersInit): Record<string, string> {
+  const result: Record<string, string> = { ...base };
+  if (extra) {
+    if (Array.isArray(extra)) {
+      for (const [k, v] of extra) result[k] = v;
+    } else if (typeof extra === 'object') {
+      Object.assign(result, extra);
+    }
+    // If it's a Headers object, convert to plain object
+    if (typeof Headers !== 'undefined' && extra instanceof Headers) {
+      extra.forEach((v, k) => { result[k] = v; });
+    }
+  }
+  return result;
 }
-
-const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
 class ApiService {
   private baseUrl = API_BASE_URL;
@@ -18,31 +28,46 @@ class ApiService {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    token?: string
+    token?: string | null
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string> || {}),
-    };
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = mergeHeaders({ 'Content-Type': 'application/json' }, options.headers);
 
     const config: RequestInit = {
       ...options,
       headers,
     };
 
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      config.credentials = undefined;
+    } else {
+      config.credentials = 'include'; // Use cookies
+    }
+
     try {
       const response = await fetch(url, config);
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        let errorData = {};
+        
+        try {
+          errorData = await response.json();
+          errorMessage = errorData.detail || errorData.message || errorMessage;
+        } catch (jsonError) {
+          // If response is not JSON, try to get text
+          try {
+            const errorText = await response.text();
+            errorMessage = errorText || errorMessage;
+          } catch (textError) {
+            // If all else fails, use status text
+            errorMessage = response.statusText || errorMessage;
+          }
+        }
+        
         throw new ApiError({
-          message: errorData.detail || `HTTP ${response.status}: ${response.statusText}`,
+          message: errorMessage,
           status: response.status,
           details: errorData,
         });
@@ -68,12 +93,12 @@ class ApiService {
   }
 
   // GET requests
-  async get<T>(endpoint: string, token?: string): Promise<T> {
+  async get<T>(endpoint: string, token?: string | null): Promise<T> {
     return this.request<T>(endpoint, { method: 'GET' }, token);
   }
 
   // POST requests
-  async post<T>(endpoint: string, data: any, token?: string): Promise<T> {
+  async post<T>(endpoint: string, data: unknown, token?: string | null): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -81,7 +106,7 @@ class ApiService {
   }
 
   // PUT requests
-  async put<T>(endpoint: string, data: any, token?: string): Promise<T> {
+  async put<T>(endpoint: string, data: unknown, token?: string | null): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -89,12 +114,12 @@ class ApiService {
   }
 
   // DELETE requests
-  async delete<T>(endpoint: string, token?: string): Promise<T> {
+  async delete<T>(endpoint: string, token?: string | null): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' }, token);
   }
 
   // PATCH requests
-  async patch<T>(endpoint: string, data: any, token?: string): Promise<T> {
+  async patch<T>(endpoint: string, data: unknown, token?: string | null): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -102,7 +127,7 @@ class ApiService {
   }
 
   // Query parameters helper
-  buildQuery(params: Record<string, any>): string {
+  buildQuery(params: Record<string, unknown>): string {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -113,7 +138,7 @@ class ApiService {
   }
 
   // GET with query parameters
-  async getWithQuery<T>(endpoint: string, params: Record<string, any>, token?: string): Promise<T> {
+  async getWithQuery<T>(endpoint: string, params: Record<string, unknown>, token?: string | null): Promise<T> {
     const query = this.buildQuery(params);
     const url = query ? `${endpoint}?${query}` : endpoint;
     return this.get<T>(url, token);
@@ -128,10 +153,9 @@ export { ApiService };
 
 // Custom error class
 export class ApiError extends Error {
-  public status: number;
-  public details?: any;
-
-  constructor({ message, status, details }: { message: string; status: number; details?: any }) {
+  status: number;
+  details?: unknown;
+  constructor({ message, status, details }: { message: string; status: number; details?: unknown }) {
     super(message);
     this.name = 'ApiError';
     this.status = status;

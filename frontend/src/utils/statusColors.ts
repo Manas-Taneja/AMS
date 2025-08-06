@@ -1,19 +1,19 @@
-import { Shield, UserCheck, User, Clock, CheckCircle, XCircle } from "lucide-react"
+import { LuShield, LuUserCheck, LuUser, LuClock, LuCheck, LuCircle } from "react-icons/lu"
 
 // User Status Configuration
 export const userStatusConfig = {
-  active: { color: "bg-green-100 text-green-800 border-green-200", icon: CheckCircle },
-  inactive: { color: "bg-gray-100 text-gray-800 border-gray-200", icon: XCircle },
-  pending: { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: Clock },
+  active: { color: "bg-green-100 text-green-800 border-green-200", icon: LuCheck },
+  inactive: { color: "bg-gray-100 text-gray-800 border-gray-200", icon: LuCircle },
+  pending: { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: LuClock },
 }
 
 // User Role Configuration
 export const userRoleConfig = {
-  admin: { color: "bg-red-50 text-red-700 border-red-200", icon: Shield },
-  manager: { color: "bg-blue-50 text-blue-700 border-blue-200", icon: UserCheck },
-  staff: { color: "bg-green-50 text-green-700 border-green-200", icon: User },
-  user: { color: "bg-gray-50 text-gray-700 border-gray-200", icon: User },
-  pending: { color: "bg-yellow-50 text-yellow-700 border-yellow-200", icon: Clock },
+  admin: { color: "bg-red-50 text-red-700 border-red-200", icon: LuShield },
+  manager: { color: "bg-blue-50 text-blue-700 border-blue-200", icon: LuUserCheck },
+  staff: { color: "bg-green-50 text-green-700 border-green-200", icon: LuUser },
+  user: { color: "bg-gray-50 text-gray-700 border-gray-200", icon: LuUser },
+  pending: { color: "bg-yellow-50 text-yellow-700 border-yellow-200", icon: LuClock },
 }
 
 // Project Status Configuration
@@ -56,9 +56,9 @@ export const componentStatusConfig = {
 
 // Location Status Configuration
 export const locationStatusConfig = {
-  active: { color: "bg-green-100 text-green-800 border-green-200", icon: "🟢" },
-  maintenance: { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "🟡" },
-  inactive: { color: "bg-gray-100 text-gray-800 border-gray-200", icon: "⚪" },
+  active: { color: "bg-green-100 text-green-800 border-green-200", icon: "🟢", label: "Active" },
+  maintenance: { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: "🟡", label: "Maintenance" },
+  inactive: { color: "bg-gray-100 text-gray-800 border-gray-200", icon: "⚪", label: "Inactive" },
 }
 
 // Location Type Configuration

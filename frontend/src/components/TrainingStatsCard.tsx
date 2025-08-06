@@ -1,7 +1,7 @@
 import React from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Users, Clock, GraduationCap, Building2 } from "lucide-react"
+import { LuUsers, LuClock, LuGraduationCap, LuBuilding2 } from "react-icons/lu"
 import { calculateCompletionRate } from "@/utils/trainingUtils"
 
 interface TrainingStatsCardProps {
@@ -28,7 +28,7 @@ export const TrainingStatsCard: React.FC<TrainingStatsCardProps> = ({
         {/* Basic Info */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-center space-x-2">
-            <Building2 className="h-4 w-4 text-gray-500" />
+            <LuBuilding2 className="h-4 w-4 text-gray-500" />
             <div>
               <p className="text-xs text-gray-500">Institution</p>
               <p className="text-sm font-medium">{institution}</p>
@@ -36,7 +36,7 @@ export const TrainingStatsCard: React.FC<TrainingStatsCardProps> = ({
           </div>
 
           <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4 text-gray-500" />
+            <LuClock className="h-4 w-4 text-gray-500" />
             <div>
               <p className="text-xs text-gray-500">Duration</p>
               <p className="text-sm font-medium">{duration}</p>
@@ -48,7 +48,7 @@ export const TrainingStatsCard: React.FC<TrainingStatsCardProps> = ({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-blue-500" />
+              <LuUsers className="h-4 w-4 text-blue-500" />
               <span className="text-sm font-medium">Currently Enrolled</span>
             </div>
             <span className="text-lg font-bold text-blue-600">{enrolled}</span>
@@ -56,7 +56,7 @@ export const TrainingStatsCard: React.FC<TrainingStatsCardProps> = ({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <GraduationCap className="h-4 w-4 text-green-500" />
+              <LuGraduationCap className="h-4 w-4 text-green-500" />
               <span className="text-sm font-medium">Completed</span>
             </div>
             <span className="text-lg font-bold text-green-600">{completed}</span>

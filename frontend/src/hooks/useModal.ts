@@ -53,7 +53,7 @@ interface UseConfirmOptions {
 
 interface UseConfirmReturn {
   isOpen: boolean;
-  open: (options?: UseConfirmOptions) => Promise<boolean>;
+  open: (options?: UseConfirmOptions) => void;
   close: () => void;
   title: string;
   message: string;
@@ -77,29 +77,15 @@ export function useConfirm({
     cancelText,
     variant,
   });
-  const [resolve, setResolve] = useState<(value: boolean) => void>(() => {});
 
-  const open = useCallback((options?: UseConfirmOptions): Promise<boolean> => {
-    return new Promise((resolvePromise) => {
-      setConfirmOptions(prev => ({ ...prev, ...options }));
-      setResolve(() => resolvePromise);
-      setIsOpen(true);
-    });
+  const open = useCallback((options?: UseConfirmOptions) => {
+    setConfirmOptions(prev => ({ ...prev, ...options }));
+    setIsOpen(true);
   }, []);
 
   const close = useCallback(() => {
     setIsOpen(false);
   }, []);
-
-  const handleConfirm = useCallback(() => {
-    resolve(true);
-    close();
-  }, [resolve, close]);
-
-  const handleCancel = useCallback(() => {
-    resolve(false);
-    close();
-  }, [resolve, close]);
 
   return {
     isOpen,
@@ -129,7 +115,7 @@ interface UseFormModalReturn<T> {
   cancel: () => void;
 }
 
-export function useFormModal<T = any>({
+export function useFormModal<T = unknown>({
   initialData,
   onSave,
   onCancel,

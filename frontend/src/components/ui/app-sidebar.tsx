@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import Link from "next/link";
 import { useAuth } from "../../context/AuthContext";
+import { useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -12,28 +13,28 @@ import {
   SidebarHeader,
   SidebarProvider,
 } from "./sidebar";
-import { Home, Users, Package, Target, MapPinned, LogOut, Settings, GraduationCap, Receipt, Image as MediaIcon } from "lucide-react";
+import { LuLayoutDashboard, LuUsers, LuPackage, LuTarget, LuMapPin, LuLogOut, LuSettings, LuGraduationCap, LuReceipt, LuImage } from "react-icons/lu";
 
 const items = [
-  { title: "Dashboard", url: "/", icon: Home },
-  { title: "Locations", url: "/location", icon: MapPinned },
-  { title: "Team", url: "/staff", icon: Users },
-  { title: "Projects", url: "/projects", icon: Target },
-  { title: "Items", url: "/items", icon: Package },
-  { title: "Bills", url: "/bills", icon: Receipt },
-  { title: "Training", url: "/training", icon: GraduationCap },
-  { title: "Media", url: "/media", icon: MediaIcon },
-  { title: "Users", url: "/users", icon: Users }
+  { title: "Dashboard", url: "/", icon: LuLayoutDashboard },
+  { title: "Locations", url: "/location", icon: LuMapPin },
+  { title: "Team", url: "/staff", icon: LuUsers },
+  { title: "Projects", url: "/projects", icon: LuTarget },
+  { title: "Items", url: "/items", icon: LuPackage },
+  { title: "Bills", url: "/bills", icon: LuReceipt },
+  { title: "Training", url: "/training", icon: LuGraduationCap },
+  { title: "Media", url: "/media", icon: LuImage },
+  { title: "Users", url: "/users", icon: LuUsers }
 ];
 
 export function AppSidebar() {
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const router = useRouter();
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    router.push("/login"); // Redirect to login after logout
   };
 
   return (
@@ -43,7 +44,7 @@ export function AppSidebar() {
         onMouseLeave={() => setOpen(false)}
         className="h-screen"
       >
-        <Sidebar collapsible="icon" className="py-2 border-r border-gray-200 shadow-lg w-54 bg-white h-screen">
+        <Sidebar collapsible="icon" className="py-2 border-r border-gray-200 shadow-lg w-54 bg-white h-screen text-green-600">
           <SidebarHeader />
           <SidebarContent>
             <SidebarGroup>
@@ -62,14 +63,14 @@ export function AppSidebar() {
                     .map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
-                        <a
+                        <Link
                           href={item.url}
                           className="flex items-center gap-2 hover:shadow-lg hover:bg-gray-200 rounded-lg"
                           {...(item.title === "Dashboard" ? { 'aria-current': 'page' } : {})}
                         >
                           <item.icon className="w-4 h-4" />
                           <span>{item.title}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
@@ -82,22 +83,11 @@ export function AppSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a
-                        href="/settings"
-                        className="flex items-center gap-2 hover:shadow-lg hover:bg-gray-200 rounded-lg"
-                      >
-                        <Settings className="w-4 h-4" />
-                        <span>Settings</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
                     <SidebarMenuButton 
                       onClick={handleLogout}
-                      className="flex items-center gap-2 hover:shadow-lg hover:bg-gray-200 rounded-lg text-red-600"
+                      className="flex items-center gap-2 hover:shadow-lg hover:bg-gray-200 rounded-lg text-red-600 cursor-pointer mt-136"
                     >
-                      <LogOut className="w-4 h-4" />
+                      <LuLogOut className="w-4 h-4" />
                       <span>Logout</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

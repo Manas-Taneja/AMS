@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Float, Text
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Float, Text, Numeric
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from passlib.context import CryptContext
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -16,10 +17,11 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     username = Column(String, unique=True, index=True, nullable=False)
     full_name = Column(String, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=True)  # Nullable for OAuth users
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
     role = Column(String, nullable=False, default='pending')
+    is_oauth_user = Column(Boolean, default=False)  # Flag for OAuth users
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
@@ -30,6 +32,10 @@ class User(Base):
     @staticmethod
     def get_password_hash(password: str) -> str:
         return pwd_context.hash(password)
+    
+    def can_use_password_auth(self) -> bool:
+        """Check if user can use password authentication"""
+        return not self.is_oauth_user and self.hashed_password is not None
 
 class Bill(Base):
     __tablename__ = "bills"
@@ -59,50 +65,105 @@ class Component(Base):
     __tablename__ = "components"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    category = Column(String, nullable=False)
-    status = Column(String, nullable=False)  # Active, Idle, Maintenance
-    location = Column(String, nullable=False)
-    project = Column(String, nullable=False)
-    owner = Column(String, nullable=False)  # PSSL, Prakhar Aviation, IIDT
+    name = Column(String, nullable=False, index=True)  # Add index for search
+    category = Column(String, nullable=False, index=True)  # Add index for filtering
+    status = Column(String, nullable=False, index=True)  # Add index for filtering
+    location = Column(String, nullable=False, index=True)  # Add index for filtering
+    project = Column(String, nullable=False, index=True)  # Add index for filtering
+    owner = Column(String, nullable=False, index=True)  # Add index for filtering
     description = Column(String, nullable=True)
-    serial_number = Column(String, nullable=True)
-    purchase_date = Column(DateTime(timezone=True), nullable=True)
-    warranty_expiry = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    serial_number = Column(String, nullable=True, index=True)  # Add index for search
+    purchase_date = Column(DateTime(timezone=True), nullable=True, index=True)  # Add index for date queries
+    warranty_expiry = Column(DateTime(timezone=True), nullable=True, index=True)  # Add index for date queries
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)  # Add index for sorting
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), index=True)  # Add index for sorting
 
 class Location(Base):
     __tablename__ = "locations"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, index=True)  # Add index for search
     address = Column(String, nullable=False)
-    team = Column(Integer, nullable=False)
-    manager = Column(String, nullable=False)
-    project = Column(String, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    team = Column(Integer, nullable=False, index=True)  # Add index for filtering
+    manager = Column(String, nullable=False, index=True)  # Add index for filtering
+    project = Column(String, nullable=False, index=True)  # Add index for filtering
+    status = Column(String, nullable=False, default="active", index=True)  # Add index for filtering
+    type = Column(String, nullable=False, default="branch", index=True)  # Add index for filtering
+    pointOfContact = Column(String, nullable=False, default="")  # Point of contact person
+    assetCount = Column(Integer, nullable=False, default=0)  # Number of assets at this location
+    avatar = Column(String, nullable=True)  # Avatar/initials for display
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)  # Add index for sorting
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), index=True)  # Add index for sorting
 
 class Project(Base):
     __tablename__ = "projects"
     id = Column(Integer, primary_key=True, index=True)
     thumbnail_url = Column(String, nullable=True)
-    name = Column(String, nullable=False)
-    status = Column(String, nullable=False)  # Active, Paused, Completed
-    progress = Column(Integer, nullable=False)
-    category = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    name = Column(String, nullable=False, index=True)  # Add index for search
+    status = Column(String, nullable=False, index=True)  # Add index for filtering
+    progress = Column(Integer, nullable=False, index=True)  # Add index for filtering
+    category = Column(String, nullable=True, index=True)  # Add index for filtering
+    funding_type = Column(String, nullable=True)  # govt, self
+    funding_body = Column(String, nullable=True)  # Government body name
+    funding_received = Column(Integer, nullable=True)  # Amount in rupees
+    report_links = Column(Text, nullable=True)  # JSON string of report links
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)  # Add index for sorting
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), index=True)  # Add index for sorting
 
 class Staff(Base):
     __tablename__ = "staff"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    phone = Column(String, nullable=True)  # Phone number
+    department = Column(String, nullable=False)
+    status = Column(String, nullable=False, default="active")
     designation = Column(String, nullable=False)
     skills = Column(String, nullable=False)  # Comma-separated
     location = Column(String, nullable=False)
     availability = Column(String, nullable=False)
     project = Column(String, nullable=False)
     company = Column(String, nullable=False)
+    experience = Column(String, nullable=True)  # Experience description
+    joinDate = Column(String, nullable=True)  # Join date as string
+    reports_to = Column(String, nullable=True)  # Who the staff member reports to
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now()) 
+
+class Training(Base):
+    __tablename__ = "training"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False, index=True)
+    institution = Column(String(255), nullable=False)
+    duration = Column(String(100), nullable=False)
+    level = Column(String(50), nullable=False)  # beginner, intermediate, advanced
+    description = Column(Text)
+    full_description = Column(Text)
+    prerequisites = Column(Text)  # JSON string of prerequisites
+    learning_objectives = Column(Text)  # JSON string of objectives
+    course_outline = Column(Text)  # JSON string of course modules
+    instructor_name = Column(String(255))
+    instructor_credentials = Column(String(255))
+    instructor_experience = Column(Text)
+    instructor_image = Column(String(500))
+    schedule_start_date = Column(DateTime)
+    schedule_end_date = Column(DateTime)
+    schedule_format = Column(String(100))  # online, in-person, hybrid
+    schedule_location = Column(String(255))
+    pricing_amount = Column(Numeric(10, 2))
+    pricing_currency = Column(String(10), default="USD")
+    pricing_includes = Column(Text)  # JSON string of what's included
+    enrolled_count = Column(Integer, default=0)
+    completed_count = Column(Integer, default=0)
+    max_capacity = Column(Integer)
+    status = Column(String(50), default="active")  # active, inactive, completed
+    category = Column(String(100))
+    tags = Column(Text)  # JSON string of tags
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_by = Column(Integer, ForeignKey("users.id"))
+    updated_by = Column(Integer, ForeignKey("users.id"))
+
+    # Relationships
+    creator = relationship("User", foreign_keys=[created_by])
+    updater = relationship("User", foreign_keys=[updated_by]) 

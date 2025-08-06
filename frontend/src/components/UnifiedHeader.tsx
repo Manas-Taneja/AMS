@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
-import { Plus, Download } from "lucide-react"
+import { LuPlus as Plus, LuDownload as Download } from "react-icons/lu"
+import Image from 'next/image'
 
 export interface UnifiedHeaderProps {
   // Basic info
@@ -29,7 +30,7 @@ export function UnifiedHeader({
   onExport,
   exportLabel = "Export",
   showLogo = false,
-  logoUrl = "src/assets/logo.webp",
+  logoUrl = "/assets/logo.webp",
   logoAlt = "Logo",
   className = "",
 }: UnifiedHeaderProps) {
@@ -40,10 +41,12 @@ export function UnifiedHeader({
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             {showLogo && (
-              <img
+              <Image
                 src={logoUrl}
                 alt={logoAlt}
-                className="h-8 w-auto"
+                width={100}
+                height={100}
+                className="h-10 w-auto"
               />
             )}
             <div>
@@ -56,7 +59,7 @@ export function UnifiedHeader({
         <div className="flex items-center gap-2">
           {/* Export Button */}
           {onExport && (
-            <Button variant="outline" size="sm" onClick={onExport}>
+            <Button variant="outline" size="sm" onClick={onExport} className="text-white shadow-lg border-gray-800">
               <Download className="h-4 w-4 mr-2" />
               {exportLabel}
             </Button>
@@ -64,7 +67,7 @@ export function UnifiedHeader({
 
           {/* Add Button */}
           {onAdd && (
-            <Button size="sm" onClick={onAdd}>
+            <Button size="sm" onClick={onAdd} className="text-black shadow-lg border-gray-800">
               <Plus className="h-4 w-4 mr-2" />
               {addLabel}
             </Button>

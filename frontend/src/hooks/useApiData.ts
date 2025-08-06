@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { apiService, ApiError } from '../services/api';
+import { apiService, ApiError } from '@/services/api';
 import { toast } from 'sonner';
+import { API_ENDPOINTS } from '@/config';
 
 const EMPTY_OBJECT = {};
 
@@ -104,7 +105,8 @@ export function useApiData<T = unknown, Q = Record<string, unknown>>({
     if (autoFetch) {
       fetchData();
     }
-  }, [fetchData, autoFetch, ...dependencies]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchData, autoFetch, JSON.stringify(dependencies)]);
 
   return {
     data,
@@ -119,25 +121,42 @@ export function useApiData<T = unknown, Q = Record<string, unknown>>({
 // Specialized hooks for common entities
 export function useStaffData(token?: string, queryParams?: Record<string, unknown>) {
   const transformData = useMemo(
-    () => (data: unknown) =>
-      Array.isArray(data)
-        ? data.map((staff: any) => ({
-            ...staff,
-            initials: staff.name ? staff.name.split(" ").map((n: string) => n[0]).join("") : "?",
-            avatar: staff.avatar || "/placeholder.svg?height=40&width=40",
-            status: staff.status || "active",
-            department: staff.department || "Operations",
-            experience: staff.experience || "-",
-            joinDate: staff.joinDate || staff.created_at || "",
-            currentProjects: staff.currentProjects || 0,
-            completedTasks: staff.completedTasks || 0,
-          }))
-        : [],
+    () => (data: unknown) => {
+      // Handle wrapped response format from backend
+      let staffArray: unknown[] = [];
+      if (typeof data === 'object' && data !== null) {
+        const response = data as Record<string, unknown>;
+        if (response.success && Array.isArray(response.data)) {
+          staffArray = response.data;
+        } else if (Array.isArray(data)) {
+          // Fallback for direct array response
+          staffArray = data;
+        }
+      }
+      
+      return staffArray.map((staff: unknown) => {
+        if (typeof staff === 'object' && staff !== null) {
+          const s = staff as Record<string, unknown>;
+          return {
+            ...s,
+            initials: typeof s.name === 'string' ? s.name.split(" ").map((n: string) => n[0]).join("") : "?",
+            avatar: s.avatar || "/placeholder.svg?height=40&width=40",
+            status: s.status || "active",
+            department: s.department || "Operations",
+            experience: s.experience || "-",
+            joinDate: s.joinDate || s.created_at || "",
+            currentProjects: s.currentProjects || 0,
+            completedTasks: s.completedTasks || 0,
+          };
+        }
+        return staff;
+      });
+    },
     []
   );
 
   return useApiData({
-    endpoint: '/staff',
+    endpoint: API_ENDPOINTS.STAFF,
     token,
     queryParams,
     transformData,
@@ -146,19 +165,39 @@ export function useStaffData(token?: string, queryParams?: Record<string, unknow
 
 export function useLocationsData(token?: string, queryParams?: Record<string, unknown>) {
   const transformData = useMemo(
-    () => (data: unknown) => (Array.isArray(data) ? data.map((location: any) => ({
-      ...location,
-      pointOfContact: location.manager,
-      status: "active", // TODO: Map real status if available
-      type: "branch", // TODO: Map real type if available
-      assetCount: 0, // TODO: Fetch asset count if available
-      avatar: location.manager ? location.manager.split(" ").map((n: string) => n[0]).join("") : "?",
-    })) : []),
+    () => (data: unknown) => {
+      // Handle wrapped response format from backend
+      let locationsArray: unknown[] = [];
+      if (typeof data === 'object' && data !== null) {
+        const response = data as Record<string, unknown>;
+        if (response.success && Array.isArray(response.data)) {
+          locationsArray = response.data;
+        } else if (Array.isArray(data)) {
+          // Fallback for direct array response
+          locationsArray = data;
+        }
+      }
+      
+      return locationsArray.map((location: unknown) => {
+        if (typeof location === 'object' && location !== null) {
+          const loc = location as Record<string, unknown>;
+          return {
+            ...loc,
+            pointOfContact: loc.manager,
+            status: "active",
+            type: "branch",
+            assetCount: 0,
+            avatar: typeof loc.manager === 'string' ? loc.manager.split(" ").map((n: string) => n[0]).join("") : "?",
+          };
+        }
+        return location;
+      });
+    },
     []
   );
 
   return useApiData({
-    endpoint: '/locations',
+    endpoint: API_ENDPOINTS.LOCATIONS,
     token,
     queryParams,
     transformData,
@@ -167,19 +206,39 @@ export function useLocationsData(token?: string, queryParams?: Record<string, un
 
 export function useComponentsData(token?: string, queryParams?: Record<string, unknown>) {
   const transformData = useMemo(
-    () => (data: unknown) => (Array.isArray(data) ? data.map((component: any) => ({
-      ...component,
-      status: component.status || "Active",
-      category: component.category || "Equipment",
-      location: component.location || "Unknown",
-      project: component.project || "General",
-      owner: component.owner || "Unknown",
-    })) : []),
+    () => (data: unknown) => {
+      // Handle wrapped response format from backend
+      let componentsArray: unknown[] = [];
+      if (typeof data === 'object' && data !== null) {
+        const response = data as Record<string, unknown>;
+        if (response.success && Array.isArray(response.data)) {
+          componentsArray = response.data;
+        } else if (Array.isArray(data)) {
+          // Fallback for direct array response
+          componentsArray = data;
+        }
+      }
+      
+      return componentsArray.map((component: unknown) => {
+        if (typeof component === 'object' && component !== null) {
+          const c = component as Record<string, unknown>;
+          return {
+            ...c,
+            status: c.status || "Active",
+            category: c.category || "Equipment",
+            location: c.location || "Unknown",
+            project: c.project || "General",
+            owner: c.owner || "Unknown",
+          };
+        }
+        return component;
+      });
+    },
     []
   );
 
   return useApiData({
-    endpoint: '/components',
+    endpoint: API_ENDPOINTS.COMPONENTS,
     token,
     queryParams,
     transformData,
@@ -188,18 +247,40 @@ export function useComponentsData(token?: string, queryParams?: Record<string, u
 
 export function useProjectsData(token?: string, queryParams?: Record<string, unknown>) {
   const transformData = useMemo(
-    () => (data: unknown) => (Array.isArray(data) ? data.map((project: any) => ({
-      ...project,
-      status: project.status || "Active",
-      progress: typeof project.progress === "number" ? project.progress : 0,
-      description: project.description || "",
-      tags: Array.isArray(project.tags) ? project.tags : [],
-    })) : []),
+    () => (data: unknown) => {
+      // Handle wrapped response format from backend
+      let projectsArray: unknown[] = [];
+      if (typeof data === 'object' && data !== null) {
+        const response = data as Record<string, unknown>;
+        if (response.success && Array.isArray(response.data)) {
+          projectsArray = response.data;
+        } else if (Array.isArray(data)) {
+          // Fallback for direct array response
+          projectsArray = data;
+        }
+      }
+      
+      return projectsArray.map((project: unknown) => {
+        if (typeof project === 'object' && project !== null) {
+          const p = project as Record<string, unknown>;
+          return {
+            ...p,
+            status: p.status || "Active",
+            progress: typeof p.progress === "number" ? p.progress : 0,
+            description: p.description || "",
+            tags: Array.isArray(p.tags) ? p.tags : [],
+            createdAt: p.createdAt || p.created_at || new Date().toISOString(),
+            updatedAt: p.updatedAt || p.updated_at || new Date().toISOString(),
+          };
+        }
+        return project;
+      });
+    },
     []
   );
 
   return useApiData({
-    endpoint: '/projects',
+    endpoint: API_ENDPOINTS.PROJECTS,
     token,
     queryParams,
     transformData,

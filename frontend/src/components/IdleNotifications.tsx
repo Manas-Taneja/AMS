@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { AlertTriangle } from 'lucide-react';
+import { LuTriangle } from 'react-icons/lu';
+
+// Global state to track shown notifications across component instances
+const globalShownIds = new Set<number>();
 
 interface IdleItem {
   id: number;
@@ -19,7 +22,7 @@ interface IdleNotificationsProps {
 
 const IdleToast: React.FC<{ item: IdleItem; toastId: string | number }> = ({ item, toastId }) => (
   <div
-    className="max-w-xs w-64 bg-orange-50 border border-orange-200 rounded-lg shadow-lg p-4 flex flex-col cursor-pointer hover:bg-orange-100 transition"
+    className="max-w-xs w-64 bg-orange-50 border border-orange-200 rounded-lg shadow-lg p-4 flex flex-col cursor-pointer hover:bg-orange-100 transition-colors"
     onClick={() => {
       toast.dismiss(toastId);
       window.location.assign(item.type === 'asset' ? `/items/${item.id}` : `/location/${item.id}`);
@@ -29,7 +32,7 @@ const IdleToast: React.FC<{ item: IdleItem; toastId: string | number }> = ({ ite
     aria-label={`View details for ${item.name}`}
   >
     <div className="flex items-center gap-2 text-orange-700 font-semibold">
-      <AlertTriangle className="w-5 h-5" />
+      <LuTriangle className="w-5 h-5" />
       <span>{item.name}</span>
     </div>
     <div className="text-sm text-gray-700">
@@ -41,21 +44,24 @@ const IdleToast: React.FC<{ item: IdleItem; toastId: string | number }> = ({ ite
 );
 
 const IdleNotifications: React.FC<IdleNotificationsProps> = ({ idleItems }) => {
-  const [shownIds, setShownIds] = useState<Set<number>>(new Set());
-
   useEffect(() => {
-    idleItems.forEach((item) => {
-      if (item.daysIdle >= 30 && !shownIds.has(item.id)) {
+    // Only show notifications for items that haven't been shown before
+    const newItems = idleItems.filter(item => 
+      item.daysIdle >= 30 && !globalShownIds.has(item.id)
+    );
+
+    // Only proceed if there are actually new items to show
+    if (newItems.length > 0) {
+      newItems.forEach((item) => {
         toast.custom((t) => (
           <IdleToast item={item} toastId={t} />
         ), {
-          duration: 10000,
+          duration: 5000,
+          position: 'top-right',
         });
-        setShownIds((prev) => new Set(prev).add(item.id));
-      }
-    });
-    // Only want to run when idleItems changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        globalShownIds.add(item.id);
+      });
+    }
   }, [idleItems]);
 
   return <></>;

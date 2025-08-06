@@ -1,9 +1,0 @@
-Asset Name,Category,Quantity,Project 1 Location,Project 1 Location quantity,Project 1 Location Coordinates,Project 2 Location,Project 2 Location Coordinates,Project 2 Location quantity,Storage Location 1,Storage Location 1 Coordinates,Storage Location 1 Quantity,Storage Location 2,Storage Location 2 Coordinates,Storage Location 2 Quantity
-DJI Phantom,Surveillance,4,Bihar,NA,"25.9644° N, 85.2722° E",NA,NA,NA,Dodi,"19.7565° N, 74.0829° E",2,Delhi,"28.7041° N, 77.1025° E",1
-IIDT FC EGAL-X1,Flight Controller,1,Delhi,NA,"28.7041° N, 77.1025° E",NA,NA,NA,Dodi,"19.7565° N, 74.0829° E",0,Delhi,"28.7041° N, 77.1025° E",1
-Crystal Ball's,Surveillance,2,Delhi,1,"28.7041° N, 77.1025° E",Dodi,"19.7565° N, 74.0829° E",1,Dodi,"19.7565° N, 74.0829° E",2,Delhi,"28.7041° N, 77.1025° E",1
-Asteria Aerospace,Mapping,2,Dodi,2,"19.7565° N, 74.0829° E",NA,NA,NA,Dodi,"19.7565° N, 74.0829° E",2,NA,NA,NA
-Asteria Aerospace,Surveillance,2,Dodi,2,"19.7565° N, 74.0829° E",NA,NA,NA,Dodi,"19.7565° N, 74.0829° E",2,NA,NA,NA
-FPV ,Defense,2,Delhi,2,"28.7041° N, 77.1025° E",NA,NA,NA,Dodi,"19.7565° N, 74.0829° E",2,NA,NA,NA
-Killer FPV ,Defense,1,Pune ,1,"18.5246° N, 73.8786° E",NA,NA,NA,Dodi,"19.7565° N, 74.0829° E",0,NA,NA,NA
-Agriculture ,Spray ,3,Dodi,3,"19.7565° N, 74.0829° E",NA,NA,NA,Dodi,"19.7565° N, 74.0829° E",3,NA,NA,NA

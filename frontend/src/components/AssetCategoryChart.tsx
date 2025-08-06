@@ -60,14 +60,14 @@ const AssetCategoryChart: React.FC = () => {
         <Tabs value={activeChartType} onValueChange={setActiveChartType} className="w-full">
           <TabsList className="grid grid-cols-4 w-full mb-4 gap-1">
             {chartTypes.map(chartType => (
-              <TabsTrigger key={chartType.value} value={chartType.value}>
+              <TabsTrigger key={chartType.value} value={chartType.value} className='border-gray-200 data-[state=active]:text-white'>
                 {chartType.label}
               </TabsTrigger>
             ))}
           </TabsList>
 
           <TabsContent value={activeChartType} className="mt-2">
-            <Card>
+            <Card className='bg-transparent border-0 shadow-none'>
               <CardHeader>
                 <CardTitle>{currentData.title}</CardTitle>
                 <CardDescription>{currentData.description}</CardDescription>
@@ -75,7 +75,7 @@ const AssetCategoryChart: React.FC = () => {
               <CardContent>
                 <ReactECharts 
                   option={getChartOption(currentData.categories)} 
-                  style={{ height: 600, width: '100%' }} 
+                  style={{ height: 618.75, width: '100%' }} 
                   className='bg-transparent rounded-lg p-4' 
                 />
               </CardContent>

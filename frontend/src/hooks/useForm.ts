@@ -235,11 +235,89 @@ export const validationRules = {
     },
   }),
   
+  experienceYears: <T extends Record<string, unknown>>(field: keyof T) => ({
+    field,
+    validator: (value: unknown) => {
+      if (value) {
+        const numValue = Number(value);
+        if (isNaN(numValue)) {
+          return `${String(field)} must be a valid number`;
+        }
+        if (numValue < 0) {
+          return `${String(field)} cannot be negative`;
+        }
+        if (numValue > 50) {
+          return `${String(field)} cannot exceed 50 years`;
+        }
+      }
+      return null;
+    },
+  }),
+  
+  phone: <T extends Record<string, unknown>>(field: keyof T) => ({
+    field,
+    validator: (value: unknown) => {
+      if (typeof value === 'string' && value) {
+        // Allow formats: +91-1234567890, 1234567890, 123-456-7890, (123) 456-7890
+        const phoneRegex = /^[\+]?[1-9][\d]{0,15}$|^[\+]?[1-9][\d\-\s\(\)]{7,20}$/;
+        if (!phoneRegex.test(value.replace(/[\s\-\(\)]/g, ''))) {
+          return `${String(field)} must be a valid phone number`;
+        }
+      }
+      return null;
+    },
+  }),
+  
+  percentage: <T extends Record<string, unknown>>(field: keyof T) => ({
+    field,
+    validator: (value: unknown) => {
+      if (value) {
+        const numValue = Number(value);
+        if (isNaN(numValue)) {
+          return `${String(field)} must be a valid number`;
+        }
+        if (numValue < 0 || numValue > 100) {
+          return `${String(field)} must be between 0 and 100`;
+        }
+      }
+      return null;
+    },
+  }),
+  
   url: <T extends Record<string, unknown>>(field: keyof T) => ({
     field,
     validator: (value: unknown) => {
       if (typeof value === 'string' && value && !/^https?:\/\/.+/.test(value)) {
         return `${String(field)} must be a valid URL`;
+      }
+      return null;
+    },
+  }),
+  
+  date: <T extends Record<string, unknown>>(field: keyof T) => ({
+    field,
+    validator: (value: unknown) => {
+      if (typeof value === 'string' && value) {
+        const date = new Date(value);
+        if (isNaN(date.getTime())) {
+          return `${String(field)} must be a valid date`;
+        }
+      }
+      return null;
+    },
+  }),
+  
+  futureDate: <T extends Record<string, unknown>>(field: keyof T) => ({
+    field,
+    validator: (value: unknown) => {
+      if (typeof value === 'string' && value) {
+        const date = new Date(value);
+        if (isNaN(date.getTime())) {
+          return `${String(field)} must be a valid date`;
+        }
+        if (date <= new Date()) {
+          return `${String(field)} must be a future date`;
+        }
       }
       return null;
     },

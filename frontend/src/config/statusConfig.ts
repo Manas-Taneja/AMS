@@ -1,17 +1,17 @@
 import { 
-  CheckCircle, 
-  Pause, 
-  Clock, 
-  AlertCircle, 
-  XCircle, 
-  User, 
-  Users, 
-  Building2, 
-  Package,
-  Wrench,
-  Activity,
-  Archive
-} from 'lucide-react';
+  LuCheck, 
+  LuPause, 
+  LuClock, 
+  LuLoaderCircle, 
+  LuCircle, 
+  LuUser, 
+  LuUsers, 
+  LuBuilding2, 
+  LuPackage,
+  LuWrench,
+  LuActivity,
+  LuArchive
+} from 'react-icons/lu';
 
 export interface StatusOption {
   value: string;
@@ -35,7 +35,7 @@ export const statusConfig: StatusConfig = {
       label: 'Active',
       color: 'text-green-600',
       bgColor: 'bg-green-100',
-      icon: CheckCircle,
+      icon: LuCheck,
       description: 'Currently active and operational'
     },
     {
@@ -43,7 +43,7 @@ export const statusConfig: StatusConfig = {
       label: 'Inactive',
       color: 'text-gray-600',
       bgColor: 'bg-gray-100',
-      icon: Pause,
+      icon: LuPause,
       description: 'Currently inactive or paused'
     },
     {
@@ -51,7 +51,7 @@ export const statusConfig: StatusConfig = {
       label: 'Pending',
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',
-      icon: Clock,
+      icon: LuClock,
       description: 'Awaiting action or approval'
     },
     {
@@ -59,7 +59,7 @@ export const statusConfig: StatusConfig = {
       label: 'Error',
       color: 'text-red-600',
       bgColor: 'bg-red-100',
-      icon: AlertCircle,
+      icon: LuLoaderCircle,
       description: 'Error or issue detected'
     },
     {
@@ -67,7 +67,7 @@ export const statusConfig: StatusConfig = {
       label: 'Completed',
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
-      icon: CheckCircle,
+      icon: LuCheck,
       description: 'Successfully completed'
     }
   ],
@@ -79,7 +79,7 @@ export const statusConfig: StatusConfig = {
       label: 'Active',
       color: 'text-green-600',
       bgColor: 'bg-green-100',
-      icon: Activity,
+      icon: LuActivity,
       description: 'Project is currently in progress'
     },
     {
@@ -87,7 +87,7 @@ export const statusConfig: StatusConfig = {
       label: 'Paused',
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',
-      icon: Pause,
+      icon: LuPause,
       description: 'Project is temporarily paused'
     },
     {
@@ -95,7 +95,7 @@ export const statusConfig: StatusConfig = {
       label: 'Completed',
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
-      icon: CheckCircle,
+      icon: LuCheck,
       description: 'Project has been completed'
     },
     {
@@ -103,7 +103,7 @@ export const statusConfig: StatusConfig = {
       label: 'Cancelled',
       color: 'text-red-600',
       bgColor: 'bg-red-100',
-      icon: XCircle,
+      icon: LuCircle,
       description: 'Project has been cancelled'
     },
     {
@@ -111,7 +111,7 @@ export const statusConfig: StatusConfig = {
       label: 'Planning',
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
-      icon: Clock,
+      icon: LuClock,
       description: 'Project is in planning phase'
     }
   ],
@@ -119,36 +119,36 @@ export const statusConfig: StatusConfig = {
   // Staff statuses
   staff: [
     {
-      value: 'active',
-      label: 'Active',
+      value: 'available',
+      label: 'Available',
       color: 'text-green-600',
       bgColor: 'bg-green-100',
-      icon: User,
-      description: 'Staff member is active and available'
+      icon: LuUser,
+      description: 'Staff member is available for work'
     },
     {
-      value: 'inactive',
-      label: 'Inactive',
-      color: 'text-gray-600',
-      bgColor: 'bg-gray-100',
-      icon: Pause,
-      description: 'Staff member is inactive'
+      value: 'busy',
+      label: 'Busy',
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-100',
+      icon: LuActivity,
+      description: 'Staff member is currently busy'
+    },
+    {
+      value: 'unavailable',
+      label: 'Unavailable',
+      color: 'text-red-600',
+      bgColor: 'bg-red-100',
+      icon: LuPause,
+      description: 'Staff member is unavailable'
     },
     {
       value: 'on_leave',
       label: 'On Leave',
       color: 'text-orange-600',
       bgColor: 'bg-orange-100',
-      icon: Clock,
+      icon: LuClock,
       description: 'Staff member is on leave'
-    },
-    {
-      value: 'terminated',
-      label: 'Terminated',
-      color: 'text-red-600',
-      bgColor: 'bg-red-100',
-      icon: XCircle,
-      description: 'Staff member has been terminated'
     }
   ],
 
@@ -159,7 +159,7 @@ export const statusConfig: StatusConfig = {
       label: 'Operational',
       color: 'text-green-600',
       bgColor: 'bg-green-100',
-      icon: CheckCircle,
+      icon: LuCheck,
       description: 'Component is working normally'
     },
     {
@@ -167,7 +167,7 @@ export const statusConfig: StatusConfig = {
       label: 'Maintenance',
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',
-      icon: Wrench,
+      icon: LuWrench,
       description: 'Component is under maintenance'
     },
     {
@@ -175,7 +175,7 @@ export const statusConfig: StatusConfig = {
       label: 'Faulty',
       color: 'text-red-600',
       bgColor: 'bg-red-100',
-      icon: AlertCircle,
+      icon: LuLoaderCircle,
       description: 'Component has a fault'
     },
     {
@@ -183,7 +183,7 @@ export const statusConfig: StatusConfig = {
       label: 'Retired',
       color: 'text-gray-600',
       bgColor: 'bg-gray-100',
-      icon: Archive,
+      icon: LuArchive,
       description: 'Component has been retired'
     },
     {
@@ -191,7 +191,7 @@ export const statusConfig: StatusConfig = {
       label: 'Spare',
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
-      icon: Package,
+      icon: LuPackage,
       description: 'Component is available as spare'
     }
   ],
@@ -203,7 +203,7 @@ export const statusConfig: StatusConfig = {
       label: 'Active',
       color: 'text-green-600',
       bgColor: 'bg-green-100',
-      icon: Building2,
+      icon: LuBuilding2,
       description: 'Location is active and operational'
     },
     {
@@ -211,7 +211,7 @@ export const statusConfig: StatusConfig = {
       label: 'Inactive',
       color: 'text-gray-600',
       bgColor: 'bg-gray-100',
-      icon: Pause,
+      icon: LuPause,
       description: 'Location is inactive'
     },
     {
@@ -219,7 +219,7 @@ export const statusConfig: StatusConfig = {
       label: 'Maintenance',
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',
-      icon: Wrench,
+      icon: LuWrench,
       description: 'Location is under maintenance'
     },
     {
@@ -227,7 +227,7 @@ export const statusConfig: StatusConfig = {
       label: 'Closed',
       color: 'text-red-600',
       bgColor: 'bg-red-100',
-      icon: XCircle,
+      icon: LuCircle,
       description: 'Location has been closed'
     }
   ]
@@ -255,7 +255,7 @@ export function getStatusTextColor(type: string, value: string): string {
 
 export function getStatusIcon(type: string, value: string) {
   const option = getStatusOption(type, value);
-  return option ? option.icon : Clock;
+  return option ? option.icon : LuClock;
 }
 
 export function getStatusLabel(type: string, value: string): string {
@@ -273,27 +273,27 @@ export interface StatusBadgeProps {
 
 // Department configurations
 export const departmentConfig = [
-  { value: 'operations', label: 'Operations', icon: Activity },
-  { value: 'maintenance', label: 'Maintenance', icon: Wrench },
-  { value: 'engineering', label: 'Engineering', icon: Building2 },
-  { value: 'management', label: 'Management', icon: Users },
-  { value: 'support', label: 'Support', icon: User },
+  { value: 'operations', label: 'Operations', icon: LuActivity },
+  { value: 'maintenance', label: 'Maintenance', icon: LuWrench },
+  { value: 'engineering', label: 'Engineering', icon: LuBuilding2 },
+  { value: 'management', label: 'Management', icon: LuUsers },
+  { value: 'support', label: 'Support', icon: LuUser },
 ];
 
 // Location type configurations
 export const locationTypeConfig = [
-  { value: 'headquarters', label: 'Headquarters', icon: Building2 },
-  { value: 'branch', label: 'Branch', icon: Building2 },
-  { value: 'warehouse', label: 'Warehouse', icon: Package },
-  { value: 'factory', label: 'Factory', icon: Wrench },
-  { value: 'office', label: 'Office', icon: Building2 },
+  { value: 'headquarters', label: 'Headquarters', icon: LuBuilding2 },
+  { value: 'branch', label: 'Branch', icon: LuBuilding2 },
+  { value: 'warehouse', label: 'Warehouse', icon: LuPackage },
+  { value: 'factory', label: 'Factory', icon: LuWrench },
+  { value: 'office', label: 'Office', icon: LuBuilding2 },
 ];
 
 // Component type configurations
 export const componentTypeConfig = [
-  { value: 'equipment', label: 'Equipment', icon: Wrench },
-  { value: 'machinery', label: 'Machinery', icon: Activity },
-  { value: 'electronics', label: 'Electronics', icon: Package },
-  { value: 'tools', label: 'Tools', icon: Wrench },
-  { value: 'vehicles', label: 'Vehicles', icon: Activity },
+  { value: 'equipment', label: 'Equipment', icon: LuWrench },
+  { value: 'machinery', label: 'Machinery', icon: LuActivity },
+  { value: 'electronics', label: 'Electronics', icon: LuPackage },
+  { value: 'tools', label: 'Tools', icon: LuWrench },
+  { value: 'vehicles', label: 'Vehicles', icon: LuActivity },
 ]; 

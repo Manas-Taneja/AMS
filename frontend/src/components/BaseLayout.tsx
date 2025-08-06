@@ -3,7 +3,11 @@ import { motion } from "framer-motion"
 import { AppSidebar } from "./ui/app-sidebar"
 import { SidebarProvider } from "./ui/sidebar"
 import { Button } from "./ui/button"
-import { ArrowLeft, AlertCircle, RefreshCw } from "lucide-react"
+import {
+  LuArrowLeft as ArrowLeft,
+  LuTriangle as AlertCircle,
+  LuRefreshCcw as RefreshCw,
+} from "react-icons/lu"
 import { pageVariants, pageTransition, loadingVariants } from "@/utils/animations"
 
 interface BaseLayoutProps {
@@ -118,7 +122,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
 }) => {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full text-green">
         <aside className="w-8">
           <AppSidebar />
         </aside>

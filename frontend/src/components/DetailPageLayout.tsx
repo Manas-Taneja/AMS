@@ -1,6 +1,12 @@
 import React from "react"
-import { useNavigate } from "react-router-dom"
-import { ArrowLeft, Edit, Save, X, Trash2} from "lucide-react"
+import { useRouter } from "next/navigation";
+import {
+  LuArrowLeft as ArrowLeft,
+  LuPencil as Edit,
+  LuCheck as Save,
+  LuCircle as X,
+  LuTrash2 as Trash2,
+} from "react-icons/lu"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -13,7 +19,7 @@ import {
 import { AppSidebar } from "@/components/ui/app-sidebar"
 import { SidebarProvider } from "@/components/ui/sidebar"
 
-interface DetailPageLayoutProps {
+interface DetailPageLayoutProps<T = Record<string, unknown>> {
   title: string
   subtitle?: string
   backRoute: string
@@ -28,41 +34,39 @@ interface DetailPageLayoutProps {
   onDelete: () => void
   onDeleteConfirm: () => Promise<void>
   setDeleteDialogOpen: (open: boolean) => void
-  data: any
+  data: T | null
   mainContent: React.ReactNode
   sidebarContent?: React.ReactNode
-  created_at?: string
-  updated_at?: string
 }
 
 // --- Section Config Type ---
-type DetailSectionConfig = {
+type DetailSectionConfig<T = Record<string, unknown>> = {
   type: "mainInfo" | "description" | "attachments";
-  data?: any;
+  data?: T;
   render?: () => React.ReactNode; // for custom sections
 };
 
 // --- Section Renderer ---
-function renderSection(section: DetailSectionConfig) {
+function renderSection<T>(section: DetailSectionConfig<T>) {
   switch (section.type) {
     case "mainInfo":
       // This should be implemented by each entity, so fallback to custom render
       return section.render ? section.render() : null;
     case "description":
-      return <DescriptionCard description={section.data?.description} />;
+      return <DescriptionCard description={(section.data as Record<string, unknown>)?.description} />;
     case "attachments":
-      return <AttachmentsCard attachments={section.data?.attachments} />;
+      return <AttachmentsCard />;
     default:
       return section.render ? section.render() : null;
   }
 }
 
 // --- Main Layout ---
-export function DetailPageLayout(props: DetailPageLayoutProps & {
-  mainSections?: DetailSectionConfig[];
-  sidebarSections?: DetailSectionConfig[];
+export function DetailPageLayout<T = Record<string, unknown>>(props: DetailPageLayoutProps<T> & {
+  mainSections?: DetailSectionConfig<T>[];
+  sidebarSections?: DetailSectionConfig<T>[];
 }) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const {
     title,
     subtitle,
@@ -83,8 +87,6 @@ export function DetailPageLayout(props: DetailPageLayoutProps & {
     sidebarContent,
     mainSections,
     sidebarSections,
-    created_at,
-    updated_at,
   } = props
 
   if (loading) {
@@ -110,16 +112,16 @@ export function DetailPageLayout(props: DetailPageLayoutProps & {
   if (!data) {
     return (
       <SidebarProvider>
-        <div className="flex min-h-screen w-full">
+        <div className="flex min-h-screen w-full text-black">
           <aside className="w-8">
             <AppSidebar />
           </aside>
-          <main className="flex-1 bg-gray-50 overflow-x-auto">
+          <main className="flex-1 bg-gray-50 overflow-x-auto text-black">
             <div className="container mx-auto p-6">
               <div className="text-center">
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">{entityName} Not Found</h1>
-                <p className="text-gray-600 mb-4">The {entityName.toLowerCase()} you're looking for doesn't exist.</p>
-                <Button onClick={() => navigate(backRoute)}>
+                <p className="text-gray-600 mb-4">The {entityName.toLowerCase()} you&apos;re looking for doesn&apos;t exist.</p>
+                <Button onClick={() => router.push(backRoute)}>
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to {entityName}s
                 </Button>
@@ -133,7 +135,7 @@ export function DetailPageLayout(props: DetailPageLayoutProps & {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full text-black">
         <aside className="w-8">
           <AppSidebar />
         </aside>
@@ -144,7 +146,7 @@ export function DetailPageLayout(props: DetailPageLayoutProps & {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate(backRoute)}
+                  onClick={() => router.push(backRoute)}
                   className="flex items-center gap-2"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -163,7 +165,7 @@ export function DetailPageLayout(props: DetailPageLayoutProps & {
                       <Save className="h-4 w-4 mr-2" />
                       {saving ? "Saving..." : "Save"}
                     </Button>
-                    <Button variant="outline" onClick={onCancel}>
+                    <Button className="text-white hover:shadow-lg" variant="outline" onClick={onCancel}>
                       <X className="h-4 w-4 mr-2" />
                       Cancel
                     </Button>
@@ -174,7 +176,7 @@ export function DetailPageLayout(props: DetailPageLayoutProps & {
                       <Edit className="h-4 w-4 mr-2" />
                       Edit
                     </Button>
-                    <Button variant="destructive" onClick={onDelete}>
+                    <Button variant="destructive" onClick={onDelete} className="text-red-500">
                       <Trash2 className="h-4 w-4 mr-2" />
                       Delete
                     </Button>
@@ -223,17 +225,17 @@ export function DetailPageLayout(props: DetailPageLayoutProps & {
 }
 
 // --- DescriptionCard ---
-export function DescriptionCard({ description }: { description?: string }) {
+export function DescriptionCard({ description }: { description?: unknown }) {
   return (
     <div className="bg-white rounded shadow p-4">
       <h2 className="font-semibold mb-2">Description</h2>
-      <div className="text-gray-500 italic">{description || "No description provided."}</div>
+      <div className="text-gray-500 italic">{typeof description === 'string' ? description : "No description provided."}</div>
     </div>
   );
 }
 
 // --- AttachmentsCard ---
-export function AttachmentsCard({ attachments }: { attachments?: any[] }) {
+export function AttachmentsCard() {
   return (
     <div className="bg-white rounded shadow p-4">
       <h2 className="font-semibold mb-2">Attachments</h2>

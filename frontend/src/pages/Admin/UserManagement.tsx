@@ -11,14 +11,20 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import EmptyState from "../../components/ui/EmptyState"
 import SearchFilterTabs from "../../components/SearchFilterTabs"
-import { User, CheckCircle, Clock, Shield,AlertCircle } from "lucide-react"
+import {
+  LuUser as User,
+  LuCheck as CheckCircle,
+  LuClock as Clock,
+  LuShield as Shield,
+  LuTriangle as AlertCircle,
+} from 'react-icons/lu';
 import { userStatusConfig, userRoleConfig } from "../../utils/statusColors"
 import { 
   fadeInUpVariants, 
   containerVariants, 
-  itemVariants,
-  cardVariants 
+  itemVariants
 } from "@/utils/animations"
+import { useConfirmation } from "@/hooks/useConfirmation"
 
 interface UserData {
   id: number
@@ -115,6 +121,7 @@ const UserManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [roleFilter, setRoleFilter] = useState<string>("all")
   const [processingUsers, setProcessingUsers] = useState<Set<number>>(new Set())
+  const { confirm } = useConfirmation()
 
   useEffect(() => {
     // Simulate API call with mock data
@@ -132,6 +139,21 @@ const UserManagement: React.FC = () => {
   }, [])
 
   const approveUser = async (userId: number, role: string) => {
+    const userToApprove = pendingUsers.find((u) => u.id === userId)
+    if (!userToApprove) return
+
+    const confirmed = await confirm({
+      title: 'Approve User',
+      message: `Are you sure you want to approve ${userToApprove.full_name} as ${role}?`,
+      confirmText: 'Approve',
+      cancelText: 'Cancel',
+      type: 'info'
+    })
+
+    if (!confirmed) {
+      return
+    }
+
     setProcessingUsers((prev) => new Set(prev).add(userId))
 
     // Simulate API call
@@ -139,18 +161,15 @@ const UserManagement: React.FC = () => {
 
     try {
       // Move user from pending to active users
-      const userToApprove = pendingUsers.find((u) => u.id === userId)
-      if (userToApprove) {
-        const approvedUser = {
-          ...userToApprove,
-          role,
-          is_active: true,
-        }
-
-        setUsers((prev) => [...prev, approvedUser])
-        setPendingUsers((prev) => prev.filter((u) => u.id !== userId))
-        toast.success("User approved successfully")
+      const approvedUser = {
+        ...userToApprove,
+        role,
+        is_active: true,
       }
+
+      setUsers((prev) => [...prev, approvedUser])
+      setPendingUsers((prev) => prev.filter((u) => u.id !== userId))
+      toast.success("User approved successfully")
     } catch (error) {
       console.error("Error approving user:", error)
       toast.error("Failed to approve user")
@@ -164,6 +183,21 @@ const UserManagement: React.FC = () => {
   }
 
   const updateUserRole = async (userId: number, role: string) => {
+    const userToUpdate = users.find((u) => u.id === userId)
+    if (!userToUpdate) return
+
+    const confirmed = await confirm({
+      title: 'Update User Role',
+      message: `Are you sure you want to change ${userToUpdate.full_name}'s role to ${role}?`,
+      confirmText: 'Update',
+      cancelText: 'Cancel',
+      type: 'warning'
+    })
+
+    if (!confirmed) {
+      return
+    }
+
     setProcessingUsers((prev) => new Set(prev).add(userId))
 
     // Simulate API call
@@ -377,7 +411,7 @@ const UserManagement: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       {getRoleBadge("pending")}
                       <Select 
-                        onValueChange={(role) => approveUser(user.id, role)}
+                        onValueChange={(role: string) => approveUser(user.id, role)}
                         disabled={processingUsers.has(user.id)}
                       >
                         <SelectTrigger className="w-40">
@@ -492,7 +526,7 @@ const UserManagement: React.FC = () => {
                       {getRoleBadge(user.role, user.is_active)}
                       <Select
                         value={user.role}
-                        onValueChange={(role) => updateUserRole(user.id, role)}
+                        onValueChange={(role: string) => updateUserRole(user.id, role)}
                         disabled={processingUsers.has(user.id)}
                       >
                         <SelectTrigger className="w-32">

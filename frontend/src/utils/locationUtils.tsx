@@ -1,5 +1,5 @@
 
-import { Building, MapPin, Users } from "lucide-react";
+import { LuBuilding, LuMapPin, LuUsers } from "react-icons/lu";
 import { locationStatusConfig } from "./statusColors";
 
 export const getStatusColor = (status: string) => {
@@ -9,12 +9,12 @@ export const getStatusColor = (status: string) => {
 export const getTypeIcon = (type: string) => {
   switch (type) {
     case "headquarters":
-      return <Building className="h-4 w-4 text-blue-600" />;
+      return <LuBuilding className="h-4 w-4 text-blue-600" />;
     case "branch":
-      return <MapPin className="h-4 w-4 text-green-600" />;
+      return <LuMapPin className="h-4 w-4 text-green-600" />;
     case "training":
-      return <Users className="h-4 w-4 text-purple-600" />;
+      return <LuUsers className="h-4 w-4 text-purple-600" />;
     default:
-      return <MapPin className="h-4 w-4 text-gray-600" />;
+      return <LuMapPin className="h-4 w-4 text-gray-600" />;
   }
 };

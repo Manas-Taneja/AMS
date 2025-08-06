@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs";
 import { Badge } from "./ui/badge";
-import { Users, Grid3X3, List, X } from "lucide-react";
+import { LuUsers, LuGrid3X3, LuList, LuX } from "react-icons/lu";
 import { AnimatePresence, motion } from "framer-motion";
 import EmptyState from "./ui/EmptyState";
 
@@ -77,7 +77,7 @@ export function SearchFilterTabs<T>({
   groupedByOwner,
   renderGridItem,
   renderListItem,
-  emptyStateIcon = <Users className="h-12 w-12 text-gray-400" />,
+  emptyStateIcon = <LuUsers className="h-12 w-12 text-gray-400" />,
   emptyStateTitle = "No items found",
   emptyStateDescription = "Try adjusting your search or filters to find what you're looking for.",
   gridCols = "grid grid-cols-3 gap-6",
@@ -91,13 +91,13 @@ export function SearchFilterTabs<T>({
   allItems,
 }: SearchFilterTabsProps<T>) {
   return (
-    <Card className={`border-0 shadow-sm ${className}`}>
+    <Card className={`border-0 shadow-sm ${className} text-black`}>
       <CardContent className="p-6">
         {/* Search, Filters, View Toggle */}
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search */}
           <div className="relative flex-1">
-            <Grid3X3 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <LuGrid3X3 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder={searchPlaceholder}
               value={searchValue}
@@ -109,12 +109,12 @@ export function SearchFilterTabs<T>({
           <div className="flex gap-3">
             {filters.map((filter) => (
               <Select key={filter.key} value={filter.value} onValueChange={filter.onValueChange}>
-                <SelectTrigger className="w-auto ">
+                <SelectTrigger className="w-auto">
                   <SelectValue placeholder={filter.label} />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent className="bg-white !text-black">
                   {filter.options.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                    <SelectItem key={option.value} value={option.value} className="!text-black">
                       {option.label}
                     </SelectItem>
                   ))}
@@ -129,7 +129,7 @@ export function SearchFilterTabs<T>({
                   onClick={() => onViewModeChange("grid")}
                   className="h-8 w-8 p-0"
                 >
-                  <Grid3X3 className="w-4 h-4" />
+                  <LuGrid3X3 className="w-4 h-4" />
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
@@ -137,7 +137,7 @@ export function SearchFilterTabs<T>({
                   onClick={() => onViewModeChange("list")}
                   className="h-8 w-8 p-0"
                 >
-                  <List className="w-4 h-4" />
+                  <LuList className="w-4 h-4" />
                 </Button>
               </div>
             )}
@@ -156,7 +156,7 @@ export function SearchFilterTabs<T>({
             }}
             className="flex items-center gap-2 text-gray-700 hover:text-gray-900 border-gray-300 hover:border-gray-400 bg-white"
           >
-            <X className="w-4 h-4" />
+            <LuX className="w-4 h-4" />
             Clear Filters
           </Button>
         </div>
@@ -166,9 +166,9 @@ export function SearchFilterTabs<T>({
             <TabsList className="grid w-auto grid-cols-4 gap-1 h-auto p-1 bg-gray-100">
               <TabsTrigger
                 value="all"
-                className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm focus:outline-1"
+                className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm focus:outline-1 text-black data-[state=active]:text-black !text-black !data-[state=active]:text-black"
               >
-                <Users className="w-4 h-4" />
+                <LuUsers className="w-4 h-4" />
                 <span className="font-medium">All</span>
                 <Badge variant="secondary" className="ml-1 text-sm bg-gray-200 mt-1">
                   {allItems.length}
@@ -178,9 +178,9 @@ export function SearchFilterTabs<T>({
                 <TabsTrigger
                   key={owner}
                   value={owner}
-                  className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm focus:outline-1"
+                  className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm focus:outline-1 text-black data-[state=active]:text-black !text-black !data-[state=active]:text-black"
                 >
-                  <Users className="w-4 h-4" />
+                  <LuUsers className="w-4 h-4" />
                   <span className="font-medium">{owner}</span>
                 </TabsTrigger>
               ))}
@@ -201,7 +201,7 @@ export function SearchFilterTabs<T>({
                   {viewMode === "grid" ? (
                     <div className={gridCols}>
                       {allItems.map((item, index) => (
-                        <React.Fragment key={index}>
+                        <React.Fragment key={`all-grid-${index}`}>
                           {renderGridItem(item)}
                         </React.Fragment>
                       ))}
@@ -209,7 +209,7 @@ export function SearchFilterTabs<T>({
                   ) : (
                     <div className="space-y-2">
                       {allItems.map((item, index) => (
-                        <React.Fragment key={index}>
+                        <React.Fragment key={`all-list-${index}`}>
                           {renderListItem(item)}
                         </React.Fragment>
                       ))}
@@ -243,7 +243,7 @@ export function SearchFilterTabs<T>({
                     {viewMode === "grid" ? (
                       <div className={gridCols}>
                         {groupedByOwner[owner]!.map((item, index) => (
-                          <React.Fragment key={index}>
+                          <React.Fragment key={`${owner}-grid-${index}`}>
                             {renderGridItem(item)}
                           </React.Fragment>
                         ))}
@@ -251,7 +251,7 @@ export function SearchFilterTabs<T>({
                     ) : (
                       <div className="space-y-2">
                         {groupedByOwner[owner]!.map((item, index) => (
-                          <React.Fragment key={index}>
+                          <React.Fragment key={`${owner}-list-${index}`}>
                             {renderListItem(item)}
                           </React.Fragment>
                         ))}

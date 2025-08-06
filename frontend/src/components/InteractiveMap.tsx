@@ -2,13 +2,12 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card";
 import IndiaMap from '../assets/IndiaMap.svg';
 import { motion } from 'framer-motion';
-import { MapPin } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
+import { LuMapPin } from 'react-icons/lu';
+import { useRouter } from "next/navigation";
 
 const InteractiveMap: React.FC = () => {
-  const navigate = useNavigate();
-  
-  const onViewDetails = (id: number) => navigate(`/location/${id}`);
+  const router = useRouter();
+  const onViewDetails = (id: number) => router.push(`/location/${id}`);
 
 // Complete unified location data from ALL files across the codebase
 const cityData = [
@@ -89,10 +88,10 @@ return (
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           width={800}
           height={734.75}
-          className="bg-transparent rounded-lg border"
+          className="bg-transparent rounded-lg"
         >
           {/* India outline as imported SVG image */}
-          <image href={IndiaMap} x="0" y="0" width={svgWidth} height={svgHeight} />
+          <image href={"/assets/IndiaMap.svg"} x="0" y="0" width={svgWidth} height={svgHeight} />
 
           {/* City dots and label lines */}
           {cityData.map((city, i) => (
@@ -158,7 +157,7 @@ return (
                    }}
                  >
                    <div style={{ fontSize: 26, fontWeight: 'bold', color: '#222', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                     <MapPin size={24} style={{ marginRight: 6, color: '#2563eb' }} />
+                     <LuMapPin size={24} style={{ marginRight: 6, color: '#2563eb' }} />
                      {city.name}
                    </div>
                    <div style={{ fontSize: 18, fontWeight: 400, color: '#444', marginBottom: 2 }}>

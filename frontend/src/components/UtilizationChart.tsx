@@ -59,8 +59,8 @@ const UtilizationChart: React.FC = () => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      formatter: function(params: any) {
-        const dataIndex = params[0].dataIndex;
+      formatter: function(params: { dataIndex: number }[]) {
+        const dataIndex = params[0]?.dataIndex;
         const item = data[dataIndex];
         if (!item) return '';
         return `${item.category}<br/>
@@ -136,7 +136,7 @@ const UtilizationChart: React.FC = () => {
   const currentData = utilizationData[activeChartType] || [];
 
   return (
-    <Card>
+    <Card className='bg-transparent border-0 shadow-none'>
       <CardContent>
         <Tabs value={activeChartType} onValueChange={setActiveChartType} className="w-full">
           <TabsList className="grid grid-cols-4 w-full mb-4 gap-1">
@@ -148,7 +148,7 @@ const UtilizationChart: React.FC = () => {
           </TabsList>
 
           <TabsContent value={activeChartType} className="mt-2">
-            <Card>
+            <Card className='bg-transparent border-0 shadow-none'>
               <CardHeader>
                 <CardTitle>Asset Utilization</CardTitle>
                 <CardDescription>
