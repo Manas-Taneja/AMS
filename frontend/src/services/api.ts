@@ -6,6 +6,12 @@ export interface ApiResponse<T = unknown> {
   error?: string;
 }
 
+type ApiErrorBody = {
+  detail?: string;
+  message?: string;
+  [key: string]: unknown;
+};
+
 function mergeHeaders(base: Record<string, string>, extra?: HeadersInit): Record<string, string> {
   const result: Record<string, string> = { ...base };
   if (extra) {
@@ -50,7 +56,7 @@ class ApiService {
       
       if (!response.ok) {
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        let errorData = {};
+        let errorData: ApiErrorBody = {};
         
         try {
           errorData = await response.json();

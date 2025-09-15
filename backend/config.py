@@ -35,7 +35,11 @@ class Settings(BaseSettings):
         env="GOOGLE_CLIENT_SECRET",
         description="Google OAuth client secret"
     )
-    google_redirect_uri: str = "http://localhost:8000/auth/google/callback"
+    google_redirect_uri: str = Field(
+        default="http://localhost:8000/auth/google/callback",
+        env="GOOGLE_REDIRECT_URI",
+        description="OAuth redirect/callback URL for Google"
+    )
     
     # Redis for OAuth state management
     redis_url: str = Field(

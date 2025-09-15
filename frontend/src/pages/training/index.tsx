@@ -408,16 +408,17 @@ function Training() {
     addModal.open();
   };
 
-  const handleModalSubmit = async (data: Record<string, unknown>) => {
+  const handleModalSubmit = async (data: Record<string, unknown>): Promise<boolean> => {
     try {
       // Mock API call - replace with actual API when backend is ready
       console.log('Mock API call - Training course data:', data);
       toast.success('Training course added successfully');
-      addModal.close();
       // TODO: Add actual API call when backend is ready
+      return true; // close modal
     } catch (error) {
       console.error('Add error:', error);
       toast.error('Failed to add training course');
+      return false; // keep modal open
     }
   };
 

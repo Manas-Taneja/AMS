@@ -482,14 +482,14 @@ function TeamMembersPage() {
                 // Show confirmation for update
                 const confirmed = await confirmUpdate('staff member', data.name);
                 if (!confirmed) {
-                  return;
+                  return false;
                 }
                 await update(editingId, staffData);
               } else {
                 // Show confirmation for create
                 const confirmed = await confirmCreate('staff member');
                 if (!confirmed) {
-                  return;
+                  return false;
                 }
                 await create(staffData);
               }
@@ -498,8 +498,10 @@ function TeamMembersPage() {
               setEditMode(false);
               setEditingId(null);
               refetch();
+              return true;
             } catch (error) {
               console.error('Error submitting form:', error);
+              return false;
             } finally {
               setIsSubmitting(false);
             }
