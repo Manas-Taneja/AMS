@@ -135,7 +135,8 @@ const Login: React.FC = () => {
   const handleGoogleLogin = () => {
     setLoading(true);
     setOauthError(null);
-    window.location.href = `http://localhost:8000${API_ENDPOINTS.AUTH.OAUTH.GOOGLE}`;
+    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    window.location.href = `${base}${API_ENDPOINTS.AUTH.OAUTH.GOOGLE}`;
   };
 
   return (
