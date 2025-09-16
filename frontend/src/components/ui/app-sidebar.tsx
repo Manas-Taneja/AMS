@@ -85,7 +85,7 @@ export function AppSidebar() {
                   <SidebarMenuItem>
                     <SidebarMenuButton 
                       onClick={handleLogout}
-                      className="flex items-center gap-2 hover:shadow-lg hover:bg-gray-200 rounded-lg text-red-600 cursor-pointer mt-136"
+                      className="flex items-center gap-2 hover:shadow-lg hover:bg-gray-200 rounded-lg text-red-600 cursor-pointer"
                     >
                       <LuLogOut className="w-4 h-4" />
                       <span>Logout</span>
