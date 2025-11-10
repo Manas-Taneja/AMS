@@ -69,104 +69,70 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+    # Auth disabled: return any existing user or a stub admin user
+    user = db.query(User).first()
+    if user:
+        return user
+    return User(
+        id=0,
+        email="dev@example.com",
+        username="dev",
+        full_name="Dev User",
+        hashed_password=None,
+        is_active=True,
+        is_superuser=True,
+        role="admin",
+        is_oauth_user=False
     )
-    
-    token = credentials.credentials
-    username = verify_token(token)
-    if username is None:
-        raise credentials_exception
-    
-    user = db.query(User).filter(User.username == username).first()
-    if user is None:
-        raise credentials_exception
-    
-    return user
 
 def get_current_user_from_cookie(
     request: Request,
     db: Session = Depends(get_db)
 ) -> User:
-    """Get current user from HTTP-only cookie (for OAuth users)"""
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+    # Auth disabled: return any existing user or a stub admin user
+    user = db.query(User).first()
+    if user:
+        return user
+    return User(
+        id=0,
+        email="dev@example.com",
+        username="dev",
+        full_name="Dev User",
+        hashed_password=None,
+        is_active=True,
+        is_superuser=True,
+        role="admin",
+        is_oauth_user=False
     )
-    
-    # Get token from cookie
-    token_cookie = request.cookies.get("access_token")
-    if not token_cookie:
-        raise credentials_exception
-    
-    # Remove "Bearer " prefix if present
-    if token_cookie.startswith("Bearer "):
-        token = token_cookie[7:]
-    else:
-        token = token_cookie
-    
-    username = verify_token(token)
-    if username is None:
-        raise credentials_exception
-    
-    user = db.query(User).filter(User.username == username).first()
-    if user is None:
-        raise credentials_exception
-    
-    return user
 
 def get_current_user_hybrid(
     request: Request,
     db: Session = Depends(get_db)
 ) -> User:
-    """Get current user from either JWT token or HTTP-only cookie"""
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+    # Auth disabled: return any existing user or a stub admin user
+    user = db.query(User).first()
+    if user:
+        return user
+    return User(
+        id=0,
+        email="dev@example.com",
+        username="dev",
+        full_name="Dev User",
+        hashed_password=None,
+        is_active=True,
+        is_superuser=True,
+        role="admin",
+        is_oauth_user=False
     )
-    
-    # Try JWT token first (from Authorization header)
-    auth_header = request.headers.get("Authorization")
-    if auth_header and auth_header.startswith("Bearer "):
-        token = auth_header[7:]  # Remove "Bearer " prefix
-        username = verify_token(token)
-        if username:
-            user = db.query(User).filter(User.username == username).first()
-            if user:
-                return user
-    
-    # Fallback to cookie-based authentication
-    token_cookie = request.cookies.get("access_token")
-    if token_cookie:
-        # Remove "Bearer " prefix if present
-        if token_cookie.startswith("Bearer "):
-            token = token_cookie[7:]
-        else:
-            token = token_cookie
-        
-        username = verify_token(token)
-        if username:
-            user = db.query(User).filter(User.username == username).first()
-            if user:
-                return user
-    
-    raise credentials_exception
 
 def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
-    if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+    # Auth disabled: always treat user as active
     return current_user
 
 def get_current_active_user_from_cookie(current_user: User = Depends(get_current_user_from_cookie)) -> User:
-    if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+    # Auth disabled: always treat user as active
     return current_user
 
 def get_current_active_user_hybrid(current_user: User = Depends(get_current_user_hybrid)) -> User:
-    if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+    # Auth disabled: always treat user as active
     return current_user 
