@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from '../../components/ui/card';
 import {
   LuUsers as Users,
@@ -18,9 +18,9 @@ import { BaseLayout } from "../../components/BaseLayout";
 import { UnifiedHeader } from '../../components/UnifiedHeader';
 import InteractiveMap from '../../components/InteractiveMap';
 import AssetCategoryChart from '../../components/AssetCategoryChart';
-import { 
-  containerVariants, 
-  itemVariants, 
+import {
+  containerVariants,
+  itemVariants,
   fadeInUpVariants,
 } from '@/utils/animations';
 import IdleAssetCategoryChart from '../../components/IdleAssetCategoryChart';
@@ -85,7 +85,7 @@ const calculateDaysIdle = (lastUsed: string | undefined): number => {
 
 function KeyMetrics({ data }: KeyMetricsProps) {
   return (
-    <motion.div 
+    <motion.div
       className="space-y-6 min-w-0"
       variants={containerVariants}
       initial="initial"
@@ -119,11 +119,11 @@ function KeyMetrics({ data }: KeyMetricsProps) {
   );
 }
 
-function QuickActions({ 
-  onAddNewAsset, 
-  onScheduleMaintenance, 
-  onAssignAsset, 
-  onReportIssue 
+function QuickActions({
+  onAddNewAsset,
+  onScheduleMaintenance,
+  onAssignAsset,
+  onReportIssue
 }: {
   onAddNewAsset: () => void;
   onScheduleMaintenance: () => void;
@@ -141,13 +141,13 @@ function QuickActions({
           <CardDescription>Common asset management tasks</CardDescription>
         </CardHeader>
         <CardContent>
-          <motion.div 
+          <motion.div
             className="space-y-3"
             variants={containerVariants}
             initial="initial"
             animate="in"
           >
-            <motion.button 
+            <motion.button
               className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-green-600 hover:!bg-gray-200  rounded-lg transition-colors"
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}
@@ -157,7 +157,7 @@ function QuickActions({
               <Plus className="w-4 h-4" />
               <span className="font-medium">Add New Asset</span>
             </motion.button>
-            <motion.button 
+            <motion.button
               className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-blue-500 hover:!bg-gray-200  rounded-lg transition-colors"
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}
@@ -167,7 +167,7 @@ function QuickActions({
               <CheckCircle className="w-4 h-4" />
               <span className="font-medium">Schedule Maintenance</span>
             </motion.button>
-            <motion.button 
+            <motion.button
               className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-yellow-600 hover:!bg-gray-200  rounded-lg transition-colors"
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}
@@ -177,7 +177,7 @@ function QuickActions({
               <Users className="w-4 h-4" />
               <span className="font-medium">Assign Asset</span>
             </motion.button>
-            <motion.button 
+            <motion.button
               className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-red-500 hover:!bg-gray-200  rounded-lg transition-colors"
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}
@@ -200,7 +200,7 @@ const Dashboard: React.FC = () => {
   const [dismissedNotifications, setDismissedNotifications] = useState<Set<number>>(new Set());
 
   // Transform idle assets to include days idle calculation
-  const idleItemsWithDays: IdleItemWithDays[] = useMemo(() => 
+  const idleItemsWithDays: IdleItemWithDays[] = useMemo(() =>
     mockData.idleAssets.map(asset => ({
       ...asset,
       daysIdle: calculateDaysIdle(asset.lastUsed!)
@@ -208,7 +208,7 @@ const Dashboard: React.FC = () => {
   );
 
   // Filter out dismissed notifications
-  const activeIdleItems = useMemo(() => 
+  const activeIdleItems = useMemo(() =>
     idleItemsWithDays.filter(item => !dismissedNotifications.has(item.id)),
     [idleItemsWithDays, dismissedNotifications]
   );
@@ -223,7 +223,7 @@ const Dashboard: React.FC = () => {
       ['Maintenance Due', mockData.maintenanceDue],
       ['Export Date', new Date().toISOString().split('T')[0]],
     ].map(row => row.join(',')).join('\n');
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -253,14 +253,14 @@ const Dashboard: React.FC = () => {
   const handleReportIssue = () => {
     toast.info('Issue reporting feature coming soon');
   };
-  
+
   const handleDismissNotification = (id: number) => {
     setDismissedNotifications(prev => new Set([...prev, id]));
   };
 
   return (
     <BaseLayout className="p-6">
-      <motion.div 
+      <motion.div
         className="space-y-6 text-black overflow-x-auto"
         variants={containerVariants}
         initial="initial"
@@ -268,14 +268,13 @@ const Dashboard: React.FC = () => {
       >
         <motion.div variants={itemVariants}>
           <UnifiedHeader
-              title="Asset Management System"
-              subtitle="Overview of your organization's assets and activities"
-              onExport={handleExport}
-              onAdd={handleAdd}
+            title="Asset Management System"
+            subtitle="Overview of your organization's assets and activities"
+            onExport={handleExport}
+            onAdd={handleAdd}
             showLogo={true}
             addLabel="Add Asset"
-            exportLabel="Export Report"
-            />
+          />
         </motion.div>
 
         {/* Idle Notifications - Toast Only */}
@@ -291,24 +290,24 @@ const Dashboard: React.FC = () => {
           }}
         />
 
-          {/* <DashboardSearchFilter
+        {/* <DashboardSearchFilter
             search={search}
             onSearchChange={handleSearchChange}
             onFilter={handleFilter}
             onAnalytics={handleAnalytics}
           /> */}
-          <motion.div 
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-w-0"
-            variants={itemVariants}
-          >
-            <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
-              <InteractiveMap />
-            </motion.div>
-            <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
-              <AssetCategoryChart />
-            </motion.div>
+        <motion.div
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-w-0"
+          variants={itemVariants}
+        >
+          <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
+            <InteractiveMap />
           </motion.div>
-          <motion.div variants={fadeInUpVariants} initial="initial" animate="in" className="grid grid-cols-2 lg:grid-cols-2 gap-6 min-w-0">
+          <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
+            <AssetCategoryChart />
+          </motion.div>
+        </motion.div>
+        <motion.div variants={fadeInUpVariants} initial="initial" animate="in" className="grid grid-cols-2 lg:grid-cols-2 gap-6 min-w-0">
           <Card>
             <CardHeader>
               <CardTitle>Idle Assets</CardTitle>
@@ -325,24 +324,24 @@ const Dashboard: React.FC = () => {
               <UtilizationChart />
             </CardContent>
           </Card>
-          </motion.div>
-          <motion.div variants={itemVariants}>
-            <div className="grid grid-cols-2 gap-8 min-w-0">
-              {/* Left column: QuickActions */}
-              <div>
-                <QuickActions 
-                  onAddNewAsset={handleAddNewAsset}
-                  onScheduleMaintenance={handleScheduleMaintenance}
-                  onAssignAsset={handleAssignAsset}
-                  onReportIssue={handleReportIssue}
-                />
-              </div>
-              {/* Right column: KeyMetrics in 2 rows */}
-              <div className="h-full">
-                <KeyMetrics data={mockData} />
-              </div>
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <div className="grid grid-cols-2 gap-8 min-w-0">
+            {/* Left column: QuickActions */}
+            <div>
+              <QuickActions
+                onAddNewAsset={handleAddNewAsset}
+                onScheduleMaintenance={handleScheduleMaintenance}
+                onAssignAsset={handleAssignAsset}
+                onReportIssue={handleReportIssue}
+              />
             </div>
-          </motion.div>
+            {/* Right column: KeyMetrics in 2 rows */}
+            <div className="h-full">
+              <KeyMetrics data={mockData} />
+            </div>
+          </div>
+        </motion.div>
       </motion.div>
     </BaseLayout>
   );

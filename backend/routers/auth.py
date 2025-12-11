@@ -75,8 +75,8 @@ def login(request: Request, login_data: LoginRequest, db: Session = Depends(get_
         if not username or not password:
             raise ValidationError("Username and password are required")
         
-        # Validate username format
-        if not re.match(r"^[a-zA-Z0-9_-]{3,50}$", username):
+        # Validate username format (allow emails)
+        if not re.match(r"^[a-zA-Z0-9._@-]+$", username):
             raise ValidationError("Invalid username format")
         
         logger.info(f"Attempting authentication for user: {username}")
@@ -204,8 +204,8 @@ def register_user(request: Request, user_data: UserCreate, db: Session = Depends
         if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
             raise ValidationError("Invalid email format")
         
-        # Validate username format
-        if not re.match(r"^[a-zA-Z0-9_-]{3,50}$", username):
+        # Validate username format (allow emails)
+        if not re.match(r"^[a-zA-Z0-9._@-]+$", username):
             raise ValidationError("Invalid username format")
         
         # Validate password strength

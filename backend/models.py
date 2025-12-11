@@ -20,7 +20,7 @@ class User(Base):
     hashed_password = Column(String, nullable=True)  # Nullable for OAuth users
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
-    role = Column(String, nullable=False, default='pending')
+    role = Column(String, nullable=False, default='pending', index=True)  # Add index for filtering
     is_oauth_user = Column(Boolean, default=False)  # Flag for OAuth users
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -45,21 +45,21 @@ class Bill(Base):
     description = Column(Text, nullable=True)
     amount = Column(Float, nullable=False)
     currency = Column(String, default="USD")
-    bill_date = Column(DateTime(timezone=True), nullable=False)
-    due_date = Column(DateTime(timezone=True), nullable=True)
-    vendor = Column(String, nullable=False)
-    category = Column(String, nullable=False)  # Utilities, Equipment, Services, etc.
-    status = Column(String, default="pending")  # pending, approved, rejected, paid
+    bill_date = Column(DateTime(timezone=True), nullable=False, index=True)  # Add index for date queries
+    due_date = Column(DateTime(timezone=True), nullable=True, index=True)  # Add index for date queries
+    vendor = Column(String, nullable=False, index=True)  # Add index for filtering
+    category = Column(String, nullable=False, index=True)  # Utilities, Equipment, Services, etc. - Add index for filtering
+    status = Column(String, default="pending", index=True)  # pending, approved, rejected, paid - Add index for filtering
     file_path = Column(String, nullable=False)  # Path to uploaded file
     file_name = Column(String, nullable=False)  # Original filename
     file_size = Column(Integer, nullable=False)  # File size in bytes
     file_type = Column(String, nullable=False)  # MIME type
-    uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
-    approved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)  # Add index for foreign key
+    approved_by = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # Add index for foreign key
     approved_at = Column(DateTime(timezone=True), nullable=True)
     notes = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)  # Add index for sorting
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), index=True)  # Add index for sorting
 
 class Component(Base):
     __tablename__ = "components"
@@ -113,30 +113,30 @@ class Staff(Base):
     __tablename__ = "staff"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    email = Column(String, nullable=False)
+    email = Column(String, nullable=False, index=True)  # Add index for search
     phone = Column(String, nullable=True)  # Phone number
-    department = Column(String, nullable=False)
-    status = Column(String, nullable=False, default="active")
-    designation = Column(String, nullable=False)
+    department = Column(String, nullable=False, index=True)  # Add index for filtering
+    status = Column(String, nullable=False, default="active", index=True)  # Add index for filtering
+    designation = Column(String, nullable=False, index=True)  # Add index for filtering
     skills = Column(String, nullable=False)  # Comma-separated
-    location = Column(String, nullable=False)
-    availability = Column(String, nullable=False)
-    project = Column(String, nullable=False)
-    company = Column(String, nullable=False)
+    location = Column(String, nullable=False, index=True)  # Add index for filtering
+    availability = Column(String, nullable=False, index=True)  # Add index for filtering
+    project = Column(String, nullable=False, index=True)  # Add index for filtering
+    company = Column(String, nullable=False, index=True)  # Add index for filtering
     experience = Column(String, nullable=True)  # Experience description
     joinDate = Column(String, nullable=True)  # Join date as string
     reports_to = Column(String, nullable=True)  # Who the staff member reports to
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now()) 
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)  # Add index for sorting
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), index=True)  # Add index for sorting 
 
 class Training(Base):
     __tablename__ = "training"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, index=True)
-    institution = Column(String(255), nullable=False)
+    institution = Column(String(255), nullable=False, index=True)  # Add index for filtering
     duration = Column(String(100), nullable=False)
-    level = Column(String(50), nullable=False)  # beginner, intermediate, advanced
+    level = Column(String(50), nullable=False, index=True)  # beginner, intermediate, advanced - Add index for filtering
     description = Column(Text)
     full_description = Column(Text)
     prerequisites = Column(Text)  # JSON string of prerequisites
@@ -146,8 +146,8 @@ class Training(Base):
     instructor_credentials = Column(String(255))
     instructor_experience = Column(Text)
     instructor_image = Column(String(500))
-    schedule_start_date = Column(DateTime)
-    schedule_end_date = Column(DateTime)
+    schedule_start_date = Column(DateTime, index=True)  # Add index for date queries
+    schedule_end_date = Column(DateTime, index=True)  # Add index for date queries
     schedule_format = Column(String(100))  # online, in-person, hybrid
     schedule_location = Column(String(255))
     pricing_amount = Column(Numeric(10, 2))
@@ -156,13 +156,13 @@ class Training(Base):
     enrolled_count = Column(Integer, default=0)
     completed_count = Column(Integer, default=0)
     max_capacity = Column(Integer)
-    status = Column(String(50), default="active")  # active, inactive, completed
-    category = Column(String(100))
+    status = Column(String(50), default="active", index=True)  # active, inactive, completed - Add index for filtering
+    category = Column(String(100), index=True)  # Add index for filtering
     tags = Column(Text)  # JSON string of tags
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    created_by = Column(Integer, ForeignKey("users.id"))
-    updated_by = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)  # Add index for sorting
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)  # Add index for sorting
+    created_by = Column(Integer, ForeignKey("users.id"), index=True)  # Add index for foreign key
+    updated_by = Column(Integer, ForeignKey("users.id"), index=True)  # Add index for foreign key
 
     # Relationships
     creator = relationship("User", foreign_keys=[created_by])

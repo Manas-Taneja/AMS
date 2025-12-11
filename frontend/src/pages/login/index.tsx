@@ -171,6 +171,7 @@ const Login: React.FC = () => {
             onSubmit={handleSubmit} 
             className="space-y-6 mb-6"
             variants={fadeInUpVariants}
+            suppressHydrationWarning
           >
             {error && (
               <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-sm">{error}</div>
@@ -188,6 +189,7 @@ const Login: React.FC = () => {
                 required
                 className="text-black w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter your username"
+                suppressHydrationWarning
               />
             </div>
             <div>
@@ -203,6 +205,7 @@ const Login: React.FC = () => {
                 required
                 className="text-black w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter your password"
+                suppressHydrationWarning
               />
             </div>
             <button

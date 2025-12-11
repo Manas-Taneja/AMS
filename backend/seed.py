@@ -59,13 +59,6 @@ def seed_users():
     """Seed users with different roles"""
     db = SessionLocal()
     
-    # Check if users already exist
-    existing_user = db.query(User).first()
-    if existing_user:
-        logger.info("Users already exist in database. Skipping user seeding.")
-        db.close()
-        return
-    
     # Create test users with roles
     test_users = [
         {
@@ -73,6 +66,14 @@ def seed_users():
             "username": "admin",
             "full_name": "Admin User",
             "password": "admin123",
+            "is_superuser": True,
+            "role": "admin"
+        },
+        {
+            "email": "shailesh.singh@prakharsoftwares.com",
+            "username": "shailesh.singh@prakharsoftwares.com",
+            "full_name": "Shailesh Singh",
+            "password": "PSSL@123",
             "is_superuser": True,
             "role": "admin"
         },
@@ -103,6 +104,12 @@ def seed_users():
     ]
     
     for user_data in test_users:
+        # Check if user already exists
+        existing_user = db.query(User).filter(User.username == user_data["username"]).first()
+        if existing_user:
+            logger.info(f"User {user_data['username']} already exists. Skipping.")
+            continue
+
         hashed_password = get_password_hash(user_data["password"])
         user = User(
             email=user_data["email"],

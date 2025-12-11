@@ -64,6 +64,16 @@ dist/
 dist-ssr/
 build/
 *.local
+*.exe
+*.blockmap
+
+# Electron/Next build artifacts
+frontend/dist/
+frontend/.next/
+frontend/out/
+
+# Test coverage
+frontend/coverage/
 
 # Editor directories and files
 .vscode/*
