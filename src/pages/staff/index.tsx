@@ -30,6 +30,7 @@ import { StatsCards } from "@/components/StatsCards"
 import { EntityModal } from "@/components/EntityModal"
 import type { FieldConfig } from "@/components/EntityModal"
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { toast } from 'sonner';
 
 interface StaffMember {
   id: number;
@@ -106,6 +107,19 @@ function TeamMembersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [companyFilter, setCompanyFilter] = useState("all");
+
+  // Handle URL query parameters for filters
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const category = urlParams.get('category');
+      
+      if (category) {
+        setDepartmentFilter(category);
+        toast.info(`Filtering by: ${category}`);
+      }
+    }
+  }, [router]);
 
   const typedStaff: StaffMember[] = staff.filter(isStaffMember);
   

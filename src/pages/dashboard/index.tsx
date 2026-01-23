@@ -13,7 +13,14 @@ import {
   LuTriangle as AlertTriangle,
   LuCheck as CheckCircle,
   LuPlus as Plus,
+  LuArrowRightLeft as Transfer,
 } from 'react-icons/lu';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent
+} from '../../components/ui/tabs';
 import { BaseLayout } from "../../components/BaseLayout";
 import { UnifiedHeader } from '../../components/UnifiedHeader';
 import InteractiveMap from '../../components/InteractiveMap';
@@ -36,6 +43,7 @@ const mockData = {
   totalValue: 2847500,
   activeAssets: 1189,
   maintenanceDue: 23,
+  transferredAssets: 18,
   assetCategories: [
     { name: 'Computers', count: 456, value: 890000 },
     { name: 'Servers', count: 89, value: 1250000 },
@@ -111,6 +119,18 @@ function KeyMetrics({ data }: KeyMetricsProps) {
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{data.maintenanceDue}</div>
             <p className="text-xs text-red-600">Requires attention</p>
+          </CardContent>
+        </Card>
+      </motion.div>
+      <motion.div variants={itemVariants}>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+            <CardTitle className="text-sm font-medium">Transferred Assets</CardTitle>
+            <Transfer className="h-10 w-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{data.transferredAssets}</div>
+            <p className="text-xs text-gray-600">Currently at other locations</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -220,6 +240,7 @@ const Dashboard: React.FC = () => {
       ['Active Assets', mockData.activeAssets],
       ['Total Value', `$${mockData.totalValue.toLocaleString()}`],
       ['Maintenance Due', mockData.maintenanceDue],
+      ['Transferred Assets', mockData.transferredAssets],
       ['Export Date', new Date().toISOString().split('T')[0]],
     ].map(row => row.join(',')).join('\n');
 
@@ -295,34 +316,56 @@ const Dashboard: React.FC = () => {
             onFilter={handleFilter}
             onAnalytics={handleAnalytics}
           /> */}
-        <motion.div
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-w-0"
-          variants={itemVariants}
-        >
-          <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
-            <InteractiveMap />
-          </motion.div>
-          <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
-            <AssetCategoryChart />
-          </motion.div>
-        </motion.div>
-        <motion.div variants={fadeInUpVariants} initial="initial" animate="in" className="grid grid-cols-2 lg:grid-cols-2 gap-6 min-w-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>Idle Assets</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <IdleAssetCategoryChart />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Recovered Assets</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <UtilizationChart />
-            </CardContent>
-          </Card>
+        <motion.div variants={itemVariants}>
+          <Tabs defaultValue="map" className="w-full">
+            <div className="flex justify-center mb-6">
+              <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+                <TabsTrigger value="map">Map View</TabsTrigger>
+                <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="map" className="space-y-6">
+              <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
+                <InteractiveMap />
+              </motion.div>
+            </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-6">
+              <motion.div 
+                className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                variants={containerVariants}
+                initial="initial"
+                animate="in"
+              >
+                <motion.div variants={itemVariants}>
+                  <AssetCategoryChart />
+                </motion.div>
+                
+                <motion.div variants={itemVariants}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Idle Assets</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <IdleAssetCategoryChart />
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Recovered Assets</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <UtilizationChart />
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </motion.div>
+            </TabsContent>
+          </Tabs>
         </motion.div>
         <motion.div variants={itemVariants}>
           <div className="grid grid-cols-2 gap-8 min-w-0">

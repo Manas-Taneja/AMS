@@ -11,6 +11,9 @@ export interface User {
   is_active: boolean;
   is_superuser: boolean;
   role: string;
+  segment_code?: string;
+  center_id?: number;
+  access_level?: string;
 }
 
 interface AuthContextType {
@@ -23,9 +26,15 @@ interface AuthContextType {
   hasRole: (roles: string[]) => boolean;
   isAdmin: () => boolean;
   isManager: () => boolean;
+  isCenterManager: () => boolean;
+  isSegmentManager: () => boolean;
+  isHQManager: () => boolean;
   isStaff: () => boolean;
   isPending: () => boolean;
   isApproved: () => boolean;
+  getUserSegment: () => string | null;
+  getUserCenter: () => number | null;
+  getUserAccessLevel: () => string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -52,8 +61,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!supabase) return;
     const { data, error } = await supabase
       .from('profiles')
-      .select('id,email,username,full_name,role,is_superuser,is_active')
-      .eq('auth_user_id', userId)
+      .select('id,email,username,full_name,role,is_superuser,is_active,segment_code,center_id,access_level')
+      .eq('id', userId)
       .single();
     if (error) {
       console.error('Failed to load Supabase profile', error);
@@ -67,6 +76,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       role: data.role,
       is_superuser: data.is_superuser,
       is_active: data.is_active,
+      segment_code: data.segment_code,
+      center_id: data.center_id,
+      access_level: data.access_level,
     });
     setLoading(false);
   }, []);
@@ -126,11 +138,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const isManager = (): boolean => {
-    return hasRole(['manager', 'admin']);
+    return hasRole(['center_manager', 'segment_manager', 'hq_manager', 'manager', 'admin']);
+  };
+
+  const isCenterManager = (): boolean => {
+    return hasRole(['center_manager', 'segment_manager', 'hq_manager', 'manager', 'admin']);
+  };
+
+  const isSegmentManager = (): boolean => {
+    return hasRole(['segment_manager', 'hq_manager', 'manager', 'admin']);
+  };
+
+  const isHQManager = (): boolean => {
+    return hasRole(['hq_manager', 'admin']);
   };
 
   const isStaff = (): boolean => {
-    return hasRole(['user', 'manager', 'admin']);
+    return hasRole(['user', 'center_manager', 'segment_manager', 'hq_manager', 'manager', 'admin']);
+  };
+
+  const getUserSegment = (): string | null => {
+    return user?.segment_code || null;
+  };
+
+  const getUserCenter = (): number | null => {
+    return user?.center_id || null;
+  };
+
+  const getUserAccessLevel = (): string | null => {
+    return user?.access_level || null;
   };
 
   const isPending = (): boolean => {
@@ -227,9 +263,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       hasRole,
       isAdmin,
       isManager,
+      isCenterManager,
+      isSegmentManager,
+      isHQManager,
       isStaff,
       isPending,
       isApproved,
+      getUserSegment,
+      getUserCenter,
+      getUserAccessLevel,
     }}>
       {children}
     </AuthContext.Provider>

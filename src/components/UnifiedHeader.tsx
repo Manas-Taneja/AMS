@@ -30,7 +30,7 @@ export function UnifiedHeader({
   onExport,
   exportLabel = "Export",
   showLogo = false,
-  logoUrl = "/assets/logo.webp",
+  logoUrl = "",
   logoAlt = "Logo",
   className = "",
 }: UnifiedHeaderProps) {
@@ -40,7 +40,7 @@ export function UnifiedHeader({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            {showLogo && (
+            {showLogo && logoUrl && (
               <Image
                 src={logoUrl}
                 alt={logoAlt}

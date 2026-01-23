@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactECharts from 'echarts-for-react';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import { sampleChartData } from '../data/sampleChartData';
@@ -18,7 +19,32 @@ const chartTypes = [
 ];
 
 const IdleAssetCategoryChart: React.FC = () => {
+  const router = useRouter();
   const [activeChartType, setActiveChartType] = useState('drones');
+
+  const handleChartClick = (params: { name: string }) => {
+    const categoryName = params.name;
+    
+    // Map chart types to routes and filters
+    switch(activeChartType) {
+      case 'drones':
+        // Navigate to items page with Drones category
+        router.push(`/items?category=Drones&subcategory=${encodeURIComponent(categoryName)}`);
+        break;
+      case 'staff':
+        // Navigate to staff page with job title filter
+        router.push(`/staff?category=${encodeURIComponent(categoryName)}`);
+        break;
+      case 'training':
+        // Navigate to training page with role filter
+        router.push(`/training?category=${encodeURIComponent(categoryName)}`);
+        break;
+      case 'itComponents':
+        // Navigate to items page with IT Components category
+        router.push(`/items?category=${encodeURIComponent(categoryName)}`);
+        break;
+    }
+  };
 
   const getChartOption = (categories: Category[]) => ({
     tooltip: {
@@ -67,13 +93,16 @@ const IdleAssetCategoryChart: React.FC = () => {
             <Card className='bg-transparent border-0 shadow-none'>
               <CardHeader>
                 <CardTitle>{currentData.title}</CardTitle>
-                <CardDescription>{currentData.description}</CardDescription>
+                <CardDescription>{currentData.description} • Click on any bar to view details</CardDescription>
               </CardHeader>
               <CardContent>
                 <ReactECharts 
                   option={getChartOption(currentData.categories)} 
                   style={{ height: 600, width: '100%' }} 
-                  className='bg-transparent rounded-lg p-4' 
+                  className='bg-transparent rounded-lg p-4 cursor-pointer' 
+                  onEvents={{
+                    click: handleChartClick
+                  }}
                 />
               </CardContent>
             </Card>

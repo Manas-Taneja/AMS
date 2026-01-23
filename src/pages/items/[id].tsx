@@ -1,10 +1,12 @@
 import { useParams } from "next/navigation"
+import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   LuPackage as Package,
   LuMapPin as MapPin,
@@ -12,7 +14,13 @@ import {
   LuTriangle as AlertTriangle,
   LuCircle as CheckCircle,
   LuClock as Clock,
+  LuArrowRightLeft as Transfer,
+  LuArrowLeft as Return,
+  LuCalendar as Calendar,
 } from "react-icons/lu"
+import { TransferAssetDialog } from "@/components/TransferAssetDialog"
+import { useLocationsData } from "@/hooks/useApiData"
+import { useAuth } from "@/context/AuthContext"
 import { useDetailPage } from "../../hooks/useDetailPage"
 import { DetailPageLayout } from "../../components/DetailPageLayout"
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card"
@@ -33,6 +41,14 @@ interface Component {
   warranty_expiry?: string
   created_at: string
   updated_at: string
+  // Transfer tracking fields
+  home_location?: string
+  current_location?: string
+  is_transferred?: boolean
+  transferred_to?: string
+  transfer_date?: string
+  expected_return_date?: string
+  transfer_notes?: string
 }
 
 interface ComponentUpdate {
@@ -102,6 +118,10 @@ const getOwnerInitials = (name: string) => {
 function ComponentDetail() {
   const params = useParams<{ id: string }>();
   const componentId = params?.id || '';
+  const { token } = useAuth();
+  const { data: locations } = useLocationsData(token || undefined);
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  
   const {
     data: component,
     loading,
@@ -124,12 +144,72 @@ function ComponentDetail() {
 
   const mainContent = (
     <div className="flex flex-col gap-6">
+      {/* Transfer Status Alert */}
+      {component?.is_transferred && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3">
+                <div className="rounded-full bg-orange-100 p-2">
+                  <Transfer className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-orange-900 mb-1">Asset Currently Transferred</h3>
+                  <div className="text-sm text-orange-800 space-y-1">
+                    <p>
+                      <strong>From:</strong> {component.home_location} → <strong>To:</strong> {component.current_location || component.transferred_to}
+                    </p>
+                    {component.transfer_date && (
+                      <p>
+                        <strong>Transfer Date:</strong> {new Date(component.transfer_date).toLocaleDateString()}
+                      </p>
+                    )}
+                    {component.expected_return_date && (
+                      <p className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        <strong>Expected Return:</strong> {new Date(component.expected_return_date).toLocaleDateString()}
+                      </p>
+                    )}
+                    {component.transfer_notes && (
+                      <p>
+                        <strong>Notes:</strong> {component.transfer_notes}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => setTransferDialogOpen(true)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Return className="w-4 h-4 mr-2" />
+                Return Asset
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Component Details Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-primary" />
-            Component Details
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              Component Details
+            </div>
+            {!component?.is_transferred && !editMode && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setTransferDialogOpen(true)}
+                className="border-orange-300 text-orange-700 hover:bg-orange-50"
+              >
+                <Transfer className="w-4 h-4 mr-2" />
+                Transfer Asset
+              </Button>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -271,12 +351,29 @@ function ComponentDetail() {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-sm font-medium text-muted-foreground">Location</Label>
+                <Label className="text-sm font-medium text-muted-foreground">
+                  {component?.is_transferred ? "Current Location" : "Location"}
+                </Label>
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-base font-medium">{component?.location}</span>
+                  <MapPin className={`h-4 w-4 ${component?.is_transferred ? 'text-orange-500' : 'text-muted-foreground'}`} />
+                  <span className="text-base font-medium">{component?.current_location || component?.location}</span>
+                  {component?.is_transferred && (
+                    <Badge variant="default" className="bg-orange-500 text-white ml-2">
+                      <Transfer className="w-3 h-3 mr-1" />
+                      Transferred
+                    </Badge>
+                  )}
                 </div>
               </div>
+              {component?.is_transferred && component?.home_location && (
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-muted-foreground">Home Location</Label>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <span className="text-base text-gray-600">{component.home_location}</span>
+                  </div>
+                </div>
+              )}
               <div className="space-y-1">
                 <Label className="text-sm font-medium text-muted-foreground">Project</Label>
                 <div className="flex items-center gap-2">
@@ -402,25 +499,45 @@ function ComponentDetail() {
   )
 
   return (
-    <DetailPageLayout
-      title={component?.name || ""}
-      subtitle="Item management"
-      backRoute="/items"
-      entityName="Item"
-      loading={loading}
-      editMode={editMode}
-      saving={saving}
-      deleteDialogOpen={deleteDialogOpen}
-      onEdit={() => setEditMode(true)}
-      onSave={handleUpdate}
-      onCancel={handleCancel}
-      onDelete={handleDelete}
-      onDeleteConfirm={handleDelete}
-      setDeleteDialogOpen={setDeleteDialogOpen}
-      data={component}
-      mainContent={<div className="w-full px-0 lg:px-4">{mainContent}</div>}
-      sidebarContent={sidebarContent}
-    />
+    <>
+      <DetailPageLayout
+        title={component?.name || ""}
+        subtitle="Item management"
+        backRoute="/items"
+        entityName="Item"
+        loading={loading}
+        editMode={editMode}
+        saving={saving}
+        deleteDialogOpen={deleteDialogOpen}
+        onEdit={() => setEditMode(true)}
+        onSave={handleUpdate}
+        onCancel={handleCancel}
+        onDelete={handleDelete}
+        onDeleteConfirm={handleDelete}
+        setDeleteDialogOpen={setDeleteDialogOpen}
+        data={component}
+        mainContent={<div className="w-full px-0 lg:px-4">{mainContent}</div>}
+        sidebarContent={sidebarContent}
+      />
+      
+      {component && (
+        <TransferAssetDialog
+          open={transferDialogOpen}
+          onClose={() => setTransferDialogOpen(false)}
+          assetId={component.id}
+          assetName={component.name}
+          currentLocation={component.current_location || component.location}
+          homeLocation={component.home_location || component.location}
+          isTransferred={component.is_transferred || false}
+          locations={locations || []}
+          onTransferComplete={() => {
+            // Refresh the component data
+            window.location.reload();
+          }}
+          token={token || undefined}
+        />
+      )}
+    </>
   )
 }
 

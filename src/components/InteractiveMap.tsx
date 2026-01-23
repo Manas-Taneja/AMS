@@ -1,13 +1,21 @@
 import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card";
-import { motion } from 'framer-motion';
-import { LuMapPin } from 'react-icons/lu';
-import { useRouter } from "next/navigation";
+import dynamic from 'next/dynamic';
+
+// Dynamically import the MapComponent with no SSR
+const MapComponent = dynamic(() => import('./MapComponent'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[600px] bg-gray-100 flex items-center justify-center rounded-lg">
+      <div className="flex flex-col items-center gap-2">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p className="text-gray-500 text-sm">Loading map...</p>
+      </div>
+    </div>
+  )
+});
 
 const InteractiveMap: React.FC = () => {
-  const router = useRouter();
-  const onViewDetails = (id: number) => router.push(`/location/${id}`);
-
   // Complete unified location data from ALL files across the codebase
   const cityData = [
     {
@@ -20,10 +28,8 @@ const InteractiveMap: React.FC = () => {
       project: "Urban Surveillance",
       team: 12,
       address: "123 Main St, Delhi",
-      x: 400,
-      y: 350,
-      labelX: 40,
-      labelY: 130,
+      lat: 28.6139,
+      lng: 77.2090
     },
     {
       id: 2,
@@ -34,159 +40,47 @@ const InteractiveMap: React.FC = () => {
       manager: "Sarah Johnson",
       project: "Autonomous Delivery",
       team: 8,
-      address: "456 Oak Ave, Mumbai",
-      x: 415,
-      y: 575,
-      labelX: 700,
-      labelY: 630,
+      address: "456 Oak Ave, Bhopal",
+      lat: 23.2599,
+      lng: 77.4126
     },
     {
       id: 3,
       name: "Manufacturing",
-      city: "Dodi",
+      city: "Chennai",
       assets: 189,
       owner: "IIDT",
       manager: "Mike Wilson",
       project: "Aerial Survey",
       team: 6,
       address: "789 Pine Rd, Chennai",
-      x: 375,
-      y: 575,
-      labelX: 40,
-      labelY: 790,
+      lat: 13.0827,
+      lng: 80.2707
     },
     {
       id: 4,
       name: "Office",
-      city: "Jaipur",
+      city: "Kolkata",
       assets: 257,
       owner: "PSSL",
       manager: "Lisa Chen",
       project: "Inventory Optimization",
       team: 10,
       address: "321 Storage Ln, Kolkata",
-      x: 347,
-      y: 430,
-      labelX: 600,
-      labelY: 130,
+      lat: 22.5726,
+      lng: 88.3639
     }
   ];
 
-  const svgWidth = 1200;
-  const svgHeight = 1200;
-
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle>Asset Locations</CardTitle>
         <CardDescription>Major locations and their assets</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="w-full flex justify-center">
-          <svg
-            viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-            width={800}
-            height={734.75}
-            className="bg-transparent rounded-lg"
-          >
-            {/* India outline as imported SVG image */}
-            <image href={"/assets/IndiaMap.svg"} x="0" y="0" width={svgWidth} height={svgHeight} />
-
-            {/* City dots and label lines */}
-            {cityData.map((city, i) => (
-              <motion.g
-                key={city.name}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.2, duration: 0.6 }}
-              >
-                {/* Line from city to label */}
-                <line
-                  x1={city.x}
-                  y1={city.y}
-                  x2={city.labelX + (city.labelX > city.x ? -20 : city.labelX < city.x ? 20 : 0)}
-                  y2={city.labelY + (city.labelY > city.y ? -20 : city.labelY < city.y ? 20 : 0)}
-                  stroke="#2563eb"
-                  strokeWidth={2}
-                  markerEnd="url(#arrowhead)"
-                />
-                {/* City dot */}
-                <circle
-                  cx={city.x}
-                  cy={city.y}
-                  r={8}
-                  fill="#2563eb"
-                  stroke="#fff"
-                  strokeWidth={3}
-                />
-                {/* Interactive button wrapper */}
-                <foreignObject
-                  x={city.labelX - 20}
-                  y={city.labelY - 40}
-                  width={270}
-                  height={130}
-                  requiredExtensions="http://www.w3.org/1999/xhtml"
-                >
-                  <button
-                    onClick={() => onViewDetails(city.id)}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      border: '1px solid #000',
-                      borderRadius: '16px',
-                      backgroundColor: '#fff',
-                      cursor: 'pointer',
-                      padding: '10px',
-                      fontSize: 17,
-                      fontWeight: 'bold',
-                      color: '#222',
-                      wordBreak: 'break-word',
-                      textAlign: 'left',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      boxShadow: '0 1px 1px rgba(0, 0, 0, 0.08)',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f8f9fa';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#fff';
-                    }}
-                  >
-                    <div style={{ fontSize: 26, fontWeight: 'bold', color: '#222', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <LuMapPin size={24} style={{ marginRight: 6, color: '#2563eb' }} />
-                      {city.name}
-                    </div>
-                    <div style={{ fontSize: 18, fontWeight: 400, color: '#444', marginBottom: 2 }}>
-                      Assets: <strong className="text-green-500">{city.assets}</strong>
-                    </div>
-                    <div style={{ fontSize: 16, fontWeight: 400, color: '#666', marginBottom: 2 }}>
-                      Owner: <strong className="text-blue-500">{city.owner}</strong>
-                    </div>
-                  </button>
-                </foreignObject>
-              </motion.g>
-            ))}
-            {/* Arrowhead marker definition */}
-            <defs>
-              <marker
-                id="arrowhead"
-                markerWidth="10"
-                markerHeight="10"
-                refX="8"
-                refY="5"
-                orient="auto"
-                markerUnits="strokeWidth"
-              >
-                <path d="M0,0 L0,10 L10,5 z" fill="#2563eb" />
-              </marker>
-              <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#000" floodOpacity="0.08" />
-              </filter>
-            </defs>
-          </svg>
+      <CardContent className="flex-1 min-h-[600px] p-0 overflow-hidden rounded-b-lg relative">
+        <div className="absolute inset-0">
+          <MapComponent locations={cityData} />
         </div>
       </CardContent>
     </Card>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -209,6 +209,19 @@ function Training() {
   const [levelFilter, setLevelFilter] = useState("all")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [activeTab, setActiveTab] = useState<string>("all")
+  
+  // Handle URL query parameters for filters
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const category = urlParams.get('category');
+      
+      if (category) {
+        setSearchValue(category);
+        toast.info(`Filtering by: ${category}`);
+      }
+    }
+  }, [router]);
   
   // Modal management
   const addModal = useModal();

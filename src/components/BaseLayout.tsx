@@ -1,5 +1,6 @@
 import React from "react"
 import { motion } from "framer-motion"
+import Image from "next/image"
 import { AppSidebar } from "./ui/app-sidebar"
 import { SidebarProvider } from "./ui/sidebar"
 import { Button } from "./ui/button"
@@ -122,7 +123,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
 }) => {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full text-green">
+      <div className="flex min-h-screen w-full text-green relative">
         <aside className="w-8">
           <AppSidebar />
         </aside>
@@ -156,6 +157,17 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
               {children}
             </motion.div>
           )}
+          
+          {/* Watermark */}
+          <div className="fixed bottom-4 right-4 pointer-events-none z-50">
+            <Image
+              src="/assets/PrakharLogo.png"
+              alt="Watermark"
+              width={100}
+              height={100}
+              className="opacity-50"
+            />
+          </div>
         </main>
       </div>
     </SidebarProvider>

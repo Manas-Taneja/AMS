@@ -13,6 +13,7 @@ import {
   LuFolderOpen as FolderOpen,
   LuHash as Hash,
   LuPackage as Package,
+  LuArrowRightLeft as Transfer,
 } from "react-icons/lu"
 import { useAuth } from "@/context/AuthContext"
 import { componentStatusConfig } from "@/utils/statusColors"
@@ -42,6 +43,14 @@ interface TableData {
   warranty_expiry?: string
   created_at: string
   updated_at?: string
+  // Transfer tracking fields
+  home_location?: string
+  current_location?: string
+  is_transferred?: boolean
+  transferred_to?: string
+  transfer_date?: string
+  expected_return_date?: string
+  transfer_notes?: string
 }
 
 const Components: React.FC = () => {
@@ -55,6 +64,7 @@ const Components: React.FC = () => {
   const [selectedOwner, setSelectedOwner] = useState<string>("all")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
+  const [selectedTransferStatus, setSelectedTransferStatus] = useState<string>("all")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [activeTab, setActiveTab] = useState<string>("all")
   
@@ -107,6 +117,23 @@ const Components: React.FC = () => {
     setComponents(apiComponents as TableData[] || [])
   }, [apiComponents])
 
+  // Handle URL query parameters for filters
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const category = urlParams.get('category');
+      const subcategory = urlParams.get('subcategory');
+      
+      if (category) {
+        setSelectedCategory(category);
+      }
+      if (subcategory) {
+        setSearch(subcategory); // Set search to filter by subcategory
+        toast.info(`Filtering by: ${subcategory}`);
+      }
+    }
+  }, [router])
+
   // Filter and search logic
   const filteredComponents = useMemo(() => {
     return components.filter((item: TableData) => {
@@ -115,15 +142,21 @@ const Components: React.FC = () => {
         item.category.toLowerCase().includes(search.toLowerCase()) ||
         item.project.toLowerCase().includes(search.toLowerCase()) ||
         item.location.toLowerCase().includes(search.toLowerCase()) ||
+        item.current_location?.toLowerCase().includes(search.toLowerCase()) ||
+        item.home_location?.toLowerCase().includes(search.toLowerCase()) ||
         item.description?.toLowerCase().includes(search.toLowerCase())
 
       const matchesOwner = selectedOwner === "all" || item.owner === selectedOwner
       const matchesCategory = selectedCategory === "all" || item.category === selectedCategory
       const matchesStatus = selectedStatus === "all" || item.status === selectedStatus
+      const matchesTransferStatus = 
+        selectedTransferStatus === "all" || 
+        (selectedTransferStatus === "transferred" && item.is_transferred) ||
+        (selectedTransferStatus === "not_transferred" && !item.is_transferred)
 
-      return matchesSearch && matchesOwner && matchesCategory && matchesStatus
+      return matchesSearch && matchesOwner && matchesCategory && matchesStatus && matchesTransferStatus
     })
-  }, [components, search, selectedOwner, selectedCategory, selectedStatus])
+  }, [components, search, selectedOwner, selectedCategory, selectedStatus, selectedTransferStatus])
 
   // Get unique values for filters
   // Custom owner order: PSSL first, then others
@@ -270,17 +303,33 @@ const Components: React.FC = () => {
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Badge
-                variant="secondary"
-                className={`${componentStatusConfig[item.status as keyof typeof componentStatusConfig]?.color} border`}
-              >
-                <span className="mr-1">{componentStatusConfig[item.status as keyof typeof componentStatusConfig]?.icon}</span>
-                {item.status}
-              </Badge>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <MapPin className="w-4 h-4 text-gray-400" />
-                <span className="truncate">{item.location}</span>
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant="secondary"
+                  className={`${componentStatusConfig[item.status as keyof typeof componentStatusConfig]?.color} border`}
+                >
+                  <span className="mr-1">{componentStatusConfig[item.status as keyof typeof componentStatusConfig]?.icon}</span>
+                  {item.status}
+                </Badge>
+                {item.is_transferred && (
+                  <Badge variant="default" className="bg-orange-500 hover:bg-orange-600 text-white border-0">
+                    <Transfer className="w-3 h-3 mr-1" />
+                    Transferred
+                  </Badge>
+                )}
               </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <MapPin className={`w-4 h-4 ${item.is_transferred ? 'text-orange-500' : 'text-gray-400'}`} />
+                <span className="truncate font-medium">{item.current_location || item.location}</span>
+              </div>
+              {item.is_transferred && item.home_location && (
+                <div className="flex items-center gap-2 text-xs text-gray-500 ml-6">
+                  <span>Home: {item.home_location}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -326,8 +375,11 @@ const Components: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-6 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {item.location}
+                    <MapPin className={`w-3 h-3 ${item.is_transferred ? 'text-orange-500' : ''}`} />
+                    {item.current_location || item.location}
+                    {item.is_transferred && item.home_location && (
+                      <span className="text-xs text-gray-400 ml-1">(from {item.home_location})</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1">
                     <FolderOpen className="w-3 h-3" />
@@ -338,6 +390,12 @@ const Components: React.FC = () => {
                       <Hash className="w-3 h-3" />
                       <span className="font-mono text-xs">{item.serial_number}</span>
                     </div>
+                  )}
+                  {item.is_transferred && (
+                    <Badge variant="default" className="bg-orange-500 text-white text-xs">
+                      <Transfer className="w-3 h-3 mr-1" />
+                      Transferred
+                    </Badge>
                   )}
                 </div>
               </div>
@@ -403,6 +461,17 @@ const Components: React.FC = () => {
                 ...statuses.map((status) => ({ value: status, label: status }))
               ],
               onValueChange: (value: string) => setSelectedStatus(value)
+            },
+            {
+              key: "transfer",
+              label: "Transfer Status",
+              value: selectedTransferStatus,
+              options: [
+                { value: "all", label: "All Items" },
+                { value: "transferred", label: "🔄 Transferred Only" },
+                { value: "not_transferred", label: "📍 At Home Location" }
+              ],
+              onValueChange: (value: string) => setSelectedTransferStatus(value)
             }
           ]}
           viewMode={viewMode}
@@ -415,7 +484,7 @@ const Components: React.FC = () => {
           emptyStateIcon={<Package className="w-12 h-12 text-gray-400" />}
           emptyStateTitle="No items found"
           emptyStateDescription={
-            search || selectedCategory !== "all" || selectedStatus !== "all"
+            search || selectedCategory !== "all" || selectedStatus !== "all" || selectedTransferStatus !== "all"
               ? "Try adjusting your search or filters"
               : `No items available for this owner`
           }
@@ -434,6 +503,7 @@ const Components: React.FC = () => {
             setSelectedOwner("all");
             setSelectedCategory("all");
             setSelectedStatus("all");
+            setSelectedTransferStatus("all");
             setActiveTab("all");
           }}
         />
