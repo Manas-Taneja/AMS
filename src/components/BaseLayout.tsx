@@ -10,8 +10,25 @@ import {
   LuArrowLeft as ArrowLeft,
   LuTriangle as AlertCircle,
   LuRefreshCcw as RefreshCw,
+  LuPanelLeft,
 } from "react-icons/lu"
 import { pageVariants, pageTransition } from "@/utils/animations"
+import { useSidebar } from "./ui/sidebar"
+
+// Helper component to access sidebar context
+const SidebarTrigger = () => {
+  const { toggleSidebar } = useSidebar()
+  return (
+    <Button 
+      variant="ghost" 
+      size="icon" 
+      onClick={toggleSidebar}
+      className="text-gray-500 hover:text-gray-900"
+    >
+      <LuPanelLeft className="h-5 w-5" />
+    </Button>
+  )
+}
 
 interface BaseLayoutProps {
   children: React.ReactNode
@@ -106,6 +123,9 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
         <main className={`flex-1 overflow-x-auto ${className}`}>
           {/* Top Bar with Command Palette */}
           <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white/95 px-6 backdrop-blur-sm">
+             <div className="flex items-center gap-2">
+               <SidebarTrigger />
+             </div>
              <div className="flex-1">
                {/* Spacer or Title if needed */}
              </div>
