@@ -1,11 +1,23 @@
 import { Button } from "@/components/ui/button"
-import { LuPlus as Plus, LuDownload as Download } from "react-icons/lu"
+import { LuPlus as Plus, LuDownload as Download, LuChevronRight, LuHome } from "react-icons/lu"
 import Image from 'next/image'
+import Link from 'next/link'
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 export interface UnifiedHeaderProps {
   // Basic info
   title: string
   subtitle?: string
+  
+  // Navigation
+  breadcrumbs?: Array<{ label: string; href?: string }>
   
   // Actions
   onAdd?: () => void
@@ -25,6 +37,7 @@ export interface UnifiedHeaderProps {
 export function UnifiedHeader({
   title,
   subtitle,
+  breadcrumbs = [],
   onAdd,
   addLabel = "Add",
   onExport,
@@ -36,6 +49,41 @@ export function UnifiedHeader({
 }: UnifiedHeaderProps) {
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* Breadcrumbs */}
+      {breadcrumbs.length > 0 && (
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/" className="flex items-center gap-1">
+                  <LuHome className="h-3 w-3" />
+                  Home
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            
+            {breadcrumbs.map((crumb, index) => {
+              const isLast = index === breadcrumbs.length - 1;
+              return (
+                <div key={index} className="flex items-center gap-1.5">
+                  <BreadcrumbItem>
+                    {isLast || !crumb.href ? (
+                      <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink asChild>
+                        <Link href={crumb.href}>{crumb.label}</Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {!isLast && <BreadcrumbSeparator />}
+                </div>
+              );
+            })}
+          </BreadcrumbList>
+        </Breadcrumb>
+      )}
+
       {/* Main Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">

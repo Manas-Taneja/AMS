@@ -430,6 +430,10 @@ const Components: React.FC = () => {
             {/* Header */}
         <UnifiedHeader
               title="Items"
+              breadcrumbs={[
+                { label: "Inventory", href: "/items" },
+                { label: "All Items" }
+              ]}
               onAdd={handleAdd}
               onExport={handleExport}
               addLabel="Add Item"
