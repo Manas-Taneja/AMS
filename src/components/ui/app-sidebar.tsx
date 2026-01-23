@@ -12,7 +12,6 @@ import {
   SidebarMenuButton,
   SidebarHeader,
   SidebarFooter,
-  SidebarProvider,
   SidebarRail,
 } from "./sidebar";
 import { 
