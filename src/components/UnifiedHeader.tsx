@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { LuPlus as Plus, LuDownload as Download, LuHome } from "react-icons/lu"
+import { LuPlus as Plus, LuDownload as Download, LuLayoutDashboard } from "react-icons/lu"
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -56,7 +56,7 @@ export function UnifiedHeader({
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link href="/" className="flex items-center gap-1">
-                  <LuHome className="h-3 w-3" />
+                  <LuLayoutDashboard className="h-3 w-3" />
                   Home
                 </Link>
               </BreadcrumbLink>

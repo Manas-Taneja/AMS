@@ -99,13 +99,13 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
 }) => {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full text-green relative bg-gray-50/50">
-        <aside className="w-8">
+      <div className="flex min-h-screen w-full text-green relative bg-white">
+        <aside className="w-8 z-40">
           <AppSidebar />
         </aside>
         <main className={`flex-1 overflow-x-auto ${className}`}>
           {/* Top Bar with Command Palette */}
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white/80 px-6 backdrop-blur-md">
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white/95 px-6 backdrop-blur-sm">
              <div className="flex-1">
                {/* Spacer or Title if needed */}
              </div>

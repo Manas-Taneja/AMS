@@ -529,7 +529,7 @@ function ComponentDetail() {
           currentLocation={component.current_location || component.location}
           homeLocation={component.home_location || component.location}
           isTransferred={component.is_transferred || false}
-          locations={locations || []}
+          locations={(locations as Array<{ name: string }>) || []}
           onTransferComplete={() => {
             // Refresh the component data
             window.location.reload();

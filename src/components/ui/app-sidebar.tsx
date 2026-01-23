@@ -73,7 +73,7 @@ export function AppSidebar() {
 
   return (
     <SidebarProvider open={open} onOpenChange={setOpen}>
-      <Sidebar collapsible="icon" className="border-r border-gray-200 shadow-sm bg-white text-gray-900">
+      <Sidebar collapsible="icon" className="border-r border-gray-200 shadow-sm bg-white text-gray-900 z-40">
         <SidebarHeader className="h-16 flex items-center px-4 border-b border-gray-100">
           <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-blue-900 overflow-hidden">
              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shrink-0">

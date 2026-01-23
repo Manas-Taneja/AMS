@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LuArrowRightLeft as Transfer, LuArrowLeft as Return } from "react-icons/lu"
+import { toast } from "sonner"
 import { SUPABASE_CONFIG } from "@/config"
 import { supabase } from "@/lib/supabaseClient"
 
@@ -147,9 +148,10 @@ export function TransferAssetDialog({
           toast.error(error.detail || "Failed to return asset")
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Return error:", error)
-      toast.error(error.message || "Failed to return asset")
+      const message = error instanceof Error ? error.message : "Failed to return asset";
+      toast.error(message)
     } finally {
       setLoading(false)
     }

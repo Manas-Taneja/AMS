@@ -52,11 +52,16 @@ export function CommandPalette() {
   return (
     <>
       <div 
-        className="hidden md:flex items-center text-sm text-muted-foreground border rounded-md px-3 py-1.5 cursor-pointer hover:bg-gray-100 transition-colors"
+        className="hidden md:flex items-center text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-md px-3 py-1.5 cursor-pointer hover:bg-gray-100 hover:text-gray-900 transition-colors w-64 justify-between"
         onClick={() => setOpen(true)}
       >
-        <span className="mr-4 text-gray-500">Search...</span>
-        <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+        <div className="flex items-center gap-2">
+          <span className="text-gray-400 opacity-70">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </span>
+          <span>Search...</span>
+        </div>
+        <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-white px-1.5 font-mono text-[10px] font-medium text-gray-500 opacity-100 shadow-sm">
           <span className="text-xs">⌘</span>K
         </kbd>
       </div>
