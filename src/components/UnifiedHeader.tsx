@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { LuPlus as Plus, LuDownload as Download, LuChevronRight, LuHome } from "react-icons/lu"
+import { LuPlus as Plus, LuDownload as Download, LuHome } from "react-icons/lu"
 import Image from 'next/image'
 import Link from 'next/link'
 import {

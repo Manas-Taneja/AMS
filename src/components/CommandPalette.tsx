@@ -2,11 +2,7 @@
 
 import * as React from "react"
 import {
-  LuCalculator,
-  LuCalendar,
-  LuCreditCard,
   LuSettings,
-  LuSmile,
   LuUser,
   LuPackage,
   LuMapPin,

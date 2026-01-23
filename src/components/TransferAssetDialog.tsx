@@ -99,9 +99,10 @@ export function TransferAssetDialog({
           toast.error(error.detail || "Failed to transfer asset")
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Transfer error:", error)
-      toast.error(error.message || "Failed to transfer asset")
+      const message = error instanceof Error ? error.message : "Failed to transfer asset";
+      toast.error(message)
     } finally {
       setLoading(false)
     }
