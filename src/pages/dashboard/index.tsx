@@ -287,14 +287,15 @@ const Dashboard: React.FC = () => {
         animate="in"
       >
         <motion.div variants={itemVariants}>
-          <UnifiedHeader
-            title="Asset Management System"
-            subtitle="Overview of your organization's assets and activities"
-            onExport={handleExport}
-            onAdd={handleAdd}
-            showLogo={true}
-            addLabel="Add Asset"
-          />
+            <UnifiedHeader
+              title="Asset Management System"
+              subtitle="Overview of your organization's assets and activities"
+              breadcrumbs={[{ label: "Dashboard", href: "/" }]}
+              onExport={handleExport}
+              onAdd={handleAdd}
+              showLogo={true}
+              addLabel="Add Asset"
+            />
         </motion.div>
 
         {/* Idle Notifications - Toast Only */}
