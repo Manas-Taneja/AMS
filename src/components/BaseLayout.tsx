@@ -16,20 +16,20 @@ import {
 import { pageVariants, pageTransition } from "@/utils/animations"
 import { useSidebar } from "./ui/sidebar"
 
-// Helper component to access sidebar context
-const SidebarTrigger = () => {
-  const { toggleSidebar } = useSidebar()
-  return (
-    <Button 
-      variant="ghost" 
-      size="icon" 
-      onClick={toggleSidebar}
-      className="text-gray-500 hover:text-gray-900"
-    >
-      <LuPanelLeft className="h-5 w-5" />
-    </Button>
-  )
-}
+// Helper component to access sidebar context - REMOVED SidebarTrigger
+// const SidebarTrigger = () => {
+//   const { toggleSidebar } = useSidebar()
+//   return (
+//     <Button 
+//       variant="ghost" 
+//       size="icon" 
+//       onClick={toggleSidebar}
+//       className="text-gray-500 hover:text-gray-900"
+//     >
+//       <LuPanelLeft className="h-5 w-5" />
+//     </Button>
+//   )
+// }
 
 interface BaseLayoutProps {
   children: React.ReactNode
@@ -124,9 +124,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
         <main className={`flex-1 overflow-x-auto ${className}`}>
           {/* Top Bar with Command Palette - Hidden on Desktop */}
           <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white/95 px-6 backdrop-blur-sm md:hidden">
-             <div className="flex items-center gap-2">
-               <SidebarTrigger />
-             </div>
+             {/* SidebarTrigger removed */}
              <div className="flex-1">
                {/* Spacer */}
              </div>

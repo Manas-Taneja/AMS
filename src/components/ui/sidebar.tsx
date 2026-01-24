@@ -53,7 +53,7 @@ function useSidebar() {
 }
 
 function SidebarProvider({
-  defaultOpen = false,
+  defaultOpen = true, // Default to true for permanently expanded
   open: openProp,
   onOpenChange: setOpenProp,
   className,
@@ -69,41 +69,21 @@ function SidebarProvider({
   const [openMobile, setOpenMobile] = React.useState(false)
 
   // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen)
-  const open = openProp ?? _open
+  const open = true // FORCE OPEN ALWAYS
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
-      const openState = typeof value === "function" ? value(open) : value
-      if (setOpenProp) {
-        setOpenProp(openState)
-      } else {
-        _setOpen(openState)
-      }
-
-      // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+      // No-op to prevent closing
     },
-    [setOpenProp, open]
+    []
   )
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
-  }, [isMobile, setOpen, setOpenMobile])
+    return isMobile ? setOpenMobile((open) => !open) : undefined
+  }, [isMobile, setOpenMobile])
 
-  // Mouse hover handlers for auto-expanding
-  const handleMouseEnter = React.useCallback(() => {
-    if (!isMobile && !open) {
-      setOpen(true)
-    }
-  }, [isMobile, open, setOpen])
-
-  const handleMouseLeave = React.useCallback(() => {
-    if (!isMobile && open) {
-      setOpen(false)
-    }
-  }, [isMobile, open, setOpen])
+  // Mouse hover handlers REMOVED
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
