@@ -171,7 +171,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
               alt="Watermark"
               width={100}
               height={100}
-              className="opacity-[0.03] grayscale"
+              className="opacity-20 grayscale"
             />
           </div>
         </main>

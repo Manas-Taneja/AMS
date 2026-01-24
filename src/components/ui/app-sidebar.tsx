@@ -38,6 +38,8 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 import { Avatar, AvatarFallback } from "./avatar";
+import { CommandPalette } from "../CommandPalette";
+import { LuSearch } from "react-icons/lu";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LuLayoutDashboard },
