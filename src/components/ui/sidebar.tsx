@@ -53,7 +53,7 @@ function useSidebar() {
 }
 
 function SidebarProvider({
-  defaultOpen = true, // Default to true for permanently expanded
+  defaultOpen = false, // Default to false for permanently collapsed
   open: openProp,
   onOpenChange: setOpenProp,
   className,
@@ -70,10 +70,10 @@ function SidebarProvider({
 
   // This is the internal state of the sidebar.
   const [_open, _setOpen] = React.useState(defaultOpen)
-  const open = true // FORCE OPEN ALWAYS
+  const open = false // FORCE COLLAPSED ALWAYS
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
-      // No-op to prevent closing
+      // No-op to prevent opening
     },
     []
   )
@@ -135,9 +135,6 @@ function SidebarProvider({
             className
           )}
           {...props}
-          // Add hover handlers to the wrapper
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
         >
           {children}
         </div>
@@ -209,18 +206,6 @@ function Sidebar({
       data-side={side}
       data-slot="sidebar"
     >
-      {/* This is what handles the sidebar gap on desktop */}
-      <div
-        data-slot="sidebar-gap"
-        className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
-          "group-data-[collapsible=offcanvas]:w-0",
-          "group-data-[side=right]:rotate-180",
-          variant === "floating" || variant === "inset"
-            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
-        )}
-      />
       <div
         data-slot="sidebar-container"
         className={cn(

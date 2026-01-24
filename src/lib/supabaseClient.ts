@@ -8,7 +8,15 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 }
 
 export const supabase = SUPABASE_URL && SUPABASE_KEY
-  ? createClient(SUPABASE_URL, SUPABASE_KEY)
+  ? createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        storageKey: 'supabase.auth.token',
+      },
+    })
   : null;
 
 export function getTableNameFromEndpoint(endpoint: string): string {

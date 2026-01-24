@@ -73,27 +73,24 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="none" className="border-r border-gray-200 shadow-sm bg-white text-gray-900 z-40 w-64">
-      <SidebarHeader className="h-16 flex items-center px-4 border-b border-gray-100">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-blue-900 overflow-hidden">
+    <Sidebar collapsible="icon" className="border-r border-gray-200 shadow-sm bg-white text-gray-900 z-40 w-auto">
+      <SidebarHeader className="h-16 flex items-center justify-center px-2 border-b border-gray-100">
+        <Link href="/" className="flex items-center justify-center gap-2 font-bold text-xl tracking-tight text-blue-900 overflow-hidden">
            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shrink-0">
              P
            </div>
-           <span className="truncate">AMS Enterprise</span>
+           {/* Hidden text for screen readers */}
+           <span className="sr-only">AMS Enterprise</span>
         </Link>
       </SidebarHeader>
       
       <SidebarContent className="py-4">
-        {/* Search Trigger in Sidebar */}
-        <div className="px-2 mb-2">
+        {/* Search Trigger in Sidebar - Icon Only */}
+        <div className="px-2 mb-4 flex justify-center">
           <CommandPalette 
             customTrigger={
-              <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-500 bg-gray-50 hover:bg-gray-100 hover:text-gray-900 rounded-md border border-gray-200 cursor-pointer transition-colors">
-                <LuSearch className="w-4 h-4 opacity-70" />
-                <span className="flex-1">Search...</span>
-                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-white px-1.5 font-mono text-[10px] font-medium text-gray-500 opacity-100 shadow-sm">
-                  <span className="text-xs">⌘</span>K
-                </kbd>
+              <div className="flex items-center justify-center w-9 h-9 rounded-md hover:bg-gray-100 text-gray-500 cursor-pointer transition-colors border border-transparent hover:border-gray-200">
+                <LuSearch className="w-5 h-5 opacity-70" />
               </div>
             }
           />
@@ -152,15 +149,11 @@ export function AppSidebar() {
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     {/* <AvatarImage src={user?.avatar} alt={user?.name} /> */}
-                    <AvatarFallback className="rounded-lg bg-blue-100 text-blue-700 font-medium">
+                    <AvatarFallback className="rounded-lg bg-blue-100 text-blue-700 font-medium text-xs">
                       {user?.full_name ? getInitials(user.full_name) : 'U'}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{user?.full_name || 'User'}</span>
-                    <span className="truncate text-xs text-gray-500 capitalize">{user?.role || 'Staff'}</span>
-                  </div>
-                  <LuChevronsUpDown className="ml-auto size-4" />
+                  <span className="sr-only">{user?.full_name || 'User'}</span>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent

@@ -57,15 +57,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const useSupabaseAuth = SUPABASE_CONFIG.USE_SUPABASE && Boolean(supabase);
 
-  const loadSupabaseProfile = useCallback(async (userId: string) => {
+  const loadSupabaseProfile = useCallback(async (authUserId: string) => {
     if (!supabase) return;
     const { data, error } = await supabase
       .from('profiles')
       .select('id,email,username,full_name,role,is_superuser,is_active,segment_code,center_id,access_level')
-      .eq('id', userId)
+      .eq('auth_user_id', authUserId)
       .single();
     if (error) {
       console.error('Failed to load Supabase profile', error);
+      setLoading(false);
       return;
     }
     setUser({
