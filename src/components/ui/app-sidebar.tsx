@@ -53,7 +53,7 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const [open, setOpen] = useState(true); // Default to open
+  const [open, setOpen] = useState(false); // Default to CLOSED
   const { logout, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -74,17 +74,42 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-gray-200 shadow-sm bg-white text-gray-900 z-40">
-      <SidebarHeader className="h-16 flex items-center px-4 border-b border-gray-100">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-blue-900 overflow-hidden">
-           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shrink-0">
-             P
-           </div>
-           <span className="truncate group-data-[collapsible=icon]:hidden">AMS Enterprise</span>
-        </Link>
-      </SidebarHeader>
-      
-      <SidebarContent className="py-4">
-        <SidebarGroup>
+        <SidebarHeader className="h-16 flex items-center px-4 border-b border-gray-100">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-blue-900 overflow-hidden">
+             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shrink-0">
+               P
+             </div>
+             <span className="truncate group-data-[collapsible=icon]:hidden">AMS Enterprise</span>
+          </Link>
+        </SidebarHeader>
+        
+        <SidebarContent className="py-4">
+          {/* Search Trigger in Sidebar */}
+          <div className="px-2 mb-2 group-data-[collapsible=icon]:hidden">
+            <CommandPalette 
+              customTrigger={
+                <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-500 bg-gray-50 hover:bg-gray-100 hover:text-gray-900 rounded-md border border-gray-200 cursor-pointer transition-colors">
+                  <LuSearch className="w-4 h-4 opacity-70" />
+                  <span className="flex-1">Search...</span>
+                  <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-white px-1.5 font-mono text-[10px] font-medium text-gray-500 opacity-100 shadow-sm">
+                    <span className="text-xs">⌘</span>K
+                  </kbd>
+                </div>
+              }
+            />
+          </div>
+          {/* Icon-only search trigger when collapsed */}
+          <div className="hidden group-data-[collapsible=icon]:flex px-2 mb-2 justify-center">
+             <CommandPalette 
+               customTrigger={
+                 <div className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-gray-100 text-gray-500 cursor-pointer">
+                   <LuSearch className="w-4 h-4" />
+                 </div>
+               }
+             />
+          </div>
+
+          <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               {items
@@ -105,11 +130,11 @@ export function AppSidebar() {
                         asChild 
                         isActive={isActive}
                         tooltip={item.title}
-                        className={`
+        className={`
                           transition-all duration-200
                           ${isActive 
-                            ? "bg-blue-50 text-blue-700 font-medium" 
-                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                            ? "bg-white text-black font-medium shadow-md border border-gray-100" 
+                            : "text-gray-600 hover:text-black hover:bg-white hover:shadow-md hover:border hover:border-gray-100"
                           }
                         `}
                       >

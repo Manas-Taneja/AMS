@@ -11,6 +11,7 @@ import {
   LuTriangle as AlertCircle,
   LuRefreshCcw as RefreshCw,
   LuPanelLeft,
+  LuSearch
 } from "react-icons/lu"
 import { pageVariants, pageTransition } from "@/utils/animations"
 import { useSidebar } from "./ui/sidebar"
@@ -121,15 +122,22 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
           <AppSidebar />
         </aside>
         <main className={`flex-1 overflow-x-auto ${className}`}>
-          {/* Top Bar with Command Palette */}
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white/95 px-6 backdrop-blur-sm">
+          {/* Top Bar with Command Palette - Hidden on Desktop */}
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white/95 px-6 backdrop-blur-sm md:hidden">
              <div className="flex items-center gap-2">
                <SidebarTrigger />
              </div>
              <div className="flex-1">
-               {/* Spacer or Title if needed */}
+               {/* Spacer */}
              </div>
-             <CommandPalette />
+             {/* Mobile Command Palette Trigger */}
+             <CommandPalette 
+               customTrigger={
+                 <Button variant="ghost" size="icon">
+                   <LuSearch className="h-5 w-5" />
+                 </Button>
+               }
+             />
           </header>
 
           <div className="p-0">
@@ -171,7 +179,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
               alt="Watermark"
               width={100}
               height={100}
-              className="opacity-20 grayscale"
+              className="opacity-"
             />
           </div>
         </main>

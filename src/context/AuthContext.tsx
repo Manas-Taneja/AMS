@@ -108,8 +108,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
     }
 
-    // Try to restore token from sessionStorage first
-    const storedToken = sessionStorage.getItem('access_token');
+    // Try to restore token from localStorage first (persists across sessions)
+    const storedToken = localStorage.getItem('access_token');
     const storedUser = localStorage.getItem('user');
     
     if (storedToken) {
@@ -233,12 +233,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } else {
       setUser(userData);
       if (jwt) {
-        // For JWT authentication, store token securely
+        // For JWT authentication, store token securely in localStorage (persists across sessions)
         setToken(jwt);
         // Store user data in localStorage (non-sensitive)
         localStorage.setItem('user', JSON.stringify(userData));
-        // Store token in sessionStorage (cleared when browser closes)
-        sessionStorage.setItem('access_token', jwt);
+        // Store token in localStorage so it persists across browser restarts
+        localStorage.setItem('access_token', jwt);
       } else {
         // For OAuth, rely on httpOnly cookies set by backend
         setToken(null);

@@ -92,6 +92,19 @@ function SidebarProvider({
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
   }, [isMobile, setOpen, setOpenMobile])
 
+  // Mouse hover handlers for auto-expanding
+  const handleMouseEnter = React.useCallback(() => {
+    if (!isMobile && !open) {
+      setOpen(true)
+    }
+  }, [isMobile, open, setOpen])
+
+  const handleMouseLeave = React.useCallback(() => {
+    if (!isMobile && open) {
+      setOpen(false)
+    }
+  }, [isMobile, open, setOpen])
+
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -142,6 +155,9 @@ function SidebarProvider({
             className
           )}
           {...props}
+          // Add hover handlers to the wrapper
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           {children}
         </div>
