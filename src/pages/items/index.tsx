@@ -17,6 +17,7 @@ import {
 } from "react-icons/lu"
 import { useAuth } from "@/context/AuthContext"
 import { componentStatusConfig } from "@/utils/statusColors"
+import { logger } from "@/services/logger";
 
 import SearchFilterTabs from "@/components/SearchFilterTabs"
 import { useComponentsData, useLocationsData } from "@/hooks/useApiData"
@@ -273,7 +274,7 @@ const Components: React.FC = () => {
         return true;
       }
     } catch (error) {
-      console.error('Save error:', error);
+      logger.error('Save error', error);
       toast.error('Failed to save component');
       return false;
     }

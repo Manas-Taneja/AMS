@@ -24,8 +24,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-const SIDEBAR_COOKIE_NAME = "sidebar_state"
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
@@ -53,7 +51,7 @@ function useSidebar() {
 }
 
 function SidebarProvider({
-  defaultOpen = false, // Default to false for permanently collapsed
+  defaultOpen,
   open: openProp,
   onOpenChange: setOpenProp,
   className,
@@ -68,11 +66,10 @@ function SidebarProvider({
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
 
-  // This is the internal state of the sidebar.
-  const [_open, _setOpen] = React.useState(defaultOpen)
+  // This is the internal state of the sidebar - force collapsed always
   const open = false // FORCE COLLAPSED ALWAYS
   const setOpen = React.useCallback(
-    (value: boolean | ((value: boolean) => boolean)) => {
+    () => {
       // No-op to prevent opening
     },
     []

@@ -11,11 +11,9 @@ import {
   LuArrowLeft as ArrowLeft,
   LuTriangle as AlertCircle,
   LuRefreshCcw as RefreshCw,
-  LuPanelLeft,
   LuSearch
 } from "react-icons/lu"
 import { pageVariants, pageTransition } from "@/utils/animations"
-import { useSidebar } from "./ui/sidebar"
 
 // Helper component to access sidebar context - REMOVED SidebarTrigger
 // const SidebarTrigger = () => {

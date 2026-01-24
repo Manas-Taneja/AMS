@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
+import { logger } from '@/services/logger';
 
 interface ValidationRule<T> {
   field: keyof T;
@@ -58,12 +59,11 @@ export function useForm<T extends Record<string, unknown>>({
     if (!autoSave || !isDirty || isSubmitting) return;
 
     const timeoutId = setTimeout(() => {
-      // Auto-save logic could be implemented here
-      console.log('Auto-saving...', data);
+      logger.debug('Auto-saving form', { isDirty, isValid });
     }, autoSaveDelay);
 
     return () => clearTimeout(timeoutId);
-  }, [data, autoSave, autoSaveDelay, isDirty, isSubmitting]);
+  }, [data, autoSave, autoSaveDelay, isDirty, isSubmitting, isValid]);
 
   // Validation function for a single field
   const validateField = useCallback((field: keyof T): string | null => {
@@ -133,7 +133,7 @@ export function useForm<T extends Record<string, unknown>>({
     try {
       await onSubmit(data);
     } catch (error) {
-      console.error('Form submission error:', error);
+      logger.error('Form submission error', error);
       toast.error('Failed to submit form');
     } finally {
       setIsSubmitting(false);

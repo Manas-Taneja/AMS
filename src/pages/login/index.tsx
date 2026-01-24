@@ -11,6 +11,7 @@ import {
   fadeInUpVariants, 
   scaleVariants
 } from "@/utils/animations";
+import { logger } from "@/services/logger";
 
 interface LoginForm {
   username: string;
@@ -30,18 +31,18 @@ async function loadProfile(authUserEmail: string) {
   
   // If RBAC fields don't exist (column not found error), try without them
   if (error && error.code === '42703') {
-    console.log('RBAC columns not found, falling back to basic profile');
+    logger.info('RBAC columns not found, falling back to basic profile');
     const result = await supabase
       .from("profiles")
       .select("id,email,username,full_name,role,is_superuser,is_active")
       .eq("email", authUserEmail)
       .single();
-    data = result.data;
+    data = result.data as typeof data || null;
     error = result.error;
   }
   
   if (error || !data) {
-    console.error('Failed to load profile:', error);
+    logger.error('Failed to load profile', error);
     return null;
   }
   

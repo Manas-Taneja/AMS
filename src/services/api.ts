@@ -1,4 +1,5 @@
-import { API_BASE_URL } from '@/config';
+import { API_BASE_URL, API_CONFIG } from '@/config';
+import { logger } from './logger';
 
 export interface ApiResponse<T = unknown> {
   data: T;
@@ -11,6 +12,11 @@ type ApiErrorBody = {
   message?: string;
   [key: string]: unknown;
 };
+
+// Retry configuration
+const MAX_RETRIES = API_CONFIG.RETRY_ATTEMPTS || 3;
+const RETRY_DELAY = API_CONFIG.RETRY_DELAY || 1000;
+const REQUEST_TIMEOUT = API_CONFIG.TIMEOUT || 30000;
 
 function mergeHeaders(base: Record<string, string>, extra?: HeadersInit): Record<string, string> {
   const result: Record<string, string> = { ...base };
@@ -28,13 +34,38 @@ function mergeHeaders(base: Record<string, string>, extra?: HeadersInit): Record
   return result;
 }
 
+/**
+ * Delay helper for retry logic
+ */
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Check if error is retryable
+ */
+function isRetryableError(status: number): boolean {
+  // Retry on network errors, timeouts, and 5xx server errors
+  return status === 0 || status === 408 || (status >= 500 && status < 600);
+}
+
+/**
+ * Create an AbortController with timeout
+ */
+function createTimeoutController(timeoutMs: number): { controller: AbortController; timeoutId: NodeJS.Timeout } {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  return { controller, timeoutId };
+}
+
 class ApiService {
   private baseUrl = API_BASE_URL;
 
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    token?: string | null
+    token?: string | null,
+    retryCount = 0
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers = mergeHeaders({ 'Content-Type': 'application/json' }, options.headers);
@@ -51,8 +82,17 @@ class ApiService {
       config.credentials = 'include'; // Use cookies
     }
 
+    // Add timeout
+    const { controller, timeoutId } = createTimeoutController(REQUEST_TIMEOUT);
+    config.signal = controller.signal;
+
     try {
+      logger.addBreadcrumb(`API Request: ${options.method || 'GET'} ${endpoint}`, 'api');
+      
       const response = await fetch(url, config);
+      
+      // Clear timeout on successful response
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
@@ -72,6 +112,17 @@ class ApiService {
           }
         }
         
+        // Retry logic for retryable errors
+        if (isRetryableError(response.status) && retryCount < MAX_RETRIES) {
+          logger.warn(`API request failed, retrying (${retryCount + 1}/${MAX_RETRIES})`, {
+            endpoint,
+            status: response.status,
+          });
+          
+          await delay(RETRY_DELAY * Math.pow(2, retryCount)); // Exponential backoff
+          return this.request<T>(endpoint, options, token, retryCount + 1);
+        }
+        
         throw new ApiError({
           message: errorMessage,
           status: response.status,
@@ -82,14 +133,60 @@ class ApiService {
       // Handle empty responses
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
-        return await response.json();
+        const data = await response.json();
+        logger.addBreadcrumb(`API Response: ${endpoint}`, 'api', { status: response.status });
+        return data;
       }
       
       return {} as T;
     } catch (error) {
+      // Clear timeout on error
+      clearTimeout(timeoutId);
+      
       if (error instanceof ApiError) {
+        logger.error('API Error', error, { endpoint, status: error.status });
         throw error;
       }
+      
+      // Handle timeout errors
+      if (error instanceof Error && error.name === 'AbortError') {
+        logger.error('API Request Timeout', error, { endpoint, timeout: REQUEST_TIMEOUT });
+        
+        // Retry on timeout
+        if (retryCount < MAX_RETRIES) {
+          logger.warn(`API request timeout, retrying (${retryCount + 1}/${MAX_RETRIES})`, {
+            endpoint,
+          });
+          
+          await delay(RETRY_DELAY * Math.pow(2, retryCount));
+          return this.request<T>(endpoint, options, token, retryCount + 1);
+        }
+        
+        throw new ApiError({
+          message: 'Request timeout. Please check your network connection and try again.',
+          status: 408,
+          details: { timeout: REQUEST_TIMEOUT },
+        });
+      }
+      
+      // Handle network errors
+      const isNetworkError = error instanceof Error && (
+        error.message.includes('fetch') ||
+        error.message.includes('network') ||
+        error.message.includes('Failed to fetch')
+      );
+      
+      if (isNetworkError && retryCount < MAX_RETRIES) {
+        logger.warn(`Network error, retrying (${retryCount + 1}/${MAX_RETRIES})`, {
+          endpoint,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+        
+        await delay(RETRY_DELAY * Math.pow(2, retryCount));
+        return this.request<T>(endpoint, options, token, retryCount + 1);
+      }
+      
+      logger.error('API Network Error', error, { endpoint });
       throw new ApiError({
         message: error instanceof Error ? error.message : 'Network error',
         status: 0,

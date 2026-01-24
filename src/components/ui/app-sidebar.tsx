@@ -1,7 +1,6 @@
-import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../../context/AuthContext";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -40,15 +39,8 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const [open, setOpen] = useState(false); // Default to CLOSED
-  const { logout, user } = useAuth();
-  const router = useRouter();
+  const { user } = useAuth();
   const pathname = usePathname();
-
-  const handleLogout = () => {
-    logout();
-    router.push("/login");
-  };
 
   const getInitials = (name: string) => {
     return name

@@ -18,6 +18,7 @@ import { LuArrowRightLeft as Transfer, LuArrowLeft as Return } from "react-icons
 import { toast } from "sonner"
 import { SUPABASE_CONFIG } from "@/config"
 import { supabase } from "@/lib/supabaseClient"
+import { logger } from "@/services/logger"
 
 interface TransferAssetDialogProps {
   open: boolean
@@ -101,7 +102,7 @@ export function TransferAssetDialog({
         }
       }
     } catch (error: unknown) {
-      console.error("Transfer error:", error)
+      logger.error("Transfer error", error)
       const message = error instanceof Error ? error.message : "Failed to transfer asset";
       toast.error(message)
     } finally {

@@ -9,9 +9,6 @@ import * as Sentry from '@sentry/nextjs';
 
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-const IS_BROWSER = typeof window !== 'undefined';
-
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogContext {
   [key: string]: unknown;
@@ -157,10 +154,10 @@ class Logger {
    */
   startTransaction(name: string, operation: string): unknown {
     if (IS_PRODUCTION) {
-      return Sentry.startTransaction({
+      return Sentry.startSpan({
         name,
         op: operation,
-      });
+      }, (span) => span);
     }
     
     // Return a no-op object in development
@@ -182,19 +179,19 @@ class Logger {
     
     try {
       const result = await operation();
-      if (typeof transaction === 'object' && 'setStatus' in transaction) {
-        (transaction as any).setStatus('ok');
+      if (transaction && typeof transaction === 'object' && 'setStatus' in transaction) {
+        (transaction as { setStatus: (status: string) => void }).setStatus('ok');
       }
       return result;
     } catch (error) {
-      if (typeof transaction === 'object' && 'setStatus' in transaction) {
-        (transaction as any).setStatus('error');
+      if (transaction && typeof transaction === 'object' && 'setStatus' in transaction) {
+        (transaction as { setStatus: (status: string) => void }).setStatus('error');
       }
       this.error(`API call failed: ${endpoint}`, error as Error);
       throw error;
     } finally {
-      if (typeof transaction === 'object' && 'finish' in transaction) {
-        (transaction as any).finish();
+      if (transaction && typeof transaction === 'object' && 'finish' in transaction) {
+        (transaction as { finish: () => void }).finish();
       }
     }
   }

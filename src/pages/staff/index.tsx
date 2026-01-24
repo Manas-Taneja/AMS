@@ -28,6 +28,7 @@ import { motion } from "framer-motion"
 import { RoleBasedComponent } from "@/components/RoleBasedComponent"
 import { StatsCards } from "@/components/StatsCards"
 import { EntityModal } from "@/components/EntityModal"
+import { logger } from "@/services/logger"
 import type { FieldConfig } from "@/components/EntityModal"
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { toast } from 'sonner';
@@ -84,7 +85,7 @@ function TeamMembersPage() {
   const { token } = useAuth();
   const router = useRouter();
   const renderCount = useRef(0);
-  useEffect(() => { renderCount.current += 1; console.log('Staff render', renderCount.current, 'token:', token); }, [token]);
+  useEffect(() => { renderCount.current += 1; logger.debug('Staff render', { count: renderCount.current, hasToken: !!token }); }, [token]);
   
   // Use new DRY hooks
   const { data: staff, loading, error, refetch } = useStaffData(token || undefined);
@@ -128,7 +129,7 @@ function TeamMembersPage() {
     const ids = typedStaff.map(m => m.id);
     const uniqueIds = new Set(ids);
     if (ids.length !== uniqueIds.size) {
-      console.warn('⚠️ Duplicate staff IDs detected:', {
+      logger.warn('Duplicate staff IDs detected', {
         total: ids.length,
         unique: uniqueIds.size,
         duplicates: ids.filter((id, index) => ids.indexOf(id) !== index)
@@ -516,7 +517,7 @@ function TeamMembersPage() {
               refetch();
               return true;
             } catch (error) {
-              console.error('Error submitting form:', error);
+              logger.error('Error submitting form', error);
               return false;
             } finally {
               setIsSubmitting(false);

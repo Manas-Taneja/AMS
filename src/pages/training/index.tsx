@@ -18,6 +18,10 @@ import { useModal } from '@/hooks/useModal';
 import { useConfirmation } from '@/hooks/useConfirmation';
 import { useForm } from '@/hooks/useForm';
 import type { FieldConfig } from '@/components/EntityModal';
+import { logger } from '@/services/logger';
+import { apiService } from '@/services/api';
+import { API_ENDPOINTS } from '@/config';
+import { useAuth } from '@/context/AuthContext';
 
 // Mock data for different job titles and their certifications
 const trainingData = {
@@ -205,6 +209,7 @@ const trainingData = {
 
 function Training() {
   const router = useRouter()
+  const { token } = useAuth()
   const [searchValue, setSearchValue] = useState("")
   const [levelFilter, setLevelFilter] = useState("all")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
@@ -247,13 +252,13 @@ function Training() {
     },
     onSubmit: async (formData) => {
       try {
-        // Mock API call - replace with actual API when backend is ready
-        console.log('Mock API call - Training course data:', formData);
+        await apiService.post(API_ENDPOINTS.TRAINING, formData, token);
         toast.success('Training course added successfully');
         addModal.close();
-        // TODO: Add actual API call when backend is ready
+        // Refresh the page to show the new data
+        router.refresh();
       } catch (error) {
-        console.error('Add error:', error);
+        logger.error('Failed to add training course', error);
         toast.error('Failed to add training course');
       }
     }
@@ -421,13 +426,13 @@ function Training() {
 
   const handleModalSubmit = async (data: Record<string, unknown>): Promise<boolean> => {
     try {
-      // Mock API call - replace with actual API when backend is ready
-      console.log('Mock API call - Training course data:', data);
+      await apiService.post(API_ENDPOINTS.TRAINING, data, token);
       toast.success('Training course added successfully');
-      // TODO: Add actual API call when backend is ready
+      // Refresh to show new data
+      router.refresh();
       return true; // close modal
     } catch (error) {
-      console.error('Add error:', error);
+      logger.error('Failed to add training course', error);
       toast.error('Failed to add training course');
       return false; // keep modal open
     }

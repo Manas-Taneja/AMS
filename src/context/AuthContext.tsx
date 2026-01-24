@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const useSupabaseAuth = SUPABASE_CONFIG.USE_SUPABASE && Boolean(supabase);
 
-  const loadSupabaseProfile = useCallback(async (authUserId: string) => {
+  const loadSupabaseProfile = useCallback(async () => {
     if (!supabase) return;
     
     // Get the auth user's email first
@@ -78,18 +78,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     // If RBAC fields don't exist (column not found error), try without them
     if (error && error.code === '42703') {
-      console.log('RBAC columns not found, falling back to basic profile');
+      logger.info('RBAC columns not found, falling back to basic profile');
       const result = await supabase
         .from('profiles')
         .select('id,email,username,full_name,role,is_superuser,is_active')
         .eq('email', authUser.user.email)
         .single();
-      data = result.data;
+      data = result.data as typeof data || null;
       error = result.error;
     }
     
     if (error) {
-      console.error('Failed to load Supabase profile', error);
+      logger.error('Failed to load Supabase profile', error);
+      setLoading(false);
+      return;
+    }
+    if (!data) {
+      logger.error('No profile data found');
       setLoading(false);
       return;
     }
@@ -114,14 +119,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       supabase.auth.getSession().then(({ data }) => {
         const session = data.session;
         if (session?.user?.id) {
-          loadSupabaseProfile(session.user.id);
+          loadSupabaseProfile();
         } else {
           setLoading(false);
         }
       });
       const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user?.id) {
-          loadSupabaseProfile(session.user.id);
+          loadSupabaseProfile();
         } else {
           setUser(null);
           setToken(null);
@@ -143,7 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           setUser(JSON.parse(storedUser));
         } catch (error) {
-          console.error('Error parsing stored user data:', error);
+          logger.error('Error parsing stored user data', error);
           localStorage.removeItem('user');
         }
       }
@@ -210,10 +215,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
     sessionStorage.removeItem('access_token');
     if (useSupabaseAuth && supabase) {
-      supabase.auth.signOut().catch(console.error);
+      supabase.auth.signOut().catch((error) => logger.error('Supabase signout failed', error));
     } else {
       // Call logout endpoint to clear httpOnly cookies
-      apiService.post(API_ENDPOINTS.AUTH.LOGOUT, {}).catch(console.error);
+      apiService.post(API_ENDPOINTS.AUTH.LOGOUT, {}).catch((error) => logger.error('Logout failed', error));
     }
   }, [useSupabaseAuth]);
 
@@ -229,7 +234,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userData = await apiService.get(API_ENDPOINTS.AUTH.ME, token) as User;
       setUser(userData);
     } catch (error) {
-      console.error('Token verification failed:', error);
+      logger.error('Token verification failed', error);
       setUser(null);
       setToken(null);
       localStorage.removeItem('access_token');
@@ -251,7 +256,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Accepts both JWT and cookie-based login
   const login = (jwt: string | undefined, userData: User) => {
-    console.log('🔍 AuthContext: Login called with:', { jwt: !!jwt, userData });
+    logger.debug('AuthContext: Login called', { hasJwt: !!jwt, userId: userData.id });
     if (useSupabaseAuth) {
       // Supabase listener will set user; keep local copy for components
       setUser(userData);
@@ -272,7 +277,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         sessionStorage.removeItem('access_token');
       }
     }
-    console.log('🔍 AuthContext: User state updated:', userData);
+    logger.debug('AuthContext: User state updated', { userId: userData.id, role: userData.role });
+    // Set user context in Sentry for error tracking
+    logger.setUser({ id: userData.id, email: userData.email, username: userData.username });
   };
 
   const isAuthenticated = !!user;

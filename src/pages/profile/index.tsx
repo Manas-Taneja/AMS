@@ -3,7 +3,7 @@ import { BaseLayout } from "@/components/BaseLayout";
 import { UnifiedHeader } from "@/components/UnifiedHeader";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,10 +14,6 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { 
-  LuUser, 
-  LuSettings, 
-  LuShield, 
-  LuBell, 
   LuMoon, 
   LuSun, 
   LuMonitor,
