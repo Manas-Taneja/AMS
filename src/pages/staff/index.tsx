@@ -262,33 +262,33 @@ function TeamMembersPage() {
                 <AvatarFallback>{member.initials}</AvatarFallback>
               </Avatar>
               <div>
-                <h4 className="font-medium text-gray-900">{member.name}</h4>
-                <p className="text-sm text-gray-600">{member.designation}</p>
+                <h4 className="font-medium text-foreground">{member.name}</h4>
+                <p className="text-sm text-muted-foreground">{member.designation}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <StatusBadge type="staff" value={member.availability} />
-                  <Badge variant="outline" className="text-xs text-black">{member.department}</Badge>
+                  <Badge variant="outline" className="text-xs">{member.department}</Badge>
                 </div>
               </div>
             </div>
 
           </div>
           <div className="mt-3 space-y-1">
-            <div className="flex items-center text-sm text-gray-600">
+            <div className="flex items-center text-sm text-muted-foreground">
               <Mail className="h-3 w-3 mr-2" />
               {member.email}
             </div>
-            <div className="flex items-center text-sm text-gray-600">
+            <div className="flex items-center text-sm text-muted-foreground">
               <Phone className="h-3 w-3 mr-2" />
               {member.phone}
             </div>
-            <div className="flex items-center text-sm text-gray-600">
+            <div className="flex items-center text-sm text-muted-foreground">
               <MapPin className="h-3 w-3 mr-2" />
               {member.location}
             </div>
           </div>
           <div className="mt-3 flex items-center justify-between text-sm">
-            <span className="text-gray-600">{member.currentProjects} active projects</span>
-            <span className="text-gray-600">{member.completedTasks} completed tasks</span>
+            <span className="text-muted-foreground">{member.currentProjects} active projects</span>
+            <span className="text-muted-foreground">{member.completedTasks} completed tasks</span>
           </div>
         </CardContent>
       </Card>
@@ -297,7 +297,7 @@ function TeamMembersPage() {
 
   const StaffListItem = ({ member }: { member: StaffMember }) => (
     <motion.div layout initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-      <Card className="group hover:shadow-sm transition-all duration-200 border-0 shadow-none hover:bg-gray-50">
+      <Card className="group hover:shadow-sm transition-all duration-200 border-0 shadow-none hover:bg-accent/50">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
@@ -307,11 +307,11 @@ function TeamMembersPage() {
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <h4 className="font-medium text-gray-900">{member.name}</h4>
+                  <h4 className="font-medium text-foreground">{member.name}</h4>
                   <StatusBadge type="staff" value={member.availability} />
-                  <Badge variant="outline" className="text-xs text-black">{member.department}</Badge>
+                  <Badge variant="outline" className="text-xs">{member.department}</Badge>
                 </div>
-                <div className="flex items-center gap-6 text-sm text-gray-600">
+                <div className="flex items-center gap-6 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Mail className="h-3 w-3 mr-2" />
                     {member.email}

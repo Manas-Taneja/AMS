@@ -369,8 +369,8 @@ function ComponentDetail() {
                 <div className="space-y-1">
                   <Label className="text-sm font-medium text-muted-foreground">Home Location</Label>
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-gray-400" />
-                    <span className="text-base text-gray-600">{component.home_location}</span>
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-base text-muted-foreground">{component.home_location}</span>
                   </div>
                 </div>
               )}
@@ -413,14 +413,14 @@ function ComponentDetail() {
       <Card>
         <CardHeader><CardTitle>Component Image</CardTitle></CardHeader>
         <CardContent>
-          <div className="w-32 h-32 bg-gray-200 rounded flex items-center justify-center text-gray-400">Image Placeholder</div>
+          <div className="w-32 h-32 bg-muted rounded flex items-center justify-center text-muted-foreground">Image Placeholder</div>
         </CardContent>
       </Card>
       {/* Maintenance History */}
       <Card>
         <CardHeader><CardTitle>Maintenance History</CardTitle></CardHeader>
         <CardContent>
-          <ul className="text-gray-500 space-y-1">
+          <ul className="text-muted-foreground space-y-1">
             <li>2024-01-10: Routine check (Placeholder)</li>
             <li>2023-12-01: Battery replaced (Placeholder)</li>
             <li>2023-10-15: Firmware update (Placeholder)</li>
@@ -447,7 +447,7 @@ function ComponentDetail() {
       <Card>
         <CardHeader><CardTitle>Linked Projects / Locations</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-gray-500 italic">No linked projects or locations. (Placeholder)</div>
+          <div className="text-muted-foreground italic">No linked projects or locations. (Placeholder)</div>
         </CardContent>
       </Card>
     </div>
@@ -462,11 +462,11 @@ function ComponentDetail() {
           <div className="flex gap-4 flex-nowrap overflow-x-auto scrollbar-hide py-2">
             {[1,2,3].map(i => (
               <div key={i} className="flex flex-col items-center flex-shrink-0">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-500">S</div>
-                <div className="text-xs mt-1 text-gray-600">Staff Name</div>
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg font-bold text-muted-foreground">S</div>
+                <div className="text-xs mt-1 text-muted-foreground">Staff Name</div>
               </div>
             ))}
-            <div className="text-gray-400 ml-4">(Placeholder staff)</div>
+            <div className="text-muted-foreground ml-4">(Placeholder staff)</div>
           </div>
         </CardContent>
       </Card>
@@ -474,14 +474,14 @@ function ComponentDetail() {
       <Card>
         <CardHeader><CardTitle>Warranty Provider / Contact</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-gray-500 italic">No warranty provider info. (Placeholder)</div>
+          <div className="text-muted-foreground italic">No warranty provider info. (Placeholder)</div>
         </CardContent>
       </Card>
       {/* Replacement Parts List */}
       <Card>
         <CardHeader><CardTitle>Replacement Parts List</CardTitle></CardHeader>
         <CardContent>
-          <ul className="text-gray-500 space-y-1">
+          <ul className="text-muted-foreground space-y-1">
             <li>Battery (Placeholder)</li>
             <li>Propeller (Placeholder)</li>
             <li>Sensor (Placeholder)</li>
@@ -492,7 +492,7 @@ function ComponentDetail() {
       <Card>
         <CardHeader><CardTitle>Attachments</CardTitle></CardHeader>
         <CardContent>
-          <div className="text-gray-500 italic">No attachments uploaded. (Placeholder)</div>
+          <div className="text-muted-foreground italic">No attachments uploaded. (Placeholder)</div>
         </CardContent>
       </Card>
     </div>

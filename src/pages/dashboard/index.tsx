@@ -281,7 +281,7 @@ const Dashboard: React.FC = () => {
   return (
     <BaseLayout className="p-6">
       <motion.div
-        className="space-y-6 text-black overflow-x-auto"
+        className="space-y-6 overflow-x-auto"
         variants={containerVariants}
         initial="initial"
         animate="in"

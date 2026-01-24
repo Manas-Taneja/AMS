@@ -326,7 +326,7 @@ function Training() {
             <CardTitle className="text-lg font-semibold leading-tight">{cert.name}</CardTitle>
             <TrainingLevelBadge level={cert.level} className="ml-2" />
           </div>
-          <CardDescription className="text-sm text-gray-600">{cert.description}</CardDescription>
+          <CardDescription className="text-sm text-muted-foreground">{cert.description}</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -359,8 +359,8 @@ function Training() {
                 <h3 className="text-lg font-semibold">{cert.name}</h3>
                 <TrainingLevelBadge level={cert.level} />
               </div>
-              <p className="text-gray-600 mb-2">{cert.description}</p>
-              <div className="flex items-center gap-4 text-sm text-gray-500">
+              <p className="text-muted-foreground mb-2">{cert.description}</p>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span>{cert.institution}</span>
                 <span>•</span>
                 <span>{cert.duration}</span>
@@ -369,8 +369,8 @@ function Training() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-blue-600">{cert.enrolled + cert.completed}</div>
-              <div className="text-sm text-gray-500">Total</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{cert.enrolled + cert.completed}</div>
+              <div className="text-sm text-muted-foreground">Total</div>
             </div>
           </div>
         </CardContent>
@@ -472,7 +472,7 @@ function Training() {
 
   return (
     <BaseLayout className="p-8">
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-background py-8">
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Unified Header */}
           <UnifiedHeader
@@ -501,7 +501,7 @@ function Training() {
               groupedByOwner={groupedByOwner}
               renderGridItem={renderGridItem}
               renderListItem={renderListItem}
-              emptyStateIcon={<GraduationCap className="h-12 w-12 text-gray-400" />}
+              emptyStateIcon={<GraduationCap className="h-12 w-12 text-muted-foreground" />}
               emptyStateTitle="No training courses found"
               emptyStateDescription="Try adjusting your search or filters to find the training you're looking for."
               gridCols="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4"

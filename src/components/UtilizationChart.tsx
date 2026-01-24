@@ -3,6 +3,7 @@ import ReactECharts from 'echarts-for-react';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
+import { useTheme } from '@/context/ThemeContext';
 
 interface UtilizationData {
   category: string;
@@ -56,6 +57,9 @@ const chartTypes = [
 const UtilizationChart: React.FC = () => {
   const router = useRouter();
   const [activeChartType, setActiveChartType] = useState('drones');
+  const { actualTheme } = useTheme();
+  const isDark = actualTheme === 'dark';
+  const textColor = isDark ? '#e5e7eb' : '#374151';
 
   const handleChartClick = (params: { dataIndex: number }) => {
     const dataIndex = params.dataIndex;
@@ -89,6 +93,9 @@ const UtilizationChart: React.FC = () => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
+      backgroundColor: isDark ? '#1f2937' : '#ffffff',
+      borderColor: isDark ? '#374151' : '#e5e7eb',
+      textStyle: { color: textColor },
       formatter: function(params: { dataIndex: number }[]) {
         const dataIndex = params[0]?.dataIndex;
         const item = data[dataIndex];
@@ -101,6 +108,7 @@ const UtilizationChart: React.FC = () => {
     legend: {
       data: ['Recovery Rate (%)', 'Total Idle', 'Recovered'],
       top: 10,
+      textStyle: { color: textColor }
     },
     xAxis: {
       type: 'category',
@@ -108,8 +116,10 @@ const UtilizationChart: React.FC = () => {
       axisLabel: { 
         fontSize: 12,
         rotate: 30,
-        interval: 0
+        interval: 0,
+        color: textColor
       },
+      axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db' } }
     },
     yAxis: [
       {
@@ -118,13 +128,20 @@ const UtilizationChart: React.FC = () => {
         min: 0,
         max: 100,
         position: 'left',
-        axisLabel: { formatter: '{value}%' },
+        axisLabel: { formatter: '{value}%', color: textColor },
+        axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db' } },
+        nameTextStyle: { color: textColor },
+        splitLine: { lineStyle: { color: isDark ? '#374151' : '#e5e7eb' } }
       },
       {
         type: 'value',
         name: 'Number of Assets',
         position: 'right',
         minInterval: 1,
+        axisLabel: { color: textColor },
+        axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db' } },
+        nameTextStyle: { color: textColor },
+        splitLine: { show: false }
       }
     ],
     series: [

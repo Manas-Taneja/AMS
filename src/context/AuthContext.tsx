@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { apiService } from '@/services/api';
 import { API_ENDPOINTS, SUPABASE_CONFIG } from '@/config';
 import { supabase } from '@/lib/supabaseClient';
+import { logger } from '@/services/logger';
 
 export interface User {
   id: number;  // Integer ID in profiles table
@@ -63,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Get the auth user's email first
     const { data: authUser } = await supabase.auth.getUser();
     if (!authUser.user?.email) {
-      console.error('No email found for auth user');
+      logger.error('No email found for auth user');
       setLoading(false);
       return;
     }

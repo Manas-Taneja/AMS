@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import { sampleChartData } from '../data/sampleChartData';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Category {
   name: string;
@@ -21,6 +22,9 @@ const chartTypes = [
 const IdleAssetCategoryChart: React.FC = () => {
   const router = useRouter();
   const [activeChartType, setActiveChartType] = useState('drones');
+  const { actualTheme } = useTheme();
+  const isDark = actualTheme === 'dark';
+  const textColor = isDark ? '#e5e7eb' : '#374151';
 
   const handleChartClick = (params: { name: string }) => {
     const categoryName = params.name;
@@ -51,16 +55,24 @@ const IdleAssetCategoryChart: React.FC = () => {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       formatter: '{b}: {c} items',
+      backgroundColor: isDark ? '#1f2937' : '#ffffff',
+      borderColor: isDark ? '#374151' : '#e5e7eb',
+      textStyle: { color: textColor }
     },
     xAxis: {
       type: 'category',
       data: categories.map(cat => cat.name),
-      axisLabel: { fontSize: 12, interval: 0, rotate: 15 },
+      axisLabel: { fontSize: 12, interval: 0, rotate: 15, color: textColor },
+      axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db' } }
     },
     yAxis: {
       type: 'value',
       name: 'Count',
       minInterval: 1,
+      axisLabel: { color: textColor },
+      axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db' } },
+      nameTextStyle: { color: textColor },
+      splitLine: { lineStyle: { color: isDark ? '#374151' : '#e5e7eb' } }
     },
     series: [
       {

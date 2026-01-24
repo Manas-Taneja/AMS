@@ -291,10 +291,10 @@ const Components: React.FC = () => {
         <CardContent className="p-6 cursor-pointer" onClick={() => router.push(`/items/${item.id}`)}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <h3 className="font-semibold text-lg text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+              <h3 className="font-semibold text-lg text-foreground mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 {item.name}
               </h3>
-              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                 {item.description || "No description available"}
               </p>
             </div>
@@ -321,25 +321,25 @@ const Components: React.FC = () => {
             </div>
 
             <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <MapPin className={`w-4 h-4 ${item.is_transferred ? 'text-orange-500' : 'text-gray-400'}`} />
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className={`w-4 h-4 ${item.is_transferred ? 'text-orange-500 dark:text-orange-400' : 'text-muted-foreground'}`} />
                 <span className="truncate font-medium">{item.current_location || item.location}</span>
               </div>
               {item.is_transferred && item.home_location && (
-                <div className="flex items-center gap-2 text-xs text-gray-500 ml-6">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground ml-6">
                   <span>Home: {item.home_location}</span>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <FolderOpen className="w-4 h-4 text-gray-400" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <FolderOpen className="w-4 h-4 text-muted-foreground" />
               <span className="truncate">{item.project}</span>
             </div>
 
             {item.serial_number && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Hash className="w-4 h-4 text-gray-400" />
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Hash className="w-4 h-4 text-muted-foreground" />
                 <span className="font-mono text-xs">{item.serial_number}</span>
               </div>
             )}
@@ -357,13 +357,13 @@ const Components: React.FC = () => {
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="group hover:shadow-sm transition-all duration-200 border-0 shadow-none hover:bg-gray-50">
+      <Card className="group hover:shadow-sm transition-all duration-200 border-0 shadow-none hover:bg-accent/50">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  <h3 className="font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {item.name}
                   </h3>
                   <Badge
@@ -373,12 +373,12 @@ const Components: React.FC = () => {
                     {componentStatusConfig[item.status as keyof typeof componentStatusConfig]?.icon} {item.status}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-6 text-sm text-gray-600">
+                <div className="flex items-center gap-6 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <MapPin className={`w-3 h-3 ${item.is_transferred ? 'text-orange-500' : ''}`} />
+                    <MapPin className={`w-3 h-3 ${item.is_transferred ? 'text-orange-500 dark:text-orange-400' : ''}`} />
                     {item.current_location || item.location}
                     {item.is_transferred && item.home_location && (
-                      <span className="text-xs text-gray-400 ml-1">(from {item.home_location})</span>
+                      <span className="text-xs text-muted-foreground/70 ml-1">(from {item.home_location})</span>
                     )}
                   </div>
                   <div className="flex items-center gap-1">
@@ -410,8 +410,8 @@ const Components: React.FC = () => {
   // Add a CategorySubheader component
   const CategorySubheader: React.FC<{ category: string }> = ({ category }) => (
     <div className="mb-2">
-      <Card className="bg-gray-50 border-blue-200 border flex items-center px-6 py-3">
-        <span className="font-semibold text-blue-700 text-lg">{category}</span>
+      <Card className="bg-accent border-blue-200 dark:border-blue-800 border flex items-center px-6 py-3">
+        <span className="font-semibold text-blue-700 dark:text-blue-300 text-lg">{category}</span>
       </Card>
     </div>
   );
@@ -485,7 +485,7 @@ const Components: React.FC = () => {
           groupedByOwner={groupedByOwner}
           renderGridItem={() => null}
           renderListItem={() => null}
-          emptyStateIcon={<Package className="w-12 h-12 text-gray-400" />}
+          emptyStateIcon={<Package className="w-12 h-12 text-muted-foreground" />}
           emptyStateTitle="No items found"
           emptyStateDescription={
             search || selectedCategory !== "all" || selectedStatus !== "all" || selectedTransferStatus !== "all"

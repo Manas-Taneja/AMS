@@ -74,27 +74,27 @@ const MapComponent: React.FC<MapComponentProps> = ({ locations }) => {
         >
           <Popup className="custom-popup">
             <div className="min-w-[200px] p-1">
-              <div className="flex items-center gap-2 mb-3 border-b pb-2">
-                <LuMapPin className="text-blue-600 w-5 h-5" />
-                <h3 className="font-bold text-base m-0">{city.name}</h3>
+              <div className="flex items-center gap-2 mb-3 border-b border-border pb-2">
+                <LuMapPin className="text-blue-600 dark:text-blue-400 w-5 h-5" />
+                <h3 className="font-bold text-base m-0 text-foreground">{city.name}</h3>
               </div>
               <div className="space-y-1.5 mb-3">
-                <p className="text-sm text-gray-600 m-0 flex justify-between">
+                <p className="text-sm text-muted-foreground m-0 flex justify-between">
                   <span>City:</span>
-                  <span className="font-semibold text-gray-900">{city.city}</span>
+                  <span className="font-semibold text-foreground">{city.city}</span>
                 </p>
-                <p className="text-sm text-gray-600 m-0 flex justify-between">
+                <p className="text-sm text-muted-foreground m-0 flex justify-between">
                   <span>Assets:</span>
-                  <span className="text-green-600 font-bold">{city.assets}</span>
+                  <span className="text-green-600 dark:text-green-400 font-bold">{city.assets}</span>
                 </p>
-                <p className="text-sm text-gray-600 m-0 flex justify-between">
+                <p className="text-sm text-muted-foreground m-0 flex justify-between">
                   <span>Owner:</span>
-                  <span className="text-blue-600 font-semibold">{city.owner}</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-semibold">{city.owner}</span>
                 </p>
               </div>
               <button 
                 onClick={() => router.push(`/location/${city.id}`)}
-                className="w-full bg-blue-600 text-white py-1.5 rounded-md hover:bg-blue-700 transition-colors text-xs font-medium uppercase tracking-wide"
+                className="w-full bg-blue-600 dark:bg-blue-700 text-white py-1.5 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-xs font-medium uppercase tracking-wide"
               >
                 View Details
               </button>

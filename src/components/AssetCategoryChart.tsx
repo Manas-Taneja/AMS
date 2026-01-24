@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import { sampleChartData } from '../data/sampleChartData';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Category {
   name: string;
@@ -21,6 +22,9 @@ const chartTypes = [
 const AssetCategoryChart: React.FC = () => {
   const router = useRouter();
   const [activeChartType, setActiveChartType] = useState('drones');
+  const { actualTheme } = useTheme();
+  const isDark = actualTheme === 'dark';
+  const textColor = isDark ? '#e5e7eb' : '#374151';
 
   const handleChartClick = (params: { name: string }) => {
     const categoryName = params.name;
@@ -50,11 +54,14 @@ const AssetCategoryChart: React.FC = () => {
     tooltip: {
       trigger: 'item',
       formatter: '{b}: {c} items ({d}%)',
+      backgroundColor: isDark ? '#1f2937' : '#ffffff',
+      borderColor: isDark ? '#374151' : '#e5e7eb',
+      textStyle: { color: textColor }
     },
     legend: {
       orient: 'vertical',
       left: 'left',
-      textStyle: { fontSize: 14 },
+      textStyle: { fontSize: 14, color: textColor },
     },
     series: [
       {
@@ -68,9 +75,11 @@ const AssetCategoryChart: React.FC = () => {
           position: 'outside',
           formatter: '{b}\n{c}',
           fontSize: 15,
+          color: textColor,
         },
         labelLine: {
           show: true,
+          lineStyle: { color: textColor }
         },
         data: categories.map(cat => ({ value: cat.count, name: cat.name })),
       },
@@ -86,7 +95,7 @@ const AssetCategoryChart: React.FC = () => {
         <Tabs value={activeChartType} onValueChange={setActiveChartType} className="w-full">
           <TabsList className="grid grid-cols-4 w-full mb-4 gap-1">
             {chartTypes.map(chartType => (
-              <TabsTrigger key={chartType.value} value={chartType.value} className='border-gray-200 data-[state=active]:text-white'>
+              <TabsTrigger key={chartType.value} value={chartType.value} className='border-border data-[state=active]:text-foreground'>
                 {chartType.label}
               </TabsTrigger>
             ))}

@@ -6,10 +6,10 @@ import dynamic from 'next/dynamic';
 const MapComponent = dynamic(() => import('./MapComponent'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[600px] bg-gray-100 flex items-center justify-center rounded-lg">
+    <div className="w-full h-[600px] bg-muted flex items-center justify-center rounded-lg">
       <div className="flex flex-col items-center gap-2">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p className="text-gray-500 text-sm">Loading map...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
+        <p className="text-muted-foreground text-sm">Loading map...</p>
       </div>
     </div>
   )

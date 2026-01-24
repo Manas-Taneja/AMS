@@ -72,8 +72,8 @@ export function AppSidebar() {
       </SidebarHeader>
       
       <SidebarContent className="py-4">
-        {/* Search Trigger and Theme Toggle in Sidebar */}
-        <div className="px-2 mb-4 flex justify-center gap-1">
+        {/* Search Trigger in Sidebar */}
+        <div className="px-2 mb-4 flex justify-center">
           <CommandPalette 
             customTrigger={
               <div className="flex items-center justify-center w-9 h-9 rounded-md hover:bg-accent text-muted-foreground cursor-pointer transition-colors border border-transparent hover:border-border">
@@ -81,9 +81,6 @@ export function AppSidebar() {
               </div>
             }
           />
-          <div className="flex items-center justify-center">
-            <ThemeToggle />
-          </div>
         </div>
 
         <SidebarGroup>
@@ -130,6 +127,14 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-border p-2">
         <SidebarMenu>
+          {/* Theme Toggle Button */}
+          <SidebarMenuItem>
+            <div className="flex items-center justify-center py-2">
+              <ThemeToggle />
+            </div>
+          </SidebarMenuItem>
+          
+          {/* Profile Button */}
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
