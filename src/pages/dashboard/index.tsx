@@ -290,7 +290,6 @@ const Dashboard: React.FC = () => {
             <UnifiedHeader
               title="Asset Management System"
               subtitle="Overview of your organization's assets and activities"
-              breadcrumbs={[{ label: "Dashboard", href: "/" }]}
               onExport={handleExport}
               onAdd={handleAdd}
               showLogo={true}
