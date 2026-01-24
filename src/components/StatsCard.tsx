@@ -14,12 +14,12 @@ const StatsCard: React.FC<StatsCardProps> = ({ icon, label, value, bgClass }) =>
       <div className="flex items-center gap-3">
         <div className={`p-2 rounded-lg ${bgClass}`}>{icon}</div>
         <div>
-          <p className="text-sm text-gray-600">{label}</p>
-          <p className="text-2xl font-bold">{value}</p>
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="text-2xl font-bold text-foreground">{value}</p>
         </div>
       </div>
     </CardContent>
   </Card>
 );
 
-export default StatsCard; 
+export default StatsCard;

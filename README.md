@@ -1,5 +1,25 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
 
+## Features
+
+- 🎨 **Dark Mode Support** - Complete light/dark theme with system preference detection
+- 📱 **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
+- 🔐 **Authentication** - Secure login with Supabase integration
+- 📊 **Dashboard** - Comprehensive asset management dashboard
+- 🗺️ **Interactive Maps** - Location-based asset tracking
+- 📈 **Charts & Analytics** - Visual data representation
+
+### Dark Mode
+
+The application supports three theme modes:
+- **Light Mode** - Traditional light theme
+- **Dark Mode** - Eye-friendly dark theme
+- **System** - Automatically follows your OS theme preference
+
+Toggle between themes using the theme switcher in the sidebar (desktop) or header (mobile).
+
+See [DARK_MODE.md](./DARK_MODE.md) for detailed documentation.
+
 ## Getting Started
 
 First, run the development server:

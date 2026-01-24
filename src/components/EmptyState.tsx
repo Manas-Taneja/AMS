@@ -20,16 +20,16 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   onAction,
   actionLabel
 }) => (
-  <div className={`flex flex-col items-center justify-center h-full py-16 px-4 text-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 ${className}`}>
+  <div className={`flex flex-col items-center justify-center h-full py-16 px-4 text-center rounded-xl border-2 border-dashed border-border bg-muted/50 ${className}`}>
     {icon && (
-      <div className="mb-6 p-4 bg-white rounded-full shadow-sm ring-1 ring-gray-900/5">
-        <div className="text-gray-400 [&>svg]:w-8 [&>svg]:h-8">
+      <div className="mb-6 p-4 bg-card rounded-full shadow-sm ring-1 ring-border">
+        <div className="text-muted-foreground [&>svg]:w-8 [&>svg]:h-8">
           {icon}
         </div>
       </div>
     )}
-    <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-    {description && <p className="text-sm text-gray-500 max-w-sm mb-6">{description}</p>}
+    <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
+    {description && <p className="text-sm text-muted-foreground max-w-sm mb-6">{description}</p>}
     
     <div className="flex gap-3">
       {action}

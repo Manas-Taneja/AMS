@@ -118,13 +118,13 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
 }) => {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full text-green relative bg-white">
+      <div className="flex min-h-screen w-full text-green relative bg-background">
         <aside className="w-8 z-40">
           <AppSidebar />
         </aside>
         <main className={`flex-1 overflow-x-auto ${className}`}>
-          {/* Top Bar with Command Palette - Hidden on Desktop */}
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white/95 px-6 backdrop-blur-sm md:hidden">
+          {/* Top Bar with Command Palette and Theme Toggle - Hidden on Desktop */}
+          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 px-6 backdrop-blur-sm md:hidden">
              {/* SidebarTrigger removed */}
              <div className="flex-1">
                {/* Spacer */}
@@ -137,6 +137,8 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
                  </Button>
                }
              />
+             {/* Theme Toggle */}
+             <ThemeToggle />
           </header>
 
           <div className="p-0">
@@ -147,7 +149,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Button variant="ghost" onClick={onBack} className="mb-2 pl-0 hover:bg-transparent hover:text-blue-600">
+                <Button variant="ghost" onClick={onBack} className="mb-2 pl-0 hover:bg-transparent hover:text-blue-600 dark:hover:text-blue-400">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   {backLabel}
                 </Button>

@@ -102,11 +102,11 @@ function KeyMetrics({ data }: KeyMetricsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
             <CardTitle className="text-sm font-medium">Active Assets</CardTitle>
-            <CheckCircle className="h-10 w-4 text-blue-500" />
+            <CheckCircle className="h-10 w-4 text-blue-500 dark:text-blue-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.activeAssets.toLocaleString()}</div>
-            <p className="text-xs text-green-600">{((data.activeAssets / data.totalAssets) * 100).toFixed(1)}% utilization</p>
+            <div className="text-2xl font-bold text-foreground">{data.activeAssets.toLocaleString()}</div>
+            <p className="text-xs text-green-600 dark:text-green-400">{((data.activeAssets / data.totalAssets) * 100).toFixed(1)}% utilization</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -114,11 +114,11 @@ function KeyMetrics({ data }: KeyMetricsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
             <CardTitle className="text-sm font-medium">Maintenance Due</CardTitle>
-            <AlertTriangle className="h-10 w-4 text-orange-500" />
+            <AlertTriangle className="h-10 w-4 text-orange-500 dark:text-orange-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{data.maintenanceDue}</div>
-            <p className="text-xs text-red-600">Requires attention</p>
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{data.maintenanceDue}</div>
+            <p className="text-xs text-red-600 dark:text-red-400">Requires attention</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -126,11 +126,11 @@ function KeyMetrics({ data }: KeyMetricsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
             <CardTitle className="text-sm font-medium">Transferred Assets</CardTitle>
-            <Transfer className="h-10 w-4 text-orange-500" />
+            <Transfer className="h-10 w-4 text-orange-500 dark:text-orange-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{data.transferredAssets}</div>
-            <p className="text-xs text-gray-600">Currently at other locations</p>
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{data.transferredAssets}</div>
+            <p className="text-xs text-muted-foreground">Currently at other locations</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -167,7 +167,7 @@ function QuickActions({
             animate="in"
           >
             <motion.button
-              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-green-600 hover:!bg-gray-200  rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border border-border text-green-600 dark:text-green-400 hover:!bg-accent rounded-lg transition-colors"
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -177,7 +177,7 @@ function QuickActions({
               <span className="font-medium">Add New Asset</span>
             </motion.button>
             <motion.button
-              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-blue-500 hover:!bg-gray-200  rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border border-border text-blue-500 dark:text-blue-400 hover:!bg-accent rounded-lg transition-colors"
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -187,7 +187,7 @@ function QuickActions({
               <span className="font-medium">Schedule Maintenance</span>
             </motion.button>
             <motion.button
-              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-yellow-600 hover:!bg-gray-200  rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border border-border text-yellow-600 dark:text-yellow-400 hover:!bg-accent rounded-lg transition-colors"
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -197,7 +197,7 @@ function QuickActions({
               <span className="font-medium">Assign Asset</span>
             </motion.button>
             <motion.button
-              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border !border-black text-red-500 hover:!bg-gray-200  rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border border-border text-red-500 dark:text-red-400 hover:!bg-accent rounded-lg transition-colors"
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

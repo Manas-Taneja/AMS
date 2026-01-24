@@ -20,26 +20,13 @@ import {
   LuPackage, 
   LuTarget, 
   LuMapPin, 
-  LuLogOut, 
   LuGraduationCap, 
-  LuReceipt,
-  LuChevronsUpDown,
-  LuUser,
-  LuSettings,
-  LuBell
+  LuReceipt
 } from "react-icons/lu";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./dropdown-menu";
 import { Avatar, AvatarFallback } from "./avatar";
 import { CommandPalette } from "../CommandPalette";
 import { LuSearch } from "react-icons/lu";
+import { ThemeToggle } from "../ThemeToggle";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LuLayoutDashboard },
@@ -73,10 +60,10 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-gray-200 shadow-sm bg-white text-gray-900 z-40 w-auto">
-      <SidebarHeader className="h-16 flex items-center justify-center px-2 border-b border-gray-100">
-        <Link href="/" className="flex items-center justify-center gap-2 font-bold text-xl tracking-tight text-blue-900 overflow-hidden">
-           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shrink-0">
+    <Sidebar collapsible="icon" className="border-r border-border shadow-sm bg-card text-card-foreground z-40 w-auto">
+      <SidebarHeader className="h-16 flex items-center justify-center px-2 border-b border-border">
+        <Link href="/" className="flex items-center justify-center gap-2 font-bold text-xl tracking-tight text-blue-600 dark:text-blue-400 overflow-hidden">
+           <div className="w-8 h-8 bg-blue-600 dark:bg-blue-700 rounded-lg flex items-center justify-center text-white shrink-0">
              P
            </div>
            {/* Hidden text for screen readers */}
@@ -85,15 +72,18 @@ export function AppSidebar() {
       </SidebarHeader>
       
       <SidebarContent className="py-4">
-        {/* Search Trigger in Sidebar - Icon Only */}
-        <div className="px-2 mb-4 flex justify-center">
+        {/* Search Trigger and Theme Toggle in Sidebar */}
+        <div className="px-2 mb-4 flex justify-center gap-1">
           <CommandPalette 
             customTrigger={
-              <div className="flex items-center justify-center w-9 h-9 rounded-md hover:bg-gray-100 text-gray-500 cursor-pointer transition-colors border border-transparent hover:border-gray-200">
+              <div className="flex items-center justify-center w-9 h-9 rounded-md hover:bg-accent text-muted-foreground cursor-pointer transition-colors border border-transparent hover:border-border">
                 <LuSearch className="w-5 h-5 opacity-70" />
               </div>
             }
           />
+          <div className="flex items-center justify-center">
+            <ThemeToggle />
+          </div>
         </div>
 
         <SidebarGroup>
@@ -120,13 +110,13 @@ export function AppSidebar() {
                         className={`
                           transition-all duration-200 justify-center group-data-[collapsible=icon]:!p-2
                           ${isActive 
-                            ? "scale-105 shadow-md bg-white text-blue-600" 
-                            : "text-gray-500 hover:scale-105 hover:shadow-md hover:bg-white hover:text-gray-900"
+                            ? "scale-105 shadow-md bg-card text-blue-600 dark:text-blue-400" 
+                            : "text-muted-foreground hover:scale-105 hover:shadow-md hover:bg-card hover:text-foreground"
                           }
                         `}
                       >
                         <Link href={item.url} className="flex items-center gap-3">
-                          <item.icon className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-500"} transition-colors`} />
+                          <item.icon className={`w-5 h-5 ${isActive ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground"} transition-colors`} />
                           <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
@@ -138,65 +128,24 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-gray-100 p-2">
+      <SidebarFooter className="border-t border-border p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                >
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    {/* <AvatarImage src={user?.avatar} alt={user?.name} /> */}
-                    <AvatarFallback className="rounded-lg bg-blue-100 text-blue-700 font-medium text-xs">
-                      {user?.full_name ? getInitials(user.full_name) : 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="sr-only">{user?.full_name || 'User'}</span>
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side="bottom"
-                align="end"
-                sideOffset={4}
-              >
-                <DropdownMenuLabel className="p-0 font-normal">
-                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarFallback className="rounded-lg bg-blue-100 text-blue-700">
-                         {user?.full_name ? getInitials(user.full_name) : 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{user?.full_name}</span>
-                      <span className="truncate text-xs text-gray-500">{user?.email}</span>
-                    </div>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <LuUser className="mr-2 h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <LuSettings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <LuBell className="mr-2 h-4 w-4" />
-                    Notifications
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 focus:bg-red-50">
-                  <LuLogOut className="mr-2 h-4 w-4" />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SidebarMenuButton
+              asChild
+              size="lg"
+              tooltip="Profile & Settings"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground justify-center group-data-[collapsible=icon]:!p-2"
+            >
+              <Link href="/profile" className="flex items-center justify-center">
+                <Avatar className="h-8 w-8 rounded-lg transition-transform hover:scale-105">
+                  <AvatarFallback className="rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-medium text-xs">
+                    {user?.full_name ? getInitials(user.full_name) : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="sr-only">{user?.full_name || 'User'}</span>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

@@ -170,7 +170,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
       <motion.div
         className="w-full max-w-md"
         variants={scaleVariants}
@@ -178,18 +178,18 @@ const Login: React.FC = () => {
         animate="in"
       >
         <motion.div
-          className="bg-white rounded-2xl shadow-xl p-8"
+          className="bg-card rounded-2xl shadow-xl p-8 border border-border"
           variants={fadeInUpVariants}
         >
           <div className="text-center mb-8">
             <motion.h1
-              className="text-3xl font-bold text-gray-900 mb-2"
+              className="text-3xl font-bold text-foreground mb-2"
               variants={fadeInUpVariants}
             >
               Welcome Back
             </motion.h1>
             <motion.p
-              className="text-gray-600"
+              className="text-muted-foreground"
               variants={fadeInUpVariants}
             >
               Sign in to your account to continue
@@ -203,10 +203,10 @@ const Login: React.FC = () => {
             variants={fadeInUpVariants}
           >
             {error && (
-              <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-sm">{error}</div>
+              <div className="mb-2 p-2 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded text-red-600 dark:text-red-400 text-sm">{error}</div>
             )}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="username" className="block text-sm font-medium text-foreground mb-2">
                 {useSupabase ? "Email" : "Username"}
               </label>
               <input
@@ -216,12 +216,12 @@ const Login: React.FC = () => {
                 value={formData.username}
                 onChange={handleInputChange}
                 required
-                className="text-black w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="text-foreground bg-background w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 placeholder={useSupabase ? "Enter your email" : "Enter your username"}
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
                 Password
               </label>
               <input
@@ -231,14 +231,14 @@ const Login: React.FC = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="text-black w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="text-foreground bg-background w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 placeholder="Enter your password"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-blue-600 dark:bg-blue-700 text-white py-2 px-4 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -255,13 +255,13 @@ const Login: React.FC = () => {
             className="mt-6 text-center"
             variants={fadeInUpVariants}
           >
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               By signing in, you agree to our{' '}
-              <a href="#" className="text-blue-600 hover:text-blue-500">
+              <a href="#" className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
                 Terms of Service
               </a>{' '}
               and{' '}
-              <a href="#" className="text-blue-600 hover:text-blue-500">
+              <a href="#" className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
                 Privacy Policy
               </a>
             </p>

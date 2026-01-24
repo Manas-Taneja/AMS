@@ -98,8 +98,8 @@ export function UnifiedHeader({
               />
             )}
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-              {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
+              <h1 className="text-3xl font-bold text-foreground">{title}</h1>
+              {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
             </div>
           </div>
         </div>
@@ -107,7 +107,7 @@ export function UnifiedHeader({
         <div className="flex items-center gap-2">
           {/* Export Button */}
           {onExport && (
-            <Button variant="outline" size="sm" onClick={onExport} className="text-white shadow-lg border-gray-800">
+            <Button variant="outline" size="sm" onClick={onExport} className="shadow-lg">
               <Download className="h-4 w-4 mr-2" />
               {exportLabel}
             </Button>
@@ -115,7 +115,7 @@ export function UnifiedHeader({
 
           {/* Add Button */}
           {onAdd && (
-            <Button size="sm" onClick={onAdd} className="text-black shadow-lg border-gray-800">
+            <Button size="sm" onClick={onAdd} className="shadow-lg">
               <Plus className="h-4 w-4 mr-2" />
               {addLabel}
             </Button>

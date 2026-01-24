@@ -2,9 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // Use relative asset paths so file:// loading in Electron works
-  assetPrefix: './',
-  output: 'export',
+  // Use relative asset paths only in production builds for Electron
+  assetPrefix: process.env.NODE_ENV === 'production' ? './' : undefined,
+  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
   images: {
     unoptimized: true,
     domains: [
