@@ -17,6 +17,47 @@ interface LoginForm {
   password: string;
 }
 
+// Helper function to load profile with fallback for missing RBAC columns
+async function loadProfile(userId: string) {
+  if (!supabase) return null;
+  
+  // Try with RBAC fields first
+  let { data, error } = await supabase
+    .from("profiles")
+    .select("id,email,username,full_name,role,is_superuser,is_active,segment_code,center_id,access_level")
+    .eq("id", userId)
+    .single();
+  
+  // If RBAC fields don't exist (column not found error), try without them
+  if (error && error.code === '42703') {
+    console.log('RBAC columns not found, falling back to basic profile');
+    const result = await supabase
+      .from("profiles")
+      .select("id,email,username,full_name,role,is_superuser,is_active")
+      .eq("id", userId)
+      .single();
+    data = result.data;
+    error = result.error;
+  }
+  
+  if (error || !data) {
+    return null;
+  }
+  
+  return {
+    id: data.id,
+    email: data.email,
+    username: data.username,
+    full_name: data.full_name,
+    role: data.role,
+    is_superuser: data.is_superuser,
+    is_active: data.is_active,
+    segment_code: data.segment_code || undefined,
+    center_id: data.center_id || undefined,
+    access_level: data.access_level || undefined,
+  } as User;
+}
+
 const Login: React.FC = () => {
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
@@ -69,27 +110,15 @@ const Login: React.FC = () => {
           }
 
           if (retryAuth.user) {
-            const { data: profile, error: profileError } = await supabase
-              .from("profiles")
-              .select("id,email,username,full_name,role,is_superuser,is_active")
-              .eq("auth_user_id", retryAuth.user.id)
-              .single();
+            const profile = await loadProfile(retryAuth.user.id);
 
-            if (profileError || !profile) {
+            if (!profile) {
               setError("Failed to load user profile");
               setLoading(false);
               return;
             }
 
-            login(undefined, {
-              id: profile.id,
-              email: profile.email,
-              username: profile.username,
-              full_name: profile.full_name,
-              role: profile.role,
-              is_superuser: profile.is_superuser,
-              is_active: profile.is_active,
-            });
+            login(undefined, profile);
 
             toast.success("Login successful!");
             if (profile.role === 'pending') {
@@ -100,27 +129,15 @@ const Login: React.FC = () => {
           }
         } else if (authData.user) {
           // Load profile from profiles table
-          const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("id,email,username,full_name,role,is_superuser,is_active")
-            .eq("auth_user_id", authData.user.id)
-            .single();
+          const profile = await loadProfile(authData.user.id);
 
-          if (profileError || !profile) {
+          if (!profile) {
             setError("Failed to load user profile");
             setLoading(false);
             return;
           }
 
-          login(undefined, {
-            id: profile.id,
-            email: profile.email,
-            username: profile.username,
-            full_name: profile.full_name,
-            role: profile.role,
-            is_superuser: profile.is_superuser,
-            is_active: profile.is_active,
-          });
+          login(undefined, profile);
 
           toast.success("Login successful!");
           if (profile.role === 'pending') {

@@ -4,7 +4,7 @@ import { API_ENDPOINTS, SUPABASE_CONFIG } from '@/config';
 import { supabase } from '@/lib/supabaseClient';
 
 export interface User {
-  id: number;
+  id: string;  // UUID from Supabase auth
   email: string;
   username: string;
   full_name: string;
@@ -57,13 +57,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const useSupabaseAuth = SUPABASE_CONFIG.USE_SUPABASE && Boolean(supabase);
 
-  const loadSupabaseProfile = useCallback(async (authUserId: string) => {
+  const loadSupabaseProfile = useCallback(async (userId: string) => {
     if (!supabase) return;
-    const { data, error } = await supabase
+    // Try with RBAC fields first
+    let { data, error } = await supabase
       .from('profiles')
       .select('id,email,username,full_name,role,is_superuser,is_active,segment_code,center_id,access_level')
-      .eq('auth_user_id', authUserId)
+      .eq('id', userId)
       .single();
+    
+    // If RBAC fields don't exist (column not found error), try without them
+    if (error && error.code === '42703') {
+      console.log('RBAC columns not found, falling back to basic profile');
+      const result = await supabase
+        .from('profiles')
+        .select('id,email,username,full_name,role,is_superuser,is_active')
+        .eq('id', userId)
+        .single();
+      data = result.data;
+      error = result.error;
+    }
+    
     if (error) {
       console.error('Failed to load Supabase profile', error);
       setLoading(false);
@@ -77,9 +91,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       role: data.role,
       is_superuser: data.is_superuser,
       is_active: data.is_active,
-      segment_code: data.segment_code,
-      center_id: data.center_id,
-      access_level: data.access_level,
+      segment_code: data.segment_code || undefined,
+      center_id: data.center_id || undefined,
+      access_level: data.access_level || undefined,
     });
     setLoading(false);
   }, []);
