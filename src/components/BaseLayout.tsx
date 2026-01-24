@@ -6,6 +6,7 @@ import { SidebarProvider } from "./ui/sidebar"
 import { Button } from "./ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CommandPalette } from "@/components/CommandPalette"
+import { ThemeToggle } from "@/components/ThemeToggle"
 import {
   LuArrowLeft as ArrowLeft,
   LuTriangle as AlertCircle,
@@ -89,14 +90,14 @@ const ErrorState: React.FC<ErrorStateProps> = ({
     animate={{ opacity: 1, scale: 1 }}
     transition={{ duration: 0.3 }}
   >
-    <div className="text-center max-w-md mx-auto p-6 bg-white rounded-xl shadow-sm border border-red-100">
-      <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-        <AlertCircle className="w-8 h-8 text-red-600" />
+    <div className="text-center max-w-md mx-auto p-6 bg-card rounded-xl shadow-sm border border-red-100 dark:border-red-900/50">
+      <div className="w-16 h-16 bg-red-50 dark:bg-red-950 rounded-full flex items-center justify-center mx-auto mb-4">
+        <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
       </div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-600 mb-6">{error}</p>
+      <h3 className="text-xl font-semibold text-foreground mb-2">{title}</h3>
+      <p className="text-muted-foreground mb-6">{error}</p>
       {onRetry && (
-        <Button onClick={onRetry} className="bg-blue-600 hover:bg-blue-700 w-full">
+        <Button onClick={onRetry} className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 w-full">
           <RefreshCw className="h-4 w-4 mr-2" />
           Try Again
         </Button>
