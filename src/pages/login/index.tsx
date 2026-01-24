@@ -18,14 +18,14 @@ interface LoginForm {
 }
 
 // Helper function to load profile with fallback for missing RBAC columns
-async function loadProfile(userId: string) {
+async function loadProfile(authUserEmail: string) {
   if (!supabase) return null;
   
   // Try with RBAC fields first
   let { data, error } = await supabase
     .from("profiles")
     .select("id,email,username,full_name,role,is_superuser,is_active,segment_code,center_id,access_level")
-    .eq("id", userId)
+    .eq("email", authUserEmail)
     .single();
   
   // If RBAC fields don't exist (column not found error), try without them
@@ -34,13 +34,14 @@ async function loadProfile(userId: string) {
     const result = await supabase
       .from("profiles")
       .select("id,email,username,full_name,role,is_superuser,is_active")
-      .eq("id", userId)
+      .eq("email", authUserEmail)
       .single();
     data = result.data;
     error = result.error;
   }
   
   if (error || !data) {
+    console.error('Failed to load profile:', error);
     return null;
   }
   
@@ -110,7 +111,7 @@ const Login: React.FC = () => {
           }
 
           if (retryAuth.user) {
-            const profile = await loadProfile(retryAuth.user.id);
+            const profile = await loadProfile(retryAuth.user.email || '');
 
             if (!profile) {
               setError("Failed to load user profile");
@@ -129,7 +130,7 @@ const Login: React.FC = () => {
           }
         } else if (authData.user) {
           // Load profile from profiles table
-          const profile = await loadProfile(authData.user.id);
+          const profile = await loadProfile(authData.user.email || '');
 
           if (!profile) {
             setError("Failed to load user profile");

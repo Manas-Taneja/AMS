@@ -4,7 +4,7 @@ import { API_ENDPOINTS, SUPABASE_CONFIG } from '@/config';
 import { supabase } from '@/lib/supabaseClient';
 
 export interface User {
-  id: string;  // UUID from Supabase auth
+  id: number;  // Integer ID in profiles table
   email: string;
   username: string;
   full_name: string;
@@ -57,13 +57,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const useSupabaseAuth = SUPABASE_CONFIG.USE_SUPABASE && Boolean(supabase);
 
-  const loadSupabaseProfile = useCallback(async (userId: string) => {
+  const loadSupabaseProfile = useCallback(async (authUserId: string) => {
     if (!supabase) return;
+    
+    // Get the auth user's email first
+    const { data: authUser } = await supabase.auth.getUser();
+    if (!authUser.user?.email) {
+      console.error('No email found for auth user');
+      setLoading(false);
+      return;
+    }
+    
     // Try with RBAC fields first
     let { data, error } = await supabase
       .from('profiles')
       .select('id,email,username,full_name,role,is_superuser,is_active,segment_code,center_id,access_level')
-      .eq('id', userId)
+      .eq('email', authUser.user.email)
       .single();
     
     // If RBAC fields don't exist (column not found error), try without them
@@ -72,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const result = await supabase
         .from('profiles')
         .select('id,email,username,full_name,role,is_superuser,is_active')
-        .eq('id', userId)
+        .eq('email', authUser.user.email)
         .single();
       data = result.data;
       error = result.error;

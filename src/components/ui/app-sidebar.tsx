@@ -117,17 +117,17 @@ export function AppSidebar() {
                         asChild 
                         isActive={isActive}
                         tooltip={item.title}
-        className={`
-                          transition-all duration-200
+                        className={`
+                          transition-all duration-200 justify-center group-data-[collapsible=icon]:!p-2
                           ${isActive 
-                            ? "bg-white text-black font-medium shadow-md border border-gray-100" 
-                            : "text-gray-600 hover:text-black hover:bg-white hover:shadow-md hover:border hover:border-gray-100"
+                            ? "scale-105 shadow-md bg-white text-blue-600" 
+                            : "text-gray-500 hover:scale-105 hover:shadow-md hover:bg-white hover:text-gray-900"
                           }
                         `}
                       >
                         <Link href={item.url} className="flex items-center gap-3">
-                          <item.icon className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-500"}`} />
-                          <span>{item.title}</span>
+                          <item.icon className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-gray-500"} transition-colors`} />
+                          <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
