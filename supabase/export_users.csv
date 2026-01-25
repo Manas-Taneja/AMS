@@ -1,6 +1,0 @@
-id,email,username,full_name,hashed_password,is_active,is_superuser,role,is_oauth_user,created_at,updated_at
-1,admin@ams.com,admin,"Admin User",$2b$12$pabfOnB5UgB6FT2FvyMlEeYJdLE8RHTF6bUn/4FJkR6ZGbmLnLpxO,1,1,admin,0,"2025-07-30 10:20:42",
-2,manager@ams.com,manager,"Manager User",$2b$12$ZwET2LBWD0uuc97toAGhGO042iflnfLFpCl4BhZZ97.xJ3D2bdXkq,1,0,manager,0,"2025-07-30 10:20:42",
-3,user@ams.com,user,"Regular User",$2b$12$4Ta3v07opw/Fm4crTzLDOOrrDY8YfF87K14l5sXBzxU6DdVHSsu/2,1,0,user,0,"2025-07-30 10:20:42",
-4,pending@ams.com,pending,"Pending User",$2b$12$jzPatJJ46xQwefNpYtskJex/8aBcJucMZKSwAYJ5HNT/NohN0TSqG,1,0,pending,0,"2025-07-30 10:20:42",
-5,shailesh.singh@prakharsoftwares.com,shailesh.singh@prakharsoftwares.com,"Shailesh Singh",$2b$12$KIkmtja9L5qvPgzcNhcY1Okh2i92JomGPYBYR3kM2SEnqQp4lCBQC,1,1,admin,0,"2025-12-01 08:53:09",

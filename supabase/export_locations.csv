@@ -1,9 +1,0 @@
-id,name,address,team,manager,project,created_at,updated_at,status,type,pointOfContact,assetCount,avatar
-1,"PSSL Headquarters","123 Innovation Drive, Malviya Nagar, Jaipur, Rajasthan 302017",25,"Dr. Rajesh Kumar","Autonomous Delivery System","2025-07-30 10:20:42",,active,branch,"",0,
-2,"IIDT Research Center","456 Technology Park, Sector 62, Noida, Uttar Pradesh 201301",18,"Prof. Priya Sharma","Urban Surveillance Network","2025-07-30 10:20:42",,active,branch,"",0,
-3,"Prakhar Aviation Training Center","789 Aviation Road, HAL Airport, Bangalore, Karnataka 560017",12,"Capt. Amit Singh","Drone Pilot Training","2025-07-30 10:20:42",,active,branch,"",0,
-4,"PSSL Branch Office - Mumbai","321 Business District, Bandra Kurla Complex, Mumbai, Maharashtra 400051",15,"Ms. Sneha Patel","Aerial Survey Operations","2025-07-30 10:20:42",,active,branch,"",0,
-5,"IIDT Satellite Office - Chennai","654 IT Corridor, OMR Road, Chennai, Tamil Nadu 600113",8,"Mr. Karthik Reddy","Precision Agriculture","2025-07-30 10:20:42",,active,branch,"",0,
-6,"Prakhar Aviation Maintenance Hub","987 Industrial Area, Phase 2, Gurgaon, Haryana 122015",10,"Mr. Deepak Verma","Fleet Maintenance","2025-07-30 10:20:42",,active,branch,"",0,
-7,"PSSL Data Center","147 Server Street, Electronic City, Bangalore, Karnataka 560100",6,"Mr. Arjun Mehta","Data Processing Center","2025-07-30 10:20:42",,active,branch,"",0,
-8,"IIDT Field Station - Dehradun","258 Forest Road, Dehradun, Uttarakhand 248001",5,"Dr. Meera Joshi","Environmental Monitoring","2025-07-30 10:20:42",,active,branch,"",0,
