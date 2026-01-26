@@ -196,7 +196,7 @@ export const UploadBillDialog: React.FC<UploadBillDialogProps> = ({ isOpen, onOp
           {error && <div className="text-red-600 text-sm">{error}</div>}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="text-black border-black bg-white hover:bg-gray-100 focus:outline-none focus-visible:outline-none">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={handleUpload} disabled={uploading} className="text-black bg-green-200 hover:bg-green-300 focus:outline-none focus-visible:outline-none">

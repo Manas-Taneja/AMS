@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { LuFileText, LuClock, LuCheck, LuDollarSign } from 'react-icons/lu';
 import type { Bill } from '@/interfaces/Bill';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { apiService } from '@/services/api';
@@ -151,28 +152,24 @@ const Bills: React.FC = () => {
   // Prepare stats cards
   const statsCards = stats ? [
     {
-      icon: <div className="h-6 w-6 text-blue-600">📄</div>,
+      icon: <LuFileText className="h-6 w-6" />,
       label: 'Total Bills',
       value: stats.total_bills,
-      bgClass: 'bg-blue-100',
     },
     {
-      icon: <div className="h-6 w-6 text-yellow-600">⏳</div>,
+      icon: <LuClock className="h-6 w-6" />,
       label: 'Pending',
       value: stats.pending_bills,
-      bgClass: 'bg-yellow-100',
     },
     {
-      icon: <div className="h-6 w-6 text-green-600">✅</div>,
+      icon: <LuCheck className="h-6 w-6" />,
       label: 'Approved',
       value: stats.approved_bills,
-      bgClass: 'bg-green-100',
     },
     {
-      icon: <div className="h-6 w-6 text-purple-600">💰</div>,
+      icon: <LuDollarSign className="h-6 w-6" />,
       label: 'Total Amount',
       value: `$${stats.total_amount.toFixed(2)}`,
-      bgClass: 'bg-purple-100',
     },
   ] : [];
 
@@ -185,7 +182,7 @@ const Bills: React.FC = () => {
 
   return (
     <BaseLayout>
-      <div className="p-8 text-black max-w-7xl mx-auto">
+      <div className="p-8 max-w-7xl mx-auto">
         <UnifiedHeader
           title="Bills Management"
           subtitle="Upload and manage bills for approval"
@@ -197,10 +194,10 @@ const Bills: React.FC = () => {
         {stats && <StatsCards cards={statsCards} gridCols="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8" />}
         
         {/* Filters */}
-        <div className="bg-white rounded-lg border p-6 mb-6">
+        <div className="bg-card rounded-lg border p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Search</label>
               <Input
                 placeholder="Search bills..."
                 value={filters.search}
@@ -208,7 +205,7 @@ const Bills: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Status</label>
               <Select value={filters.status || 'all'} onValueChange={(value) => setFilters(f => ({ ...f, status: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Statuses" />
@@ -223,7 +220,7 @@ const Bills: React.FC = () => {
               </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Category</label>
               <Select value={filters.category || 'all'} onValueChange={(value) => setFilters(f => ({ ...f, category: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Categories" />
@@ -237,7 +234,7 @@ const Bills: React.FC = () => {
               </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Vendor</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Vendor</label>
               <Select value={filters.vendor || 'all'} onValueChange={(value) => setFilters(f => ({ ...f, vendor: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Vendors" />
@@ -252,13 +249,12 @@ const Bills: React.FC = () => {
             </div>
           </div>
           <div className="flex justify-between items-center mt-4">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               Showing {filteredBills.length} of {bills.length} bills
             </div>
             <Button
-              variant="secondary"
+              variant="outline"
               onClick={() => setFilters({ search: '', status: 'all', category: 'all', vendor: 'all' })}
-              className="bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
             >
               Clear Filters
             </Button>
@@ -266,7 +262,7 @@ const Bills: React.FC = () => {
         </div>
 
         {/* Bills Table */}
-        <div className="bg-white rounded-lg border">
+        <div className="bg-card rounded-lg border">
           <BillsTable
             bills={filteredBills}
             onView={handleView}

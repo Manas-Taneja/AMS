@@ -220,6 +220,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Call logout endpoint to clear httpOnly cookies
       apiService.post(API_ENDPOINTS.AUTH.LOGOUT, {}).catch((error) => logger.error('Logout failed', error));
     }
+    // Redirect to login page
+    window.location.href = '/login';
   }, [useSupabaseAuth]);
 
   // Try JWT first, fallback to cookie-based

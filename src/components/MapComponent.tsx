@@ -94,7 +94,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ locations }) => {
               </div>
               <button 
                 onClick={() => router.push(`/location/${city.id}`)}
-                className="w-full bg-blue-600 dark:bg-blue-700 text-white py-1.5 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-xs font-medium uppercase tracking-wide"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-1.5 rounded-md transition-colors text-xs font-medium uppercase tracking-wide"
               >
                 View Details
               </button>

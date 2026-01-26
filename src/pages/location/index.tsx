@@ -334,7 +334,7 @@ export default function LocationsPage() {
                   {getTypeIcon(location.type)}
                   <div>
                     <h3 className="font-semibold text-lg">{location.name}</h3>
-                    <p className="text-gray-600 text-sm">{location.address}</p>
+                    <p className="text-muted-foreground text-sm">{location.address}</p>
                   </div>
                 </div>
 
@@ -343,11 +343,11 @@ export default function LocationsPage() {
                 <Badge className={locationStatusConfig[location.status as keyof typeof locationStatusConfig]?.color}>
                   {locationStatusConfig[location.status as keyof typeof locationStatusConfig]?.label || location.status}
                 </Badge>
-                <span className="text-gray-600">{location.assetCount} assets</span>
+                <span className="text-muted-foreground">{location.assetCount} assets</span>
               </div>
               <div className="grid grid-cols-2 gap-4 pt-2 border-t">
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Point of Contact</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Point of Contact</p>
                   <div className="flex items-center gap-2 mt-1">
                     <Avatar className="h-6 w-6">
                       <AvatarFallback className="text-xs">{location.avatar}</AvatarFallback>
@@ -356,12 +356,12 @@ export default function LocationsPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Team Size</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Team Size</p>
                   <p className="text-sm font-medium mt-1">{location.team} members</p>
                 </div>
               </div>
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Current Project</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Current Project</p>
                 <p className="text-sm font-medium mt-1">{location.project}</p>
               </div>
             </div>
@@ -373,18 +373,18 @@ export default function LocationsPage() {
 
   const LocationListItem = ({ location }: { location: Location }) => (
     <motion.div layout initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-      <Card className="hover:shadow-sm transition-shadow border-0 shadow-none hover:bg-gray-50">
+      <Card className="hover:shadow-sm transition-shadow border-0 shadow-none dark:hover:bg-secondary hover:bg-muted">
         <CardContent className="p-4 cursor-pointer" onClick={() => onViewDetails(location.id)}>
           <div className="flex items-center gap-4">
             {getTypeIcon(location.type)}
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">{location.name}</h3>
-              <p className="text-gray-600 text-sm">{location.address}</p>
+              <h3 className="font-semibold">{location.name}</h3>
+              <p className="text-muted-foreground text-sm">{location.address}</p>
               <div className="flex items-center gap-2 mt-1">
                 <Badge className={locationStatusConfig[location.status as keyof typeof locationStatusConfig]?.color}>
                   {locationStatusConfig[location.status as keyof typeof locationStatusConfig]?.label || location.status}
                 </Badge>
-                <span className="text-gray-600">{location.assetCount} assets</span>
+                <span className="text-muted-foreground">{location.assetCount} assets</span>
               </div>
             </div>
 
@@ -494,7 +494,7 @@ export default function LocationsPage() {
             groupedByOwner={filteredGroupedByOwner}
             renderGridItem={(location: Location & { owner: string }) => <LocationCard key={location.id} location={location} />}
             renderListItem={(location: Location & { owner: string }) => <LocationListItem key={location.id} location={location} />}
-            emptyStateIcon={<MapPin className="h-12 w-12 text-gray-400" />}
+            emptyStateIcon={<MapPin className="h-12 w-12 text-muted-foreground" />}
             emptyStateTitle="No locations found"
             emptyStateDescription="Try adjusting your search terms or filters."
             gridCols="grid grid-cols-1 lg:grid-cols-2 gap-4"

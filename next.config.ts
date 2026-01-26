@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
   /* config options here */
   // Use relative asset paths only in production builds for Electron
   assetPrefix: process.env.NODE_ENV === 'production' ? './' : undefined,
-  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
+  // Disable static export for now due to turbopack issues - will be handled by next build
+  // output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
   images: {
     unoptimized: true,
     domains: [

@@ -95,7 +95,7 @@ const AssetCategoryChart: React.FC = () => {
         <Tabs value={activeChartType} onValueChange={setActiveChartType} className="w-full">
           <TabsList className="grid grid-cols-4 w-full mb-4 gap-1">
             {chartTypes.map(chartType => (
-              <TabsTrigger key={chartType.value} value={chartType.value} className='border-border data-[state=active]:text-foreground'>
+              <TabsTrigger key={chartType.value} value={chartType.value} className='border-border data-[state=active]:text-foreground data-[state=active]:dark:text-foreground'>
                 {chartType.label}
               </TabsTrigger>
             ))}

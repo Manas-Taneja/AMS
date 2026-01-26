@@ -98,7 +98,7 @@ const AuthCallback: React.FC = () => {
           <p className="text-gray-700">{error}</p>
           <button 
             onClick={() => router.push('/login')}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
           >
             Back to Login
           </button>

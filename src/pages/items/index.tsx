@@ -14,6 +14,7 @@ import {
   LuHash as Hash,
   LuPackage as Package,
   LuArrowRightLeft as Transfer,
+  LuCalendar as Calendar,
 } from "react-icons/lu"
 import { useAuth } from "@/context/AuthContext"
 import { componentStatusConfig } from "@/utils/statusColors"
@@ -287,8 +288,22 @@ const Components: React.FC = () => {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.2 }}
+      className="relative"
     >
-      <Card className="group hover:shadow-lg transition-all duration-200 border-0 shadow-sm hover:shadow-md">
+      <Card className={`group hover:shadow-lg transition-all duration-200 shadow-sm hover:shadow-md border ${
+        item.is_transferred 
+          ? 'border-orange-400 dark:border-orange-500 bg-orange-50/50 dark:bg-orange-950/20' 
+          : 'border-border'
+      }`}>
+        {/* Corner Ribbon for Transferred Items */}
+        {item.is_transferred && (
+          <div className="absolute -top-1 -right-1 w-16 h-16 overflow-hidden">
+            <div className="absolute top-3 right-[-28px] rotate-45 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold py-1 px-8 shadow-md flex items-center justify-center">
+              <Transfer className="w-3 h-3" />
+            </div>
+          </div>
+        )}
+        
         <CardContent className="p-6 cursor-pointer" onClick={() => router.push(`/items/${item.id}`)}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
@@ -304,7 +319,7 @@ const Components: React.FC = () => {
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Badge
                   variant="secondary"
                   className={`${componentStatusConfig[item.status as keyof typeof componentStatusConfig]?.color} border`}
@@ -313,7 +328,7 @@ const Components: React.FC = () => {
                   {item.status}
                 </Badge>
                 {item.is_transferred && (
-                  <Badge variant="default" className="bg-orange-500 hover:bg-orange-600 text-white border-0">
+                  <Badge variant="default" className="bg-orange-500 hover:bg-orange-600 text-white border-0 animate-pulse">
                     <Transfer className="w-3 h-3 mr-1" />
                     Transferred
                   </Badge>
@@ -324,11 +339,21 @@ const Components: React.FC = () => {
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className={`w-4 h-4 ${item.is_transferred ? 'text-orange-500 dark:text-orange-400' : 'text-muted-foreground'}`} />
-                <span className="truncate font-medium">{item.current_location || item.location}</span>
+                <span className={`truncate font-medium ${item.is_transferred ? 'text-orange-700 dark:text-orange-400' : ''}`}>
+                  {item.current_location || item.location}
+                </span>
               </div>
               {item.is_transferred && item.home_location && (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground ml-6">
-                  <span>Home: {item.home_location}</span>
+                  <span className="text-orange-600 dark:text-orange-400">Home: {item.home_location}</span>
+                </div>
+              )}
+              {item.is_transferred && item.expected_return_date && (
+                <div className="flex items-center gap-2 text-xs ml-6">
+                  <Calendar className="w-3 h-3 text-orange-500" />
+                  <span className="text-orange-600 dark:text-orange-400">
+                    Return: {new Date(item.expected_return_date).toLocaleDateString()}
+                  </span>
                 </div>
               )}
             </div>
@@ -357,13 +382,23 @@ const Components: React.FC = () => {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.2 }}
+      className="relative"
     >
-      <Card className="group hover:shadow-sm transition-all duration-200 border-0 shadow-none hover:bg-accent/50">
+      <Card className={`group hover:shadow-sm transition-all duration-200 shadow-none hover:bg-accent/50 border ${
+        item.is_transferred 
+          ? 'border-l-4 border-l-orange-500 bg-orange-50/30 dark:bg-orange-950/10' 
+          : 'border-border'
+      }`}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
+              {/* Transfer Indicator Dot */}
+              {item.is_transferred && (
+                <div className="flex-shrink-0 w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+              )}
+              
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
                   <h3 className="font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {item.name}
                   </h3>
@@ -373,15 +408,31 @@ const Components: React.FC = () => {
                   >
                     {componentStatusConfig[item.status as keyof typeof componentStatusConfig]?.icon} {item.status}
                   </Badge>
+                  {item.is_transferred && (
+                    <Badge variant="default" className="bg-orange-500 text-white text-xs">
+                      <Transfer className="w-3 h-3 mr-1" />
+                      Transferred
+                    </Badge>
+                  )}
                 </div>
-                <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                <div className="flex items-center gap-6 text-sm text-muted-foreground flex-wrap">
                   <div className="flex items-center gap-1">
                     <MapPin className={`w-3 h-3 ${item.is_transferred ? 'text-orange-500 dark:text-orange-400' : ''}`} />
-                    {item.current_location || item.location}
+                    <span className={item.is_transferred ? 'text-orange-700 dark:text-orange-400 font-medium' : ''}>
+                      {item.current_location || item.location}
+                    </span>
                     {item.is_transferred && item.home_location && (
-                      <span className="text-xs text-muted-foreground/70 ml-1">(from {item.home_location})</span>
+                      <span className="text-xs text-orange-600 dark:text-orange-400 ml-1">(from {item.home_location})</span>
                     )}
                   </div>
+                  {item.is_transferred && item.expected_return_date && (
+                    <div className="flex items-center gap-1 text-xs">
+                      <Calendar className="w-3 h-3 text-orange-500" />
+                      <span className="text-orange-600 dark:text-orange-400">
+                        Return: {new Date(item.expected_return_date).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-1">
                     <FolderOpen className="w-3 h-3" />
                     {item.project}
@@ -391,12 +442,6 @@ const Components: React.FC = () => {
                       <Hash className="w-3 h-3" />
                       <span className="font-mono text-xs">{item.serial_number}</span>
                     </div>
-                  )}
-                  {item.is_transferred && (
-                    <Badge variant="default" className="bg-orange-500 text-white text-xs">
-                      <Transfer className="w-3 h-3 mr-1" />
-                      Transferred
-                    </Badge>
                   )}
                 </div>
               </div>
@@ -411,7 +456,7 @@ const Components: React.FC = () => {
   // Add a CategorySubheader component
   const CategorySubheader: React.FC<{ category: string }> = ({ category }) => (
     <div className="mb-2">
-      <Card className="bg-accent border-blue-200 dark:border-blue-800 border flex items-center px-6 py-3">
+      <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 border flex items-center px-6 py-3">
         <span className="font-semibold text-blue-700 dark:text-blue-300 text-lg">{category}</span>
       </Card>
     </div>

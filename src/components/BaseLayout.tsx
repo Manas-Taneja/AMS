@@ -95,7 +95,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({
       <h3 className="text-xl font-semibold text-foreground mb-2">{title}</h3>
       <p className="text-muted-foreground mb-6">{error}</p>
       {onRetry && (
-        <Button onClick={onRetry} className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 w-full">
+        <Button onClick={onRetry} className="w-full">
           <RefreshCw className="h-4 w-4 mr-2" />
           Try Again
         </Button>

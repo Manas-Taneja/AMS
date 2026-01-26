@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "main": "electron/main.js",
+  "description": "Asset Management System by PSSL - Comprehensive asset tracking and management solution",
+  "author": {
+    "name": "PSSL",
+    "email": "info@pssl.com"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -66,6 +71,7 @@
     "concurrently": "^9.2.1",
     "electron": "^39.2.4",
     "electron-builder": "^26.0.12",
+    "electron-icon-builder": "^2.0.1",
     "eslint": "^9",
     "eslint-config-next": "15.4.2",
     "jest": "^29.7.0",
@@ -103,6 +109,18 @@
       ],
       "icon": "build/icon.ico",
       "requestedExecutionLevel": "asInvoker"
+    },
+    "mac": {
+      "icon": "build/icon.icns",
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office"
     },
     "nsis": {
       "oneClick": false,

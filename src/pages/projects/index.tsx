@@ -298,7 +298,7 @@ function Projects() {
   // ProjectCard and ProjectListItem
   const ProjectCard = ({ project }: { project: ExtendedProject }) => (
     <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.2 }}>
-      <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden" onClick={() => handleViewDetails(project.id)}>
+      <Card className="bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden" onClick={() => handleViewDetails(project.id)}>
         <div className={`h-2 bg-gradient-to-r ${project.color}`}></div>
         <CardContent className="p-6">
           <div className="flex items-start justify-between mb-4">
@@ -307,8 +307,8 @@ function Projects() {
             </div>
 
           </div>
-          <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1">{project.name}</h3>
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.description}</p>
+          <h3 className="font-bold text-foreground text-lg mb-2 line-clamp-1">{project.name}</h3>
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{project.description}</p>
           <div className="flex items-center gap-2 mb-4">
             <Badge className={projectStatusConfig[project.status]?.color} variant="outline">{project.status}</Badge>
             {project.priority && (
@@ -357,7 +357,7 @@ function Projects() {
 
   const ProjectListItem = ({ project }: { project: ExtendedProject }) => (
     <motion.div layout initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-      <Card className="bg-white/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden" onClick={() => handleViewDetails(project.id)}>
+      <Card className="bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden" onClick={() => handleViewDetails(project.id)}>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6 flex-1">
@@ -366,14 +366,14 @@ function Projects() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-bold text-gray-900 text-lg truncate">{project.name}</h3>
+                              <h3 className="font-bold text-foreground text-lg truncate">{project.name}</h3>
                               {project.priority && (
                     <Badge className={projectPriorityConfig[project.priority]?.color} variant="outline">{project.priority}</Badge>
                               )}
                   <Badge className={projectStatusConfig[project.status]?.color} variant="outline">{project.status}</Badge>
                             </div>
-                            <p className="text-gray-600 mb-3 line-clamp-1">{project.description}</p>
-                            <div className="flex items-center gap-6 text-sm text-gray-500">
+                            <p className="text-muted-foreground mb-3 line-clamp-1">{project.description}</p>
+                            <div className="flex items-center gap-6 text-sm text-muted-foreground">
                               {project.team && (
                                 <div className="flex items-center gap-1">
                                   <Users className="w-4 h-4" />
@@ -454,8 +454,8 @@ function Projects() {
   // Add a CategorySubheader component
   const CategorySubheader = ({ category }: { category: string }) => (
     <div className="mb-2">
-      <Card className="bg-gray-50 border-blue-200 border flex items-center px-6 py-3">
-        <span className="font-semibold text-blue-700 text-lg">{category}</span>
+      <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 border flex items-center px-6 py-3">
+        <span className="font-semibold text-blue-700 dark:text-blue-300 text-lg">{category}</span>
       </Card>
     </div>
   );

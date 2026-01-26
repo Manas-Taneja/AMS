@@ -91,18 +91,18 @@ export function SearchFilterTabs<T>({
   allItems,
 }: SearchFilterTabsProps<T>) {
   return (
-    <Card className={`border-0 shadow-sm ${className} text-black`}>
+    <Card className={`border-0 shadow-sm ${className}`}>
       <CardContent className="p-6">
         {/* Search, Filters, View Toggle */}
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search */}
           <div className="relative flex-1">
-            <LuGrid3X3 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <LuGrid3X3 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
               placeholder={searchPlaceholder}
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+              className="pl-10"
             />
           </div>
           {/* Filters and Actions */}
@@ -112,9 +112,9 @@ export function SearchFilterTabs<T>({
                 <SelectTrigger className="w-auto">
                   <SelectValue placeholder={filter.label} />
                 </SelectTrigger>
-                <SelectContent className="bg-white !text-black">
+                <SelectContent className="dark:bg-card dark:text-foreground">
                   {filter.options.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="!text-black">
+                    <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
                   ))}
@@ -122,7 +122,7 @@ export function SearchFilterTabs<T>({
               </Select>
             ))}
             {showViewToggle && (
-              <div className="flex border rounded-lg p-1 bg-gray-100 border-none">
+              <div className="flex border rounded-lg p-1 bg-secondary border-none">
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
@@ -145,7 +145,7 @@ export function SearchFilterTabs<T>({
         </div>
         {/* Results Summary and Clear Filters */}
         <div className="flex items-center justify-between mt-4 pt-4 border-t">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Showing {filteredCount} of {totalCount} {itemLabel}
           </p>
           <Button
@@ -154,7 +154,7 @@ export function SearchFilterTabs<T>({
             onClick={() => {
               onClearFilters();
             }}
-            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 border-gray-300 hover:border-gray-400 bg-white"
+            className="flex items-center gap-2"
           >
             <LuX className="w-4 h-4" />
             Clear Filters
@@ -163,14 +163,14 @@ export function SearchFilterTabs<T>({
         {/* Owner Tabs */}
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full mt-6">
           <div className="items-center justify-between mb-4">
-            <TabsList className="grid w-auto grid-cols-4 gap-1 h-auto p-1 bg-gray-100">
+            <TabsList className="grid w-auto grid-cols-4 gap-1 h-auto p-1 bg-muted">
               <TabsTrigger
                 value="all"
-                className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm focus:outline-1 text-black data-[state=active]:text-black !text-black !data-[state=active]:text-black"
+                className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-card data-[state=active]:shadow-sm focus:outline-1"
               >
                 <LuUsers className="w-4 h-4" />
                 <span className="font-medium">All</span>
-                <Badge variant="secondary" className="ml-1 text-sm bg-gray-200 mt-1">
+                <Badge variant="secondary" className="ml-1 text-sm mt-1">
                   {allItems.length}
                 </Badge>
               </TabsTrigger>
@@ -178,7 +178,7 @@ export function SearchFilterTabs<T>({
                 <TabsTrigger
                   key={owner}
                   value={owner}
-                  className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-white data-[state=active]:shadow-sm focus:outline-1 text-black data-[state=active]:text-black !text-black !data-[state=active]:text-black"
+                  className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-card data-[state=active]:shadow-sm focus:outline-1"
                 >
                   <LuUsers className="w-4 h-4" />
                   <span className="font-medium">{owner}</span>

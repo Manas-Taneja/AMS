@@ -65,9 +65,14 @@ function startStaticServer() {
 }
 
 function createWindow() {
+    const iconPath = isDev 
+        ? path.join(__dirname, '../public/og-image.png')
+        : path.join(__dirname, '../build/icon.png');
+    
     mainWindow = new BrowserWindow({
         width: 1200,
         height: 800,
+        icon: iconPath,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,

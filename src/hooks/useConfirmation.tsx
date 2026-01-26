@@ -29,7 +29,7 @@ export function useConfirmation(): UseConfirmationReturn {
 
       toast.custom((t) => (
         <div 
-          className="flex flex-col gap-2 max-w-xs w-80 bg-gray-300 border border-gray-400 rounded-lg p-4"
+          className="flex flex-col gap-2 max-w-xs w-80 bg-background border border-border rounded-lg p-4"
           style={{ zIndex: 9999, pointerEvents: 'auto' }}
         >
           <div className="flex items-center gap-2">
@@ -37,20 +37,20 @@ export function useConfirmation(): UseConfirmationReturn {
               type === 'success' ? 'text-green-600' :
               type === 'error' ? 'text-red-600' :
               type === 'warning' ? 'text-yellow-600' :
-              'text-blue-600'}`}
+              'text-foreground'}`}
             >
               {type === 'success' ? '✓' : type === 'error' ? '✕' : type === 'warning' ? '⚠' : 'ℹ'}
             </span>
-            <span className="font-semibold text-gray-900">{title}</span>
+            <span className="font-semibold text-foreground">{title}</span>
           </div>
-          <div className="text-gray-700 text-sm">{message}</div>
+          <div className="text-foreground text-sm">{message}</div>
           <div className="flex gap-2 mt-2">
             <button
-              className={`px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${type === 'error' ? 'red' : type === 'warning' ? 'yellow' : type === 'success' ? 'green' : 'blue'}-500 ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50 ${
                 type === 'success' ? 'bg-green-600 text-white hover:bg-green-700' :
                 type === 'error' ? 'bg-red-600 text-white hover:bg-red-700' :
                 type === 'warning' ? 'bg-yellow-600 text-white hover:bg-yellow-700' :
-                'bg-blue-600 text-white hover:bg-blue-700'
+                'bg-primary text-primary-foreground hover:bg-primary/90'
               }`}
               onClick={(e) => {
                 e.stopPropagation();
@@ -62,7 +62,7 @@ export function useConfirmation(): UseConfirmationReturn {
               {confirmText}
             </button>
             <button
-              className="px-3 py-1.5 text-xs font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+              className="px-3 py-1.5 text-xs font-medium rounded-md text-foreground bg-secondary hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary/50"
               onClick={(e) => {
                 e.stopPropagation();
                 toast.dismiss(t);

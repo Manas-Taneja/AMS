@@ -364,8 +364,8 @@ function TeamMembersPage() {
     return (
       <BaseLayout>
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="h-64 bg-gray-200 rounded mb-4"></div>
+          <div className="h-8 bg-muted rounded w-1/3 mb-4"></div>
+          <div className="h-64 bg-muted rounded mb-4"></div>
         </div>
       </BaseLayout>
     );
@@ -375,8 +375,8 @@ function TeamMembersPage() {
     return (
       <BaseLayout>
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Error</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Error</h1>
+          <p className="text-muted-foreground mb-4">{error}</p>
           <Button onClick={refetch}>Retry</Button>
         </div>
       </BaseLayout>
@@ -389,8 +389,8 @@ function TeamMembersPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Team Members</h1>
-            <p className="text-gray-600 mt-1">Manage your team members and their information</p>
+            <h1 className="text-3xl font-bold text-foreground">Team Members</h1>
+            <p className="text-muted-foreground mt-1">Manage your team members and their information</p>
           </div>
           <div className="flex items-center gap-3">
             <RoleBasedComponent allowedRoles={['admin']}>
@@ -398,7 +398,7 @@ function TeamMembersPage() {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button className="text-black transition-all duration-200" 
+              <Button 
               onClick={() => {
                 setEditMode(false);
                 setEditingId(null);
@@ -464,7 +464,7 @@ function TeamMembersPage() {
           groupedByOwner={groupedByOwner}
           renderGridItem={(member: StaffMember) => <StaffCard key={member.id} member={member} />}
           renderListItem={(member: StaffMember) => <StaffListItem key={member.id} member={member} />}
-          emptyStateIcon={<Users className="h-12 w-12 text-gray-400" />}
+          emptyStateIcon={<Users className="h-12 w-12 text-muted-foreground" />}
           emptyStateTitle="No team members found"
           emptyStateDescription="Try adjusting your search or filters to find what you're looking for."
           gridCols="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"

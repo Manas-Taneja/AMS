@@ -187,7 +187,7 @@ const Users: React.FC = () => {
 
   return (
     <AdminOnly>
-      <BaseLayout className="p-8 text-black">
+      <BaseLayout className="p-8">
         <motion.div 
           className="max-w-4xl mx-auto space-y-8"
           variants={containerVariants}
@@ -220,13 +220,13 @@ const Users: React.FC = () => {
                     >
                       <div>
                         <div className="font-medium">{user.full_name}</div>
-                        <div className="text-xs text-gray-500">{user.email}</div>
+                        <div className="text-xs text-muted-foreground">{user.email}</div>
                       </div>
                       <Select onValueChange={(role: string) => handleApprove(user.id, role)}>
                         <SelectTrigger className="w-auto focus:outline-none focus:ring-0 focus-visible:ring-0">
                           <SelectValue placeholder="Approve as..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-white !text-black">
+                        <SelectContent>
                           {roleOptions.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value} className="focus:outline-none focus:ring-0 focus-visible:ring-0">{opt.label}</SelectItem>
                           ))}
@@ -255,7 +255,7 @@ const Users: React.FC = () => {
                   >
                     <div>
                       <div className="font-medium">{user.full_name}</div>
-                      <div className="text-xs text-gray-500">{user.email}</div>
+                      <div className="text-xs text-muted-foreground">{user.email}</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge>{user.role}</Badge>
@@ -263,7 +263,7 @@ const Users: React.FC = () => {
                         <SelectTrigger className="w-auto focus:outline-none focus:ring-0 focus-visible:ring-0" disabled={user.id === currentUser?.id}>
                           
                         </SelectTrigger>
-                        <SelectContent className="bg-white">
+                        <SelectContent>
                           {roleOptions.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value} className="focus:outline-none focus:ring-0 focus-visible:ring-0">{opt.label}</SelectItem>
                           ))}

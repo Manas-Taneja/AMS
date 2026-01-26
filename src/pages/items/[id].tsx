@@ -146,18 +146,23 @@ function ComponentDetail() {
     <div className="flex flex-col gap-6">
       {/* Transfer Status Alert */}
       {component?.is_transferred && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-2 border-orange-400 bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/20 shadow-lg shadow-orange-200/50 dark:shadow-orange-900/30">
           <CardContent className="pt-6">
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
-                <div className="rounded-full bg-orange-100 p-2">
-                  <Transfer className="h-5 w-5 text-orange-600" />
+                <div className="rounded-full bg-orange-500 p-2 animate-pulse">
+                  <Transfer className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-orange-900 mb-1">Asset Currently Transferred</h3>
-                  <div className="text-sm text-orange-800 space-y-1">
-                    <p>
-                      <strong>From:</strong> {component.home_location} → <strong>To:</strong> {component.current_location || component.transferred_to}
+                  <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-1 flex items-center gap-2">
+                    Asset Currently Transferred
+                    <span className="inline-flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
+                  </h3>
+                  <div className="text-sm text-orange-800 dark:text-orange-200 space-y-1">
+                    <p className="flex items-center gap-2">
+                      <strong>From:</strong> {component.home_location} 
+                      <span className="text-orange-500">→</span> 
+                      <strong>To:</strong> {component.current_location || component.transferred_to}
                     </p>
                     {component.transfer_date && (
                       <p>
@@ -181,7 +186,7 @@ function ComponentDetail() {
               <Button
                 size="sm"
                 onClick={() => setTransferDialogOpen(true)}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 shadow-md"
               >
                 <Return className="w-4 h-4 mr-2" />
                 Return Asset
@@ -354,11 +359,13 @@ function ComponentDetail() {
                 <Label className="text-sm font-medium text-muted-foreground">
                   {component?.is_transferred ? "Current Location" : "Location"}
                 </Label>
-                <div className="flex items-center gap-2">
-                  <MapPin className={`h-4 w-4 ${component?.is_transferred ? 'text-orange-500' : 'text-muted-foreground'}`} />
-                  <span className="text-base font-medium">{component?.current_location || component?.location}</span>
+                <div className={`flex items-center gap-2 ${component?.is_transferred ? 'p-3 bg-orange-50 dark:bg-orange-950/20 border-l-4 border-orange-500 rounded-md' : ''}`}>
+                  <MapPin className={`h-4 w-4 ${component?.is_transferred ? 'text-orange-500 animate-pulse' : 'text-muted-foreground'}`} />
+                  <span className={`text-base font-medium ${component?.is_transferred ? 'text-orange-700 dark:text-orange-400' : ''}`}>
+                    {component?.current_location || component?.location}
+                  </span>
                   {component?.is_transferred && (
-                    <Badge variant="default" className="bg-orange-500 text-white ml-2">
+                    <Badge variant="default" className="bg-orange-500 text-white ml-2 animate-pulse">
                       <Transfer className="w-3 h-3 mr-1" />
                       Transferred
                     </Badge>
@@ -368,9 +375,9 @@ function ComponentDetail() {
               {component?.is_transferred && component?.home_location && (
                 <div className="space-y-1">
                   <Label className="text-sm font-medium text-muted-foreground">Home Location</Label>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-base text-muted-foreground">{component.home_location}</span>
+                  <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-900/20 border-l-4 border-gray-400 rounded-md">
+                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <span className="text-base text-gray-700 dark:text-gray-300">{component.home_location}</span>
                   </div>
                 </div>
               )}

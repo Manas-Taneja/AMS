@@ -30,12 +30,12 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
           <Card key={index}>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className={`${card.bgClass || 'bg-gray-100'} p-2 rounded-lg`}>
+                <div className={`${card.bgClass || 'bg-muted'} p-2 rounded-lg dark:bg-secondary`}>
                   {card.icon}
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{card.label}</p>
-                  <p className={`text-2xl font-bold ${card.color || 'text-gray-900'}`}>
+                  <p className="text-sm font-medium text-muted-foreground">{card.label}</p>
+                  <p className={`text-2xl font-bold ${card.color || 'text-foreground'}`}>
                     {card.value}
                   </p>
                 </div>

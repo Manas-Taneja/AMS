@@ -33,6 +33,7 @@ import {
 import IdleAssetCategoryChart from '../../components/IdleAssetCategoryChart';
 import UtilizationChart from '@/components/UtilizationChart';
 import IdleNotifications from '../../components/IdleNotifications';
+import RegionalChart from '../../components/RegionalChart';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
@@ -362,6 +363,10 @@ const Dashboard: React.FC = () => {
                       <UtilizationChart />
                     </CardContent>
                   </Card>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="lg:col-span-2">
+                  <RegionalChart />
                 </motion.div>
               </motion.div>
             </TabsContent>

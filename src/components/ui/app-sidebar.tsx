@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "../../context/AuthContext";
 import { usePathname } from "next/navigation";
 import {
@@ -20,7 +21,8 @@ import {
   LuTarget, 
   LuMapPin, 
   LuGraduationCap, 
-  LuReceipt
+  LuReceipt,
+  LuTrendingUp
 } from "react-icons/lu";
 import { Avatar, AvatarFallback } from "./avatar";
 import { CommandPalette } from "../CommandPalette";
@@ -29,6 +31,7 @@ import { ThemeToggle } from "../ThemeToggle";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LuLayoutDashboard },
+  { title: "Regional Analytics", url: "/regional-analytics", icon: LuTrendingUp },
   { title: "Locations", url: "/location", icon: LuMapPin },
   { title: "Team", url: "/staff", icon: LuUsers },
   { title: "Projects", url: "/projects", icon: LuTarget },
@@ -54,9 +57,16 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-border shadow-sm bg-card text-card-foreground z-40 w-auto">
       <SidebarHeader className="h-16 flex items-center justify-center px-2 border-b border-border">
-        <Link href="/" className="flex items-center justify-center gap-2 font-bold text-xl tracking-tight text-blue-600 dark:text-blue-400 overflow-hidden">
-           <div className="w-8 h-8 bg-blue-600 dark:bg-blue-700 rounded-lg flex items-center justify-center text-white shrink-0">
-             P
+        <Link href="/" className="flex items-center justify-center gap-2 font-bold text-xl tracking-tight overflow-hidden">
+           <div className="w-10 h-10 relative shrink-0">
+             <Image 
+               src="/og-image.png" 
+               alt="AMS Logo" 
+               width={40} 
+               height={40}
+               className="object-contain"
+               priority
+             />
            </div>
            {/* Hidden text for screen readers */}
            <span className="sr-only">AMS Enterprise</span>
