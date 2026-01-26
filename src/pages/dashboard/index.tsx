@@ -93,49 +93,50 @@ const calculateDaysIdle = (lastUsed: string | undefined): number => {
 
 function KeyMetrics({ data }: KeyMetricsProps) {
   return (
-    <motion.div
-      className="space-y-6 min-w-0"
-      variants={containerVariants}
-      initial="initial"
-      animate="in"
-    >
+    <>
       <motion.div variants={itemVariants}>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+        <Card className="shadow-md hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-blue-500 h-full">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium">Active Assets</CardTitle>
-            <CheckCircle className="h-10 w-4 text-blue-500 dark:text-blue-400" />
+            <CheckCircle className="h-5 w-5 text-blue-500 dark:text-blue-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">{data.activeAssets.toLocaleString()}</div>
-            <p className="text-xs text-green-600 dark:text-green-400">{((data.activeAssets / data.totalAssets) * 100).toFixed(1)}% utilization</p>
+            <div className="text-3xl font-bold text-foreground mb-2">
+              {data.activeAssets.toLocaleString()}
+            </div>
+            <p className="text-xs text-green-600 dark:text-green-400 font-medium">{((data.activeAssets / data.totalAssets) * 100).toFixed(1)}% utilization</p>
           </CardContent>
         </Card>
       </motion.div>
       <motion.div variants={itemVariants}>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+        <Card className="shadow-md hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-orange-500 h-full">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium">Maintenance Due</CardTitle>
-            <AlertTriangle className="h-10 w-4 text-orange-500 dark:text-orange-400" />
+            <AlertTriangle className="h-5 w-5 text-orange-500 dark:text-orange-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{data.maintenanceDue}</div>
-            <p className="text-xs text-red-600 dark:text-red-400">Requires attention</p>
+            <div className="text-3xl font-bold text-orange-600 dark:text-orange-400 mb-2">
+              {data.maintenanceDue}
+            </div>
+            <p className="text-xs text-red-600 dark:text-red-400 font-medium">Requires attention</p>
           </CardContent>
         </Card>
       </motion.div>
       <motion.div variants={itemVariants}>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+        <Card className="shadow-md hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-purple-500 h-full">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium">Transferred Assets</CardTitle>
-            <Transfer className="h-10 w-4 text-orange-500 dark:text-orange-400" />
+            <Transfer className="h-5 w-5 text-purple-500 dark:text-purple-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{data.transferredAssets}</div>
-            <p className="text-xs text-muted-foreground">Currently at other locations</p>
+            <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+              {data.transferredAssets}
+            </div>
+            <p className="text-xs text-muted-foreground font-medium">Currently at other locations</p>
           </CardContent>
         </Card>
       </motion.div>
-    </motion.div>
+    </>
   );
 }
 
@@ -152,7 +153,7 @@ function QuickActions({
 }) {
   return (
     <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
-      <Card>
+      <Card className="shadow-md hover:shadow-lg transition-shadow duration-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Plus className="w-5 h-5" />
@@ -161,53 +162,36 @@ function QuickActions({
           <CardDescription>Common asset management tasks</CardDescription>
         </CardHeader>
         <CardContent>
-          <motion.div
-            className="space-y-3"
-            variants={containerVariants}
-            initial="initial"
-            animate="in"
-          >
-            <motion.button
-              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border border-border text-green-600 dark:text-green-400 hover:!bg-accent rounded-lg transition-colors"
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <button
+              className="flex items-center gap-3 p-4 text-left !bg-transparent !border-2 border-green-500/30 text-green-600 dark:text-green-400 hover:!bg-green-500/10 hover:border-green-500 rounded-lg transition-all duration-200"
               onClick={onAddNewAsset}
             >
-              <Plus className="w-4 h-4" />
-              <span className="font-medium">Add New Asset</span>
-            </motion.button>
-            <motion.button
-              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border border-border text-blue-500 dark:text-blue-400 hover:!bg-accent rounded-lg transition-colors"
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              <Plus className="w-5 h-5" />
+              <span className="font-medium text-sm">Add New Asset</span>
+            </button>
+            <button
+              className="flex items-center gap-3 p-4 text-left !bg-transparent !border-2 border-blue-500/30 text-blue-500 dark:text-blue-400 hover:!bg-blue-500/10 hover:border-blue-500 rounded-lg transition-all duration-200"
               onClick={onScheduleMaintenance}
             >
-              <CheckCircle className="w-4 h-4" />
-              <span className="font-medium">Schedule Maintenance</span>
-            </motion.button>
-            <motion.button
-              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border border-border text-yellow-600 dark:text-yellow-400 hover:!bg-accent rounded-lg transition-colors"
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              <CheckCircle className="w-5 h-5" />
+              <span className="font-medium text-sm">Schedule Maintenance</span>
+            </button>
+            <button
+              className="flex items-center gap-3 p-4 text-left !bg-transparent !border-2 border-yellow-500/30 text-yellow-600 dark:text-yellow-400 hover:!bg-yellow-500/10 hover:border-yellow-500 rounded-lg transition-all duration-200"
               onClick={onAssignAsset}
             >
-              <Users className="w-4 h-4" />
-              <span className="font-medium">Assign Asset</span>
-            </motion.button>
-            <motion.button
-              className="w-full flex items-center gap-3 p-3 text-left !bg-transparent !border border-border text-red-500 dark:text-red-400 hover:!bg-accent rounded-lg transition-colors"
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              <Users className="w-5 h-5" />
+              <span className="font-medium text-sm">Assign Asset</span>
+            </button>
+            <button
+              className="flex items-center gap-3 p-4 text-left !bg-transparent !border-2 border-red-500/30 text-red-500 dark:text-red-400 hover:!bg-red-500/10 hover:border-red-500 rounded-lg transition-all duration-200"
               onClick={onReportIssue}
             >
-              <AlertTriangle className="w-4 h-4" />
-              <span className="font-medium">Report Issue</span>
-            </motion.button>
-          </motion.div>
+              <AlertTriangle className="w-5 h-5" />
+              <span className="font-medium text-sm">Report Issue</span>
+            </button>
+          </div>
         </CardContent>
       </Card>
     </motion.div>
@@ -318,33 +302,47 @@ const Dashboard: React.FC = () => {
             onAnalytics={handleAnalytics}
           /> */}
         <motion.div variants={itemVariants}>
-          <Tabs defaultValue="map" className="w-full">
+          <Tabs defaultValue="map" className="w-full" aria-label="Dashboard view selector">
             <div className="flex justify-center mb-6">
-              <TabsList className="grid w-full max-w-[400px] grid-cols-2">
-                <TabsTrigger value="map">Map View</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsList className="grid w-full max-w-[400px] grid-cols-2" role="tablist">
+                <TabsTrigger value="map" role="tab" aria-controls="map-panel">Map View</TabsTrigger>
+                <TabsTrigger value="analytics" role="tab" aria-controls="analytics-panel">Analytics</TabsTrigger>
               </TabsList>
             </div>
 
-            <TabsContent value="map" className="space-y-6">
-              <motion.div variants={fadeInUpVariants} initial="initial" animate="in">
-                <InteractiveMap />
+            <TabsContent value="map" className="space-y-6" role="tabpanel" id="map-panel" aria-labelledby="map-tab">
+              <motion.div 
+                variants={fadeInUpVariants} 
+                initial="initial" 
+                animate="in"
+              >
+                <Card className="shadow-md hover:shadow-lg transition-shadow duration-200">
+                  <InteractiveMap />
+                </Card>
               </motion.div>
             </TabsContent>
 
-            <TabsContent value="analytics" className="space-y-6">
+            <TabsContent value="analytics" className="space-y-6" role="tabpanel" id="analytics-panel" aria-labelledby="analytics-tab">
               <motion.div 
                 className="grid grid-cols-1 lg:grid-cols-2 gap-6"
                 variants={containerVariants}
                 initial="initial"
                 animate="in"
               >
-                <motion.div variants={itemVariants}>
+                <motion.div 
+                  variants={itemVariants}
+                  role="region"
+                  aria-label="Asset category distribution chart"
+                >
                   <AssetCategoryChart />
                 </motion.div>
                 
-                <motion.div variants={itemVariants}>
-                  <Card>
+                <motion.div 
+                  variants={itemVariants}
+                  role="region"
+                  aria-label="Idle assets breakdown chart"
+                >
+                  <Card className="h-full shadow-md hover:shadow-lg transition-shadow duration-200">
                     <CardHeader>
                       <CardTitle>Idle Assets</CardTitle>
                     </CardHeader>
@@ -354,8 +352,13 @@ const Dashboard: React.FC = () => {
                   </Card>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="lg:col-span-2">
-                  <Card>
+                <motion.div 
+                  variants={itemVariants} 
+                  className="lg:col-span-2"
+                  role="region"
+                  aria-label="Asset utilization and recovery chart"
+                >
+                  <Card className="shadow-md hover:shadow-lg transition-shadow duration-200">
                     <CardHeader>
                       <CardTitle>Recovered Assets</CardTitle>
                     </CardHeader>
@@ -365,29 +368,37 @@ const Dashboard: React.FC = () => {
                   </Card>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="lg:col-span-2">
+                <motion.div 
+                  variants={itemVariants} 
+                  className="lg:col-span-2"
+                  role="region"
+                  aria-label="Regional performance metrics chart"
+                >
                   <RegionalChart />
                 </motion.div>
               </motion.div>
             </TabsContent>
           </Tabs>
         </motion.div>
-        <motion.div variants={itemVariants}>
-          <div className="grid grid-cols-2 gap-8 min-w-0">
-            {/* Left column: QuickActions */}
-            <div>
-              <QuickActions
-                onAddNewAsset={handleAddNewAsset}
-                onScheduleMaintenance={handleScheduleMaintenance}
-                onAssignAsset={handleAssignAsset}
-                onReportIssue={handleReportIssue}
-              />
-            </div>
-            {/* Right column: KeyMetrics in 2 rows */}
-            <div className="h-full">
-              <KeyMetrics data={mockData} />
-            </div>
-          </div>
+        {/* Key Metrics - Top Priority */}
+        <motion.div variants={itemVariants} className="w-full">
+          <section aria-labelledby="key-metrics-heading" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <h2 id="key-metrics-heading" className="sr-only">Key Performance Metrics</h2>
+            <KeyMetrics data={mockData} />
+          </section>
+        </motion.div>
+
+        {/* Quick Actions - Secondary Priority */}
+        <motion.div variants={itemVariants} className="w-full">
+          <section aria-labelledby="quick-actions-heading">
+            <h2 id="quick-actions-heading" className="sr-only">Quick Actions</h2>
+            <QuickActions
+            onAddNewAsset={handleAddNewAsset}
+            onScheduleMaintenance={handleScheduleMaintenance}
+            onAssignAsset={handleAssignAsset}
+            onReportIssue={handleReportIssue}
+          />
+          </section>
         </motion.div>
       </motion.div>
     </BaseLayout>

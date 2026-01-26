@@ -73,17 +73,17 @@ const InteractiveMap: React.FC = () => {
   ];
 
   return (
-    <Card className="h-full flex flex-col">
+    <div role="region" aria-label="Interactive asset location map">
       <CardHeader>
         <CardTitle>Asset Locations</CardTitle>
         <CardDescription>Major locations and their assets</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 min-h-[600px] p-0 overflow-hidden rounded-b-lg relative">
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" role="img" aria-label="Map showing asset locations across different cities">
           <MapComponent locations={cityData} />
         </div>
       </CardContent>
-    </Card>
+    </div>
   );
 };
 

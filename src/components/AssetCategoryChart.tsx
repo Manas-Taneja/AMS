@@ -51,40 +51,119 @@ const AssetCategoryChart: React.FC = () => {
   };
 
   const getChartOption = (categories: Category[]) => ({
+    toolbox: {
+      show: true,
+      feature: {
+        saveAsImage: {
+          show: true,
+          title: 'Save as Image',
+          name: `asset_distribution_${new Date().toISOString().split('T')[0]}`,
+          pixelRatio: 2,
+          backgroundColor: isDark ? '#0f172a' : '#ffffff'
+        },
+        restore: {
+          show: true,
+          title: 'Restore'
+        },
+        dataView: {
+          show: true,
+          title: 'Data View',
+          readOnly: false,
+          lang: ['Data View', 'Close', 'Refresh'],
+          backgroundColor: isDark ? '#1f2937' : '#ffffff',
+          textareaColor: isDark ? '#374151' : '#f9fafb',
+          textareaBorderColor: isDark ? '#4b5563' : '#d1d5db',
+          textColor: textColor,
+          buttonColor: '#3b82f6',
+          buttonTextColor: '#ffffff'
+        }
+      },
+      iconStyle: {
+        borderColor: textColor
+      },
+      emphasis: {
+        iconStyle: {
+          borderColor: '#3b82f6'
+        }
+      },
+      right: 20,
+      top: 10
+    },
     tooltip: {
       trigger: 'item',
       formatter: '{b}: {c} items ({d}%)',
-      backgroundColor: isDark ? '#1f2937' : '#ffffff',
+      backgroundColor: isDark ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
       borderColor: isDark ? '#374151' : '#e5e7eb',
-      textStyle: { color: textColor }
+      borderWidth: 1,
+      textStyle: { color: textColor, fontSize: 13 },
+      padding: [10, 15],
+      extraCssText: 'border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);'
     },
     legend: {
       orient: 'vertical',
       left: 'left',
+      top: 'middle',
       textStyle: { fontSize: 14, color: textColor },
+      itemGap: 12,
+      itemWidth: 18,
+      itemHeight: 18,
     },
     series: [
       {
         name: 'Distribution',
         type: 'pie',
-        radius: ['30%', '50%'],
-        avoidLabelOverlap: false,
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: true,
         center: ['50%', '55%'],
+        itemStyle: {
+          borderRadius: 8,
+          borderColor: isDark ? '#0f172a' : '#ffffff',
+          borderWidth: 3,
+        },
+        emphasis: {
+          scale: true,
+          scaleSize: 10,
+          itemStyle: {
+            shadowBlur: 20,
+            shadowOffsetX: 0,
+            shadowOffsetY: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.3)'
+          },
+          label: {
+            show: true,
+            fontSize: 16,
+            fontWeight: 'bold'
+          }
+        },
         label: {
           show: true,
           position: 'outside',
-          formatter: '{b}\n{c}',
-          fontSize: 15,
+          formatter: '{b}\n{c} ({d}%)',
+          fontSize: 13,
           color: textColor,
+          fontWeight: '500',
         },
         labelLine: {
           show: true,
-          lineStyle: { color: textColor }
+          length: 15,
+          length2: 10,
+          lineStyle: { color: textColor, width: 2 },
+          smooth: true
         },
         data: categories.map(cat => ({ value: cat.count, name: cat.name })),
+        animationType: 'scale',
+        animationEasing: 'elasticOut',
+        animationDelay: (idx: number) => idx * 100,
       },
     ],
-    color: ['#2563eb', '#f59e42', '#10b981', '#fbbf24', '#6366f1', '#f43f5e'],
+    color: [
+      { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset: 0, color: '#3b82f6'}, {offset: 1, color: '#1d4ed8'}] },
+      { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset: 0, color: '#f59e0b'}, {offset: 1, color: '#d97706'}] },
+      { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset: 0, color: '#10b981'}, {offset: 1, color: '#059669'}] },
+      { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset: 0, color: '#f59e0b'}, {offset: 1, color: '#b45309'}] },
+      { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset: 0, color: '#8b5cf6'}, {offset: 1, color: '#6d28d9'}] },
+      { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{offset: 0, color: '#ec4899'}, {offset: 1, color: '#be185d'}] },
+    ],
   });
 
   const currentData = sampleChartData[activeChartType as keyof typeof sampleChartData];

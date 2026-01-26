@@ -90,25 +90,129 @@ const UtilizationChart: React.FC = () => {
   };
 
   const getChartOption = (data: UtilizationData[]) => ({
+    toolbox: {
+      show: true,
+      feature: {
+        dataZoom: {
+          show: true,
+          title: {
+            zoom: 'Zoom',
+            back: 'Reset Zoom'
+          },
+          yAxisIndex: 'none'
+        },
+        saveAsImage: {
+          show: true,
+          title: 'Save as Image',
+          name: `utilization_chart_${new Date().toISOString().split('T')[0]}`,
+          pixelRatio: 2,
+          backgroundColor: isDark ? '#0f172a' : '#ffffff'
+        },
+        restore: {
+          show: true,
+          title: 'Restore'
+        },
+        dataView: {
+          show: true,
+          title: 'Data View',
+          readOnly: false,
+          lang: ['Data View', 'Close', 'Refresh'],
+          backgroundColor: isDark ? '#1f2937' : '#ffffff',
+          textareaColor: isDark ? '#374151' : '#f9fafb',
+          textareaBorderColor: isDark ? '#4b5563' : '#d1d5db',
+          textColor: textColor,
+          buttonColor: '#3b82f6',
+          buttonTextColor: '#ffffff'
+        },
+        magicType: {
+          show: true,
+          type: ['line', 'bar'],
+          title: {
+            line: 'Line Chart',
+            bar: 'Bar Chart'
+          }
+        }
+      },
+      iconStyle: {
+        borderColor: textColor
+      },
+      emphasis: {
+        iconStyle: {
+          borderColor: '#3b82f6'
+        }
+      },
+      right: 20,
+      top: 10
+    },
+    dataZoom: [
+      {
+        type: 'inside',
+        start: 0,
+        end: 100,
+        zoomOnMouseWheel: true,
+        moveOnMouseMove: true
+      },
+      {
+        type: 'slider',
+        show: true,
+        start: 0,
+        end: 100,
+        height: 20,
+        bottom: 20,
+        borderColor: isDark ? '#4b5563' : '#d1d5db',
+        fillerColor: 'rgba(59, 130, 246, 0.2)',
+        handleStyle: {
+          color: '#3b82f6'
+        },
+        textStyle: {
+          color: textColor
+        }
+      }
+    ],
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: isDark ? '#1f2937' : '#ffffff',
+      axisPointer: { 
+        type: 'cross',
+        crossStyle: {
+          color: isDark ? '#6b7280' : '#9ca3af'
+        },
+        lineStyle: {
+          type: 'dashed',
+          width: 1
+        }
+      },
+      backgroundColor: isDark ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
       borderColor: isDark ? '#374151' : '#e5e7eb',
-      textStyle: { color: textColor },
-      formatter: function(params: { dataIndex: number }[]) {
+      borderWidth: 1,
+      textStyle: { color: textColor, fontSize: 13 },
+      padding: [12, 16],
+      extraCssText: 'border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);',
+      formatter: function(params: { dataIndex: number; seriesName: string; value: number; color: string }[]) {
         const dataIndex = params[0]?.dataIndex;
         const item = data[dataIndex];
         if (!item) return '';
-        return `${item.category}<br/>
-                Recovery Rate: ${item.recoveryRate.toFixed(1)}%<br/>
-                Recovered: ${item.recovered}/${item.totalIdle} assets`;
+        return `<div style="font-weight: 600; margin-bottom: 8px;">${item.category}</div>
+                <div style="display: flex; align-items: center; margin: 4px 0;">
+                  <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; margin-right: 8px;"></span>
+                  Recovery Rate: <strong>${item.recoveryRate.toFixed(1)}%</strong>
+                </div>
+                <div style="display: flex; align-items: center; margin: 4px 0;">
+                  <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; margin-right: 8px;"></span>
+                  Recovered: <strong>${item.recovered}</strong> assets
+                </div>
+                <div style="display: flex; align-items: center; margin: 4px 0;">
+                  <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; margin-right: 8px;"></span>
+                  Total Idle: <strong>${item.totalIdle}</strong> assets
+                </div>`;
       }
     },
     legend: {
       data: ['Recovery Rate (%)', 'Total Idle', 'Recovered'],
       top: 10,
-      textStyle: { color: textColor }
+      textStyle: { color: textColor, fontSize: 13 },
+      itemGap: 20,
+      itemWidth: 28,
+      itemHeight: 14
     },
     xAxis: {
       type: 'category',
@@ -117,9 +221,11 @@ const UtilizationChart: React.FC = () => {
         fontSize: 12,
         rotate: 30,
         interval: 0,
-        color: textColor
+        color: textColor,
+        fontWeight: '500'
       },
-      axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db' } }
+      axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db', width: 2 } },
+      axisTick: { show: false }
     },
     yAxis: [
       {
@@ -128,19 +234,19 @@ const UtilizationChart: React.FC = () => {
         min: 0,
         max: 100,
         position: 'left',
-        axisLabel: { formatter: '{value}%', color: textColor },
-        axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db' } },
-        nameTextStyle: { color: textColor },
-        splitLine: { lineStyle: { color: isDark ? '#374151' : '#e5e7eb' } }
+        axisLabel: { formatter: '{value}%', color: textColor, fontSize: 12 },
+        axisLine: { show: true, lineStyle: { color: isDark ? '#4b5563' : '#d1d5db', width: 2 } },
+        nameTextStyle: { color: textColor, fontSize: 13, padding: [0, 0, 0, 0] },
+        splitLine: { lineStyle: { color: isDark ? '#374151' : '#e5e7eb', type: 'dashed' } }
       },
       {
         type: 'value',
         name: 'Number of Assets',
         position: 'right',
         minInterval: 1,
-        axisLabel: { color: textColor },
-        axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db' } },
-        nameTextStyle: { color: textColor },
+        axisLabel: { color: textColor, fontSize: 12 },
+        axisLine: { show: true, lineStyle: { color: isDark ? '#4b5563' : '#d1d5db', width: 2 } },
+        nameTextStyle: { color: textColor, fontSize: 13 },
         splitLine: { show: false }
       }
     ],
@@ -150,34 +256,110 @@ const UtilizationChart: React.FC = () => {
         type: 'line',
         yAxisIndex: 0,
         data: data.map(item => item.recoveryRate),
-        itemStyle: { color: '#10b981' },
-        lineStyle: { width: 3 },
+        smooth: true,
+        itemStyle: { 
+          color: '#10b981',
+          borderWidth: 3,
+          borderColor: '#fff'
+        },
+        lineStyle: { width: 4, shadowColor: 'rgba(16, 185, 129, 0.3)', shadowBlur: 10, shadowOffsetY: 3 },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(16, 185, 129, 0.3)' },
+              { offset: 1, color: 'rgba(16, 185, 129, 0.05)' }
+            ]
+          }
+        },
         symbol: 'circle',
-        symbolSize: 8,
+        symbolSize: 10,
+        emphasis: {
+          focus: 'series',
+          itemStyle: {
+            borderWidth: 4,
+            shadowBlur: 10,
+            shadowColor: 'rgba(16, 185, 129, 0.5)'
+          }
+        },
+        animationDelay: (idx: number) => idx * 50,
       },
       {
         name: 'Total Idle',
         type: 'bar',
         yAxisIndex: 1,
         data: data.map(item => item.totalIdle),
-        itemStyle: { color: '#f59e0b', opacity: 0.7 },
+        itemStyle: { 
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: '#fbbf24' },
+              { offset: 1, color: '#f59e0b' }
+            ]
+          },
+          borderRadius: [6, 6, 0, 0],
+          shadowColor: 'rgba(245, 158, 11, 0.3)',
+          shadowBlur: 5,
+          shadowOffsetY: 2
+        },
         barMaxWidth: 30,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(245, 158, 11, 0.5)'
+          }
+        },
+        animationDelay: (idx: number) => idx * 50 + 100,
       },
       {
         name: 'Recovered',
         type: 'bar',
         yAxisIndex: 1,
         data: data.map(item => item.recovered),
-        itemStyle: { color: '#3b82f6' },
+        itemStyle: { 
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: '#60a5fa' },
+              { offset: 1, color: '#3b82f6' }
+            ]
+          },
+          borderRadius: [6, 6, 0, 0],
+          shadowColor: 'rgba(59, 130, 246, 0.3)',
+          shadowBlur: 5,
+          shadowOffsetY: 2
+        },
         barMaxWidth: 30,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(59, 130, 246, 0.5)'
+          }
+        },
+        animationDelay: (idx: number) => idx * 50 + 150,
       }
     ],
     grid: { 
-      left: 60, 
-      right: 60, 
-      bottom: 80, 
-      top: 60 
+      left: 70, 
+      right: 70, 
+      bottom: 120, 
+      top: 70,
+      containLabel: false
     },
+    animationDuration: 1000,
+    animationEasing: 'cubicOut'
   });
 
   const currentData = utilizationData[activeChartType] || [];

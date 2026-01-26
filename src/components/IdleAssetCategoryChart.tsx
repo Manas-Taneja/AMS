@@ -50,42 +50,145 @@ const IdleAssetCategoryChart: React.FC = () => {
     }
   };
 
-  const getChartOption = (categories: Category[]) => ({
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      formatter: '{b}: {c} items',
-      backgroundColor: isDark ? '#1f2937' : '#ffffff',
-      borderColor: isDark ? '#374151' : '#e5e7eb',
-      textStyle: { color: textColor }
-    },
-    xAxis: {
-      type: 'category',
-      data: categories.map(cat => cat.name),
-      axisLabel: { fontSize: 12, interval: 0, rotate: 15, color: textColor },
-      axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db' } }
-    },
-    yAxis: {
-      type: 'value',
-      name: 'Count',
-      minInterval: 1,
-      axisLabel: { color: textColor },
-      axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db' } },
-      nameTextStyle: { color: textColor },
-      splitLine: { lineStyle: { color: isDark ? '#374151' : '#e5e7eb' } }
-    },
-    series: [
-      {
-        name: 'Idle Assets',
-        type: 'bar',
-        data: categories.map(cat => cat.count),
-        itemStyle: { color: '#2563eb' },
-        barMaxWidth: 60,
+  const getChartOption = (categories: Category[]) => {
+    const maxValue = Math.max(...categories.map(cat => cat.count));
+    
+    return {
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Save as Image',
+            name: `idle_assets_${new Date().toISOString().split('T')[0]}`,
+            pixelRatio: 2,
+            backgroundColor: isDark ? '#0f172a' : '#ffffff'
+          },
+          restore: {
+            show: true,
+            title: 'Restore'
+          },
+          dataView: {
+            show: true,
+            title: 'Data View',
+            readOnly: false,
+            lang: ['Data View', 'Close', 'Refresh'],
+            backgroundColor: isDark ? '#1f2937' : '#ffffff',
+            textareaColor: isDark ? '#374151' : '#f9fafb',
+            textareaBorderColor: isDark ? '#4b5563' : '#d1d5db',
+            textColor: textColor,
+            buttonColor: '#3b82f6',
+            buttonTextColor: '#ffffff'
+          },
+          magicType: {
+            show: true,
+            type: ['line', 'bar'],
+            title: {
+              line: 'Line Chart',
+              bar: 'Bar Chart'
+            }
+          }
+        },
+        iconStyle: {
+          borderColor: textColor
+        },
+        emphasis: {
+          iconStyle: {
+            borderColor: '#3b82f6'
+          }
+        },
+        right: 20,
+        top: 10
       },
-    ],
-    grid: { left: 60, right: 0, bottom: 60, top: 40 },
-    color: ['#2563eb'],
-  });
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { 
+          type: 'shadow',
+          shadowStyle: {
+            color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'
+          }
+        },
+        formatter: '{b}: <strong>{c}</strong> items',
+        backgroundColor: isDark ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+        borderColor: isDark ? '#374151' : '#e5e7eb',
+        borderWidth: 1,
+        textStyle: { color: textColor, fontSize: 13 },
+        padding: [10, 15],
+        extraCssText: 'border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);'
+      },
+      xAxis: {
+        type: 'category',
+        data: categories.map(cat => cat.name),
+        axisLabel: { 
+          fontSize: 12, 
+          interval: 0, 
+          rotate: 20, 
+          color: textColor,
+          fontWeight: '500'
+        },
+        axisLine: { lineStyle: { color: isDark ? '#4b5563' : '#d1d5db', width: 2 } },
+        axisTick: { show: false }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Idle Count',
+        minInterval: 1,
+        axisLabel: { color: textColor, fontSize: 12 },
+        axisLine: { show: true, lineStyle: { color: isDark ? '#4b5563' : '#d1d5db', width: 2 } },
+        nameTextStyle: { color: textColor, fontSize: 13, padding: [0, 0, 0, 0] },
+        splitLine: { lineStyle: { color: isDark ? '#374151' : '#e5e7eb', type: 'dashed' } }
+      },
+      series: [
+        {
+          name: 'Idle Assets',
+          type: 'bar',
+          data: categories.map((cat, idx) => ({
+            value: cat.count,
+            itemStyle: {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: idx % 2 === 0 ? '#3b82f6' : '#6366f1' },
+                  { offset: 1, color: idx % 2 === 0 ? '#1d4ed8' : '#4f46e5' }
+                ]
+              },
+              borderRadius: [8, 8, 0, 0],
+              shadowColor: 'rgba(59, 130, 246, 0.4)',
+              shadowBlur: 8,
+              shadowOffsetY: 3,
+              opacity: 0.85 + (cat.count / maxValue) * 0.15
+            }
+          })),
+          barMaxWidth: 50,
+          label: {
+            show: true,
+            position: 'top',
+            formatter: '{c}',
+            color: textColor,
+            fontSize: 12,
+            fontWeight: 'bold',
+            distance: 5
+          },
+          emphasis: {
+            focus: 'series',
+            itemStyle: {
+              opacity: 1,
+              shadowBlur: 15,
+              shadowColor: 'rgba(59, 130, 246, 0.6)'
+            }
+          },
+          animationDelay: (idx: number) => idx * 80,
+        },
+      ],
+      grid: { left: 60, right: 30, bottom: 80, top: 50 },
+      animationDuration: 800,
+      animationEasing: 'elasticOut'
+    };
+  };
 
   const currentData = sampleChartData[activeChartType as keyof typeof sampleChartData];
 
