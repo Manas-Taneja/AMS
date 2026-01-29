@@ -112,7 +112,7 @@ describe('StatsCard', () => {
     );
 
     // Check that it's wrapped in Card/CardContent
-    const cardContent = container.querySelector('.py-2');
+    const cardContent = container.querySelector('.py-4');
     expect(cardContent).toBeInTheDocument();
   });
 });
