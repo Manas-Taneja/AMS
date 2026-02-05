@@ -506,7 +506,7 @@ describe('useRegionalData', () => {
 **Problem:** Charts appear blank or don't render.
 
 **Solutions:**
-- Verify ECharts is installed: `npm list echarts echarts-for-react`
+- Verify ECharts is installed: `bun pm ls echarts echarts-for-react`
 - Check that data structure matches expected format
 - Ensure theme context is available
 - Check browser console for errors

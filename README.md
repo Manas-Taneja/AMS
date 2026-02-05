@@ -41,16 +41,16 @@ The application includes comprehensive unit and integration tests:
 
 ```bash
 # Run all tests
-npm test
+bun run test
 
 # Run tests in watch mode
-npm run test:watch
+bun run test:watch
 
 # Run tests with coverage report
-npm run test:coverage
+bun run test:coverage
 
 # Run tests for CI/CD
-npm run test:ci
+bun run test:ci
 ```
 
 **Test Coverage:**
@@ -63,16 +63,13 @@ See [TEST_SUMMARY.md](./TEST_SUMMARY.md) and [TESTING_GUIDE.md](./TESTING_GUIDE.
 
 ## Getting Started
 
-First, run the development server:
+This project uses [Bun](https://bun.sh) as the package manager and runtime. [Install Bun](https://bun.sh/docs/installation) if needed.
+
+Install dependencies and run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

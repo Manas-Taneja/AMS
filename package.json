@@ -2,6 +2,7 @@
   "name": "ams-by-pssl",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "bun@1.1.0",
   "main": "electron/main.js",
   "description": "Asset Management System by PSSL - Comprehensive asset tracking and management solution",
   "author": {
@@ -17,9 +18,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:ci": "jest --ci --coverage --maxWorkers=2",
-    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron . --no-sandbox\"",
-    "electron:build": "npm run test:ci && next build && electron-builder",
-    "electron:build:win": "npm run test:ci && next build && electron-builder --win"
+    "electron:dev": "concurrently \"bun run dev\" \"wait-on http://localhost:3000 && electron . --no-sandbox\"",
+    "electron:build": "bun run test:ci && next build && electron-builder",
+    "electron:build:win": "bun run test:ci && next build && electron-builder --win"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
